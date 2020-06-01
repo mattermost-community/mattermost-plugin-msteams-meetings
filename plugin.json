@@ -1,0 +1,44 @@
+{
+    "id": "com.mattermost.mstelephony",
+    "name": "MS Telephony",
+    "description": "MS Telephony audio and video conferencing plugin for Mattermost 5.2+.",
+    "homepage_url": "https://github.com/mattermost/mattermost-plugin-mstelephony",
+    "support_url": "https://github.com/mattermost/mattermost-plugin-mstelephony/issues",
+    "icon_path": "assets/profile.svg",
+    "version": "1.3.1",
+    "min_server_version": "5.12.0",
+    "server": {
+        "executables": {
+            "linux-amd64": "server/dist/plugin-linux-amd64",
+            "darwin-amd64": "server/dist/plugin-darwin-amd64",
+            "windows-amd64": "server/dist/plugin-windows-amd64.exe"
+        }
+    },
+    "webapp": {
+        "bundle_path": "webapp/dist/main.js"
+    },
+    "settings_schema": {
+        "settings": [
+            {
+                "key": "OAuth2Authority",
+                "display_name": "Azure Directory (tenant) ID",
+                "type": "text",
+                "help_text": "Directory (tenant) ID"
+            },
+            {
+                "key": "OAuth2ClientId",
+                "display_name": "Azure Application (client) ID",
+                "type": "text",
+                "help_text": "Microsoft Office Client ID.",
+                "default": ""
+            },
+            {
+                "key": "OAuth2ClientSecret",
+                "display_name": "Azure Application (client) Secret",
+                "type": "text",
+                "help_text": "Microsoft Office Client Secret.",
+                "default": ""
+            }
+        ]
+    }
+}
