@@ -9,7 +9,7 @@ import {makeStyleFromTheme} from 'mattermost-redux/utils/theme_utils';
 import {Svgs} from '../../constants';
 import {formatDate} from '../../utils/date_utils';
 
-export default class PostTypeMSTelephony extends React.PureComponent {
+export default class PostTypeMSTMeetings extends React.PureComponent {
     static propTypes = {
 
         /*
@@ -125,7 +125,7 @@ export default class PostTypeMSTelephony extends React.PureComponent {
                 </div>
             );
         } else if (props.meeting_status === 'RECENTLY_CREATED') {
-            preText = `${this.props.creatorName} already created a zoom call recently`;
+            preText = `${this.props.creatorName} already created a MS Teams Meeting recently`;
 
             subtitle = 'What do you want to do?';
             content = (
@@ -159,7 +159,7 @@ export default class PostTypeMSTelephony extends React.PureComponent {
             );
         }
 
-        let title = 'MSTelephony Meeting';
+        let title = 'MS Teams Meeting';
         if (props.meeting_topic) {
             title = props.meeting_topic;
         }

@@ -108,7 +108,6 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 	var appErr *model.AppError
 	storedState, appErr = p.API.KVGet(key)
 	if appErr != nil {
-		fmt.Println(appErr)
 		http.Error(w, "missing stored state", http.StatusBadRequest)
 		return
 	}
@@ -130,12 +129,14 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 
 	tok, err := conf.Exchange(ctx, code)
 	if err != nil {
+		p.API.LogDebug(errors.Wrap(err, "error getting token").Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	remoteUser, err := p.getUserWithToken(tok)
 	if err != nil {
+		p.API.LogDebug(errors.Wrap(err, "error getting user").Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -158,6 +159,7 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 
 	_, _, err = p.postMeeting(user, channelID, "")
 	if err != nil {
+		p.API.LogDebug(errors.Wrap(err, "error posting meeting").Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -213,7 +215,7 @@ func (p *Plugin) postMeeting(creator *model.User, channelID string, topic string
 		UserId:    creator.Id,
 		ChannelId: channelID,
 		Message:   fmt.Sprintf("Meeting started at [this link](%s).", *meeting.JoinURL),
-		Type:      "custom_mstelephony",
+		Type:      "custom_mstmeetings",
 		Props: map[string]interface{}{
 			"meeting_link":             *meeting.JoinURL,
 			"meeting_status":           postTypeStarted,
@@ -301,9 +303,9 @@ func (p *Plugin) postConfirm(meetingURL string, channelID string, topic string, 
 		UserId:    p.botUserID,
 		ChannelId: channelID,
 		Message:   "There is another recent meeting created on this channel.",
-		Type:      "custom_mstelephony",
+		Type:      "custom_mstmeetings",
 		Props: map[string]interface{}{
-			"type":                     "custom_mstelephony",
+			"type":                     "custom_mstmeetings",
 			"meeting_link":             meetingURL,
 			"meeting_status":           postTypeConfirm,
 			"meeting_personal":         true,

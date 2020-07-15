@@ -1,7 +1,7 @@
 {
-  "name": "zoom",
+  "name": "mstmeetings",
   "version": "1.0.7",
-  "description": "Zoom audio and video conferencing plugin for Mattermost",
+  "description": "MS Teams Meetings audio and video conferencing plugin for Mattermost",
   "author": "Mattermost",
   "license": "Apache-2.0",
   "main": "src/index.js",

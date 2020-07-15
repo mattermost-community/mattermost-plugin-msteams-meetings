@@ -1,2 +1,2 @@
-export const id = 'com.mattermost.mstelephony';
-export const version = '1.3.1';
+export const id = 'com.mattermost.msteamsmeetings';
+export const version = '1.0.0';

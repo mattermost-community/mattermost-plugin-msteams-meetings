@@ -22,16 +22,17 @@ import (
 const (
 	postMeetingKey = "post_meeting_"
 
-	botUserName    = "mstelephony"
-	botDisplayName = "MSTelephony"
-	botDescription = "Created by the MSTelephony plugin."
+	botUserName    = "mstmeetings"
+	botDisplayName = "MS Teams Meetings"
+	botDescription = "Created by the MS Teams Meetings plugin."
 
 	tokenKey           = "token_"
 	tokenKeyByRemoteID = "tbyrid_"
 
-	stateLength  = 3
-	oAuthMessage = "[Click here to link your Microsoft account.](%s/plugins/com.mattermost.mstelephony/oauth2/connect?channelID=%s)"
+	stateLength = 3
 )
+
+var oAuthMessage string = "[Click here to link your Microsoft account.](%s/plugins/" + manifest.Id + "/oauth2/connect?channelID=%s)"
 
 type Plugin struct {
 	plugin.MattermostPlugin
@@ -110,7 +111,7 @@ func (p *Plugin) getOAuthConfig() (*oauth2.Config, error) {
 		return nil, err
 	}
 
-	redirectUrl := fmt.Sprintf("%s/plugins/com.mattermost.mstelephony/oauth2/complete", siteUrl)
+	redirectUrl := fmt.Sprintf("%s/plugins/"+manifest.Id+"/oauth2/complete", siteUrl)
 
 	return &oauth2.Config{
 		ClientID:     clientID,

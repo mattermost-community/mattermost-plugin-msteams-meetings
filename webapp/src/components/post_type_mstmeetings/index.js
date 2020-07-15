@@ -9,7 +9,7 @@ import {getCurrentChannelId} from 'mattermost-redux/selectors/entities/common';
 
 import {startMeeting} from '../../actions';
 
-import PostTypeMSTelephony from './post_type_mstelephony.jsx';
+import PostTypeMSTMeetings from './post_type_mstmeetings.jsx';
 
 function mapStateToProps(state, ownProps) {
     return {
@@ -29,4 +29,4 @@ function mapDispatchToProps(dispatch) {
     };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(PostTypeMSTelephony);
+export default connect(mapStateToProps, mapDispatchToProps)(PostTypeMSTMeetings);

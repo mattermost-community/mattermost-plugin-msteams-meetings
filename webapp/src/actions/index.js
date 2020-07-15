@@ -20,12 +20,12 @@ export function startMeeting(channelId, force = false) {
 
                 // Error is from MS API
                 if (e && e.message) {
-                    m = '\nMSTelephony error: ' + e.message;
+                    m = '\nMSTMeeting error: ' + e.message;
                 }
             }
 
             const post = {
-                id: 'msTelephonyPlugin' + Date.now(),
+                id: 'mstMeetingsPlugin' + Date.now(),
                 create_at: Date.now(),
                 update_at: 0,
                 edit_at: 0,

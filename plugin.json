@@ -1,11 +1,11 @@
 {
-    "id": "com.mattermost.mstelephony",
+    "id": "com.mattermost.msteamsmeetings",
     "name": "MS Telephony",
     "description": "MS Telephony audio and video conferencing plugin for Mattermost 5.2+.",
-    "homepage_url": "https://github.com/mattermost/mattermost-plugin-mstelephony",
-    "support_url": "https://github.com/mattermost/mattermost-plugin-mstelephony/issues",
+    "homepage_url": "https://github.com/mattermost/mattermost-plugin-msteams-meetings",
+    "support_url": "https://github.com/mattermost/mattermost-plugin-msteams-meetings/issues",
     "icon_path": "assets/profile.svg",
-    "version": "1.3.1",
+    "version": "1.0.0",
     "min_server_version": "5.12.0",
     "server": {
         "executables": {

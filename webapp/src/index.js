@@ -8,21 +8,21 @@ import {getConfig} from 'mattermost-redux/selectors/entities/general';
 import {id as pluginId} from './manifest';
 
 import Icon from './components/icon.jsx';
-import PostTypeMSTelephony from './components/post_type_mstelephony';
+import PostTypeMSTMeetings from './components/post_type_mstmeetings';
 import {startMeeting} from './actions';
 import Client from './client';
 
 class Plugin {
     // eslint-disable-next-line no-unused-vars
     initialize(registry, store) {
-        registry.registerChannelHeaderButtonAction(
+        registry.registerChannelHeaderCallButtonAction(
             <Icon/>,
             (channel) => {
                 startMeeting(channel.id)(store.dispatch, store.getState);
             },
             'Start MS Telephony Meeting'
         );
-        registry.registerPostTypeComponent('custom_mstelephony', PostTypeMSTelephony);
+        registry.registerPostTypeComponent('custom_mstmeetings', PostTypeMSTMeetings);
         Client.setServerRoute(getServerRoute(store.getState()));
     }
 }

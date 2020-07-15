@@ -1,9 +1,9 @@
 # Mattermost MS Telephony Plugin 
 
-[![Build Status](https://img.shields.io/circleci/project/github/mattermost/mattermost-plugin-mstelephony/master)](https://circleci.com/gh/mattermost/mattermost-plugin-mstelephony)
-[![Code Coverage](https://img.shields.io/codecov/c/github/mattermost/mattermost-plugin-mstelephony/master)](https://codecov.io/gh/mattermost/mattermost-plugin-mstelephony)
-[![Release](https://img.shields.io/github/v/release/mattermost/mattermost-plugin-mstelephony)](https://github.com/mattermost/mattermost-plugin-mstelephony/releases/latest)
-[![HW](https://img.shields.io/github/issues/mattermost/mattermost-plugin-mstelephony/Up%20For%20Grabs?color=dark%20green&label=Help%20Wanted)](https://github.com/mattermost/mattermost-plugin-mstelephony/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3A%22Up+For+Grabs%22+label%3A%22Help+Wanted%22)
+[![Build Status](https://img.shields.io/circleci/project/github/mattermost/mattermost-plugin-msteams-meetings/master)](https://circleci.com/gh/mattermost/mattermost-plugin-msteams-meetings)
+[![Code Coverage](https://img.shields.io/codecov/c/github/mattermost/mattermost-plugin-msteams-meetings/master)](https://codecov.io/gh/mattermost/mattermost-plugin-msteams-meetings)
+[![Release](https://img.shields.io/github/v/release/mattermost/mattermost-plugin-msteams-meetings)](https://github.com/mattermost/mattermost-plugin-msteams-meetings/releases/latest)
+[![HW](https://img.shields.io/github/issues/mattermost/mattermost-plugin-msteams-meetings/Up%20For%20Grabs?color=dark%20green&label=Help%20Wanted)](https://github.com/mattermost/mattermost-plugin-msteams-meetings/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3A%22Up+For+Grabs%22+label%3A%22Help+Wanted%22)
 
 
 **Maintainer:** [@larkox](https://github.com/larkox)
@@ -36,7 +36,7 @@ Then fill out the form with the following values:
 
 - Name: `Mattermost MS Calendar Plugin`
 - Supported account types: Default value (Single tenant)
-- Redirect URI: `https://(MM_SITE_URL)/plugins/com.mattermost.mstelephony/oauth2/complete`
+- Redirect URI: `https://(MM_SITE_URL)/plugins/com.mattermost.msteamsmeetings/oauth2/complete`
 
 Replace `(MM_SITE_URL)` with your Mattermost server's Site URL. Then submit the form by clicking `Register`.
 

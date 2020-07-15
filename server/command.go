@@ -9,15 +9,15 @@ import (
 )
 
 const (
-	COMMAND_HELP = `* |/mstelephony start| - Start a MS Telephony meeting.
-	* |/mstelephony disconnect| - Disconnect from Mattermost`
+	COMMAND_HELP = `* |/mstmeetings start| - Start a MS Telephony meeting.
+	* |/mstmeetings disconnect| - Disconnect from Mattermost`
 )
 
 func getCommand() *model.Command {
 	return &model.Command{
-		Trigger:          "mstelephony",
-		DisplayName:      "MS Telephony",
-		Description:      "Integration with MS Telephony.",
+		Trigger:          "mstmeetings",
+		DisplayName:      "MS Teams Meetings",
+		Description:      "Integration with MS Teams Meetings.",
 		AutoComplete:     true,
 		AutoCompleteDesc: "Available commands: start, disconnect",
 		AutoCompleteHint: "[command]",
@@ -38,14 +38,14 @@ func (p *Plugin) executeCommand(c *plugin.Context, args *model.CommandArgs) (str
 	command := split[0]
 	action := ""
 
-	if command != "/mstelephony" {
-		return fmt.Sprintf("Command '%s' is not /mstelephony. Please try again.", command), nil
+	if command != "/mstmeetings" {
+		return fmt.Sprintf("Command '%s' is not /mstmeetings. Please try again.", command), nil
 	}
 
 	if len(split) > 1 {
 		action = split[1]
 	} else {
-		return "Please specify an action for /mstelephony command.", nil
+		return "Please specify an action for /mstmeetings command.", nil
 	}
 
 	userID := args.UserId
