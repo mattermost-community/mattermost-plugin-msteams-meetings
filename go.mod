@@ -1,4 +1,4 @@
-module github.com/mattermost/mattermost-plugin-mstelephony
+module github.com/mattermost/mattermost-plugin-msteams-meetings
 
 go 1.12
 

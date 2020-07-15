@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/mattermost/mattermost-plugin-mstelephony/server/remote"
+	"github.com/mattermost/mattermost-plugin-msteams-meetings/server/remote"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/pkg/errors"
