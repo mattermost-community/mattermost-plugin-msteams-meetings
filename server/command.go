@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	COMMAND_HELP = `* |/mstmeetings start| - Start a MS Telephony meeting.
+	commandHelp = `* |/mstmeetings start| - Start a MS Teams meeting.
 	* |/mstmeetings disconnect| - Disconnect from Mattermost`
 )
 
@@ -86,12 +86,13 @@ func (p *Plugin) executeCommand(c *plugin.Context, args *model.CommandArgs) (str
 		if err != nil {
 			return "Failed to disconnect the user, err=" + err.Error(), nil
 		}
-		return "User disconnected from MS Telephony.", nil
+		return "User disconnected from MS Teams Meetings.", nil
 	}
 
 	return fmt.Sprintf("Unknown action %v", action), nil
 }
 
+// ExecuteCommand is called when any registered by this plugin command is executed
 func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	msg, err := p.executeCommand(c, args)
 	if err != nil {

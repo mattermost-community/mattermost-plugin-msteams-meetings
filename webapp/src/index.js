@@ -20,7 +20,7 @@ class Plugin {
             (channel) => {
                 startMeeting(channel.id)(store.dispatch, store.getState);
             },
-            'Start MS Telephony Meeting'
+            'Start MS Teams Meeting'
         );
         registry.registerPostTypeComponent('custom_mstmeetings', PostTypeMSTMeetings);
         Client.setServerRoute(getServerRoute(store.getState()));

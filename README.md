@@ -1,4 +1,4 @@
-# Mattermost MS Telephony Plugin 
+# Mattermost MS Teams Meetings Plugin 
 
 [![Build Status](https://img.shields.io/circleci/project/github/mattermost/mattermost-plugin-msteams-meetings/master)](https://circleci.com/gh/mattermost/mattermost-plugin-msteams-meetings)
 [![Code Coverage](https://img.shields.io/codecov/c/github/mattermost/mattermost-plugin-msteams-meetings/master)](https://codecov.io/gh/mattermost/mattermost-plugin-msteams-meetings)
@@ -8,12 +8,12 @@
 
 **Maintainer:** [@larkox](https://github.com/larkox)
 
-Start and join voice calls, video calls and use screen sharing with your team members via MS Telephony.
+Start and join voice calls, video calls and use screen sharing with your team members via MS Teams Meetings.
 
 Usage
 -----
 
-Once enabled, clicking the video icon in a Mattermost channel invites team members to join a MS Telephony call, hosted using the credentials of the user who initiated the call.
+Once enabled, clicking the video icon in a Mattermost channel invites team members to join a MS Teams meetng, hosted using the credentials of the user who initiated the call.
 
 ![Screenshot](https://user-images.githubusercontent.com/177788/42196048-af54d2b8-7e30-11e8-80a0-5e160ae06f03.png)
 

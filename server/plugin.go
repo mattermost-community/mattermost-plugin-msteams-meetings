@@ -34,6 +34,7 @@ const (
 
 var oAuthMessage string = "[Click here to link your Microsoft account.](%s/plugins/" + manifest.Id + "/oauth2/connect?channelID=%s)"
 
+// Plugin defines the plugin struct
 type Plugin struct {
 	plugin.MattermostPlugin
 
@@ -55,7 +56,7 @@ func (p *Plugin) OnActivate() error {
 		return err
 	}
 
-	if _, err := p.getSiteUrl(); err != nil {
+	if _, err := p.getSiteURL(); err != nil {
 		return err
 	}
 
@@ -90,13 +91,13 @@ func (p *Plugin) OnActivate() error {
 	return nil
 }
 
-func (p *Plugin) getSiteUrl() (string, error) {
-	siteUrlRef := p.API.GetConfig().ServiceSettings.SiteURL
-	if siteUrlRef == nil || *siteUrlRef == "" {
+func (p *Plugin) getSiteURL() (string, error) {
+	siteURLRef := p.API.GetConfig().ServiceSettings.SiteURL
+	if siteURLRef == nil || *siteURLRef == "" {
 		return "", errors.New("error fetching siteUrl")
 	}
 
-	return *siteUrlRef, nil
+	return *siteURLRef, nil
 }
 
 func (p *Plugin) getOAuthConfig() (*oauth2.Config, error) {
@@ -106,17 +107,17 @@ func (p *Plugin) getOAuthConfig() (*oauth2.Config, error) {
 	clientSecret := config.OAuth2ClientSecret
 	clientAuthority := config.OAuth2Authority
 
-	siteUrl, err := p.getSiteUrl()
+	siteURL, err := p.getSiteURL()
 	if err != nil {
 		return nil, err
 	}
 
-	redirectUrl := fmt.Sprintf("%s/plugins/"+manifest.Id+"/oauth2/complete", siteUrl)
+	redirectURL := fmt.Sprintf("%s/plugins/"+manifest.Id+"/oauth2/complete", siteURL)
 
 	return &oauth2.Config{
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
-		RedirectURL:  redirectUrl,
+		RedirectURL:  redirectURL,
 		Scopes: []string{
 			"offline_access",
 			"OnlineMeetings.ReadWrite",
@@ -125,6 +126,7 @@ func (p *Plugin) getOAuthConfig() (*oauth2.Config, error) {
 	}, nil
 }
 
+// UserInfo defines the information we store from each user
 type UserInfo struct {
 	Email string
 
@@ -138,12 +140,12 @@ type UserInfo struct {
 	RemoteID string
 }
 
-type AuthError struct {
+type authError struct {
 	Message string `json:"message"`
 	Err     error  `json:"err"`
 }
 
-func (ae *AuthError) Error() string {
+func (ae *authError) Error() string {
 	errorString, _ := json.Marshal(ae)
 	return string(errorString)
 }
@@ -170,18 +172,18 @@ func (p *Plugin) getUserInfo(userID string) (*UserInfo, error) {
 
 	infoBytes, appErr := p.API.KVGet(tokenKey + userID)
 	if appErr != nil || infoBytes == nil {
-		return nil, errors.New("Must connect user account to Microsoft first.")
+		return nil, errors.New("must connect user account to Microsoft first")
 	}
 
 	err := json.Unmarshal(infoBytes, &userInfo)
 	if err != nil {
-		return nil, errors.New("Unable to parse token.")
+		return nil, errors.New("unable to parse token")
 	}
 
 	return &userInfo, nil
 }
 
-func (p *Plugin) authenticateAndFetchUser(userID, userEmail, channelID string) (*msgraph.User, *AuthError) {
+func (p *Plugin) authenticateAndFetchUser(userID, userEmail, channelID string) (*msgraph.User, *authError) {
 	var user *msgraph.User
 	var err error
 
@@ -191,11 +193,11 @@ func (p *Plugin) authenticateAndFetchUser(userID, userEmail, channelID string) (
 		*p.API.GetConfig().ServiceSettings.SiteURL, channelID)
 
 	if apiErr != nil || userInfo == nil {
-		return nil, &AuthError{Message: oauthMsg, Err: apiErr}
+		return nil, &authError{Message: oauthMsg, Err: apiErr}
 	}
 	user, err = p.getUserWithToken(userInfo.OAuthToken)
 	if err != nil || user == nil {
-		return nil, &AuthError{Message: oauthMsg, Err: apiErr}
+		return nil, &authError{Message: oauthMsg, Err: apiErr}
 	}
 
 	return user, nil

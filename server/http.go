@@ -173,7 +173,7 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 		</script>
 	</head>
 	<body>
-		<p>Completed connecting to MS Telephony. Please close this window.</p>
+		<p>Completed connecting to Microsoft. Please close this window.</p>
 	</body>
 </html>
 `

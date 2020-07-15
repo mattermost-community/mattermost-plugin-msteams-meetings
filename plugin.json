@@ -1,7 +1,7 @@
 {
     "id": "com.mattermost.msteamsmeetings",
-    "name": "MS Telephony",
-    "description": "MS Telephony audio and video conferencing plugin for Mattermost 5.2+.",
+    "name": "MS Teams Meetings",
+    "description": "MS Teams Meetings audio and video conferencing plugin for Mattermost 5.2+.",
     "homepage_url": "https://github.com/mattermost/mattermost-plugin-msteams-meetings",
     "support_url": "https://github.com/mattermost/mattermost-plugin-msteams-meetings/issues",
     "icon_path": "assets/profile.svg",
