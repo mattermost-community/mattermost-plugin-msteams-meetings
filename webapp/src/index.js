@@ -15,7 +15,7 @@ import Client from './client';
 class Plugin {
     // eslint-disable-next-line no-unused-vars
     initialize(registry, store) {
-        registry.registerChannelHeaderCallButtonAction(
+        registry.registerChannelHeaderButtonAction(
             <Icon/>,
             (channel) => {
                 startMeeting(channel.id)(store.dispatch, store.getState);
