@@ -13,7 +13,7 @@ Start and join voice calls, video calls and use screen sharing with your team me
 Usage
 -----
 
-Once enabled, clicking the video icon in a Mattermost channel invites team members to join a MS Teams meetng, hosted using the credentials of the user who initiated the call.
+Once enabled, clicking the video icon in a Mattermost channel invites team members to join an MS Teams meeting, hosted using the credentials of the user who initiated the call.
 
 ![Screenshot](https://user-images.githubusercontent.com/177788/42196048-af54d2b8-7e30-11e8-80a0-5e160ae06f03.png)
 
@@ -34,7 +34,7 @@ Click `New registration` at the top of the page.
 
 Then fill out the form with the following values:
 
-- Name: `Mattermost MS Calendar Plugin`
+- Name: `Mattermost MS Teams Meetings Plugin`
 - Supported account types: Default value (Single tenant)
 - Redirect URI: `https://(MM_SITE_URL)/plugins/com.mattermost.msteamsmeetings/oauth2/complete`
 
@@ -75,7 +75,7 @@ Copy the `Client ID` and `Tenant ID` from the Azure portal
 
 <img width="500" src="https://user-images.githubusercontent.com/6913320/76779336-9109c480-6781-11ea-8cde-4b79e5b2f3cd.png"/>
 
-**`System Console` > `PLUGINS` > `Microsoft Calendar`**
+**`System Console` > `PLUGINS` > `Microsoft Teams Meetings`**
 
 - `tenantID` - copy from Azure App
 - `clientID` - copy from Azure App

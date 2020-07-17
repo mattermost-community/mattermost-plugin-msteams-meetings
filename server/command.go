@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	commandHelp = `* |/mstmeetings start| - Start a MS Teams meeting.
+	commandHelp = `* |/mstmeetings start| - Start an MS Teams meeting.
 	* |/mstmeetings disconnect| - Disconnect from Mattermost`
 )
 
