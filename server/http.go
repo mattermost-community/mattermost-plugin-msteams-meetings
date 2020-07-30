@@ -272,7 +272,7 @@ func (p *Plugin) handleStartMeeting(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				p.API.LogWarn("failed to write response", "error", err.Error())
 			}
-			p.postConfirm(recentMeetingURL, req.ChannelID, req.Topic, userID, creatorName)
+			p.postConfirmCreateOrJoin(recentMeetingURL, req.ChannelID, req.Topic, userID, creatorName)
 			return
 		}
 	}
@@ -298,7 +298,7 @@ func (p *Plugin) handleStartMeeting(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (p *Plugin) postConfirm(meetingURL string, channelID string, topic string, userID string, creatorName string) *model.Post {
+func (p *Plugin) postConfirmCreateOrJoin(meetingURL string, channelID string, topic string, userID string, creatorName string) *model.Post {
 	post := &model.Post{
 		UserId:    p.botUserID,
 		ChannelId: channelID,

@@ -79,7 +79,7 @@ func (p *Plugin) handleStart(args []string, extra *model.CommandArgs) (string, e
 	}
 
 	if recentMeeting {
-		p.postConfirm(recentMeetingURL, extra.ChannelId, "", userID, creatorName)
+		p.postConfirmCreateOrJoin(recentMeetingURL, extra.ChannelId, "", userID, creatorName)
 		return "", nil
 	}
 
