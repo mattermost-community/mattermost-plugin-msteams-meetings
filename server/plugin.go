@@ -245,7 +245,7 @@ func (p *Plugin) getUserWithToken(token *oauth2.Token) (*msgraph.User, error) {
 func (p *Plugin) dm(userID string, message string) error {
 	channel, err := p.API.GetDirectChannel(userID, p.botUserID)
 	if err != nil {
-		p.API.LogInfo("Couldn't get bot's DM channel", "user_id", userID)
+		p.API.LogInfo("couldn't get bot's DM channel", "user_id", userID, "bot_id", p.botUserID, "error", err.Error())
 		return err
 	}
 

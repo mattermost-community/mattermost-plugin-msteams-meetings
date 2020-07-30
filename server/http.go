@@ -7,7 +7,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -98,7 +97,7 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 	stateComponents := strings.Split(state, "_")
 
 	if len(stateComponents) != stateLength {
-		log.Printf("stateComponents: %v, state: %v", stateComponents, state)
+		p.API.LogDebug("complete oauth, state mismatch", "stateComponents", fmt.Sprintf("%v", stateComponents), "state", state)
 		http.Error(w, "invalid state", http.StatusBadRequest)
 		return
 	}
@@ -129,14 +128,14 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 
 	tok, err := conf.Exchange(ctx, code)
 	if err != nil {
-		p.API.LogDebug(errors.Wrap(err, "error getting token").Error())
+		p.API.LogDebug("complete oauth, error getting token", "error", err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	remoteUser, err := p.getUserWithToken(tok)
 	if err != nil {
-		p.API.LogDebug(errors.Wrap(err, "error getting user").Error())
+		p.API.LogDebug("complete oauth, error getting user", "error", err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -150,12 +149,17 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 
 	err = p.storeUserInfo(userInfo)
 	if err != nil {
-		p.API.LogDebug(errors.Wrap(err, "error storing the user info").Error())
+		p.API.LogDebug("complete oauth, error storing the user info", "error", err.Error())
 		http.Error(w, "Unable to connect user to Microsoft", http.StatusInternalServerError)
 		return
 	}
 
-	user, _ := p.API.GetUser(userID)
+	user, err := p.API.GetUser(userID)
+	if err != nil {
+		p.API.LogError("complete oauth, error getting MM user", "error", err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	_, _, err = p.postMeeting(user, channelID, "")
 	if err != nil {
