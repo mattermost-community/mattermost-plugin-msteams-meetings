@@ -63,13 +63,6 @@ export default class PostTypeMSTMeetings extends React.PureComponent {
         isRHS: false,
     };
 
-    constructor(props) {
-        super(props);
-
-        this.state = {
-        };
-    }
-
     render() {
         const style = getStyle(this.props.theme);
         const post = this.props.post;
