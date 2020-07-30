@@ -476,7 +476,7 @@
       2,
       "never"
     ],
-    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+    "react/jsx-filename-extension": 2,
     "react/jsx-first-prop-new-line": [
       2,
       "multiline"
@@ -632,5 +632,38 @@
         "onlyEquality": false
       }
     ]
-  }
+  },
+  "overrides": [
+    {
+      "files": ["**/*.tsx", "**/*.ts"],
+      "parser": "@typescript-eslint/parser",
+      "plugins": ["@typescript-eslint"],
+      "extends": "plugin:@typescript-eslint/recommended",
+      "rules": {
+        "@typescript-eslint/no-var-requires": 0,
+        "@typescript-eslint/prefer-interface": 0,
+        "@typescript-eslint/indent": [
+          2,
+          4,
+          {
+            "SwitchCase": 0
+          }
+        ],
+        "@typescript-eslint/no-use-before-define": [
+          2,
+          {
+            "classes": false,
+            "functions": false,
+            "variables": false
+          }
+        ],
+        "react/jsx-filename-extension": [
+          1,
+          {
+            "extensions": [".jsx", ".tsx"]
+          }
+        ]
+      }
+    }
+  ]
 }

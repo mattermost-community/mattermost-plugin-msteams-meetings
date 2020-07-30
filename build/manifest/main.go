@@ -110,7 +110,7 @@ func applyManifest(manifest *model.Manifest) error {
 
 	if manifest.HasWebapp() {
 		if err := ioutil.WriteFile(
-			"webapp/src/manifest.js",
+			"webapp/src/manifest.ts",
 			[]byte(fmt.Sprintf(pluginIdJsFileTemplate, manifest.Id, manifest.Version)),
 			0644,
 		); err != nil {

@@ -2,7 +2,7 @@ var path = require('path');
 
 module.exports = {
     entry: [
-        './src/index.js',
+        './src/index.tsx',
     ],
     resolve: {
         modules: [
@@ -10,12 +10,12 @@ module.exports = {
             'node_modules',
             path.resolve(__dirname),
         ],
-        extensions: ['*', '.js', '.jsx'],
+        extensions: ['*', '.js', '.jsx', '.ts', '.tsx'],
     },
     module: {
         rules: [
             {
-                test: /\.(js|jsx)$/,
+                test: /\.(js|jsx|ts|tsx)$/,
                 exclude: /node_modules/,
                 use: {
                     loader: 'babel-loader',
@@ -23,6 +23,8 @@ module.exports = {
                         plugins: [
                             '@babel/plugin-proposal-class-properties',
                             '@babel/plugin-syntax-dynamic-import',
+                            '@babel/proposal-object-rest-spread',
+                            'babel-plugin-typescript-to-proptypes',
                         ],
                         presets: [
                             ['@babel/preset-env', {
@@ -40,6 +42,10 @@ module.exports = {
                             }],
                             ['@babel/preset-react', {
                                 useBuiltIns: true,
+                            }],
+                            ['@babel/typescript', {
+                                allExtensions: true,
+                                isTSX: true,
                             }],
                         ],
                     },

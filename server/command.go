@@ -6,17 +6,19 @@ import (
 
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/pkg/errors"
 )
 
 const (
-	COMMAND_HELP = `* |/zoom start| - Start a zoom meeting.`
+	commandHelp = `* |/mstmeetings start| - Start an MS Teams meeting.
+	* |/mstmeetings disconnect| - Disconnect from Mattermost`
 )
 
 func getCommand() *model.Command {
 	return &model.Command{
-		Trigger:          "zoom",
-		DisplayName:      "Zoom",
-		Description:      "Integration with Zoom.",
+		Trigger:          "mstmeetings",
+		DisplayName:      "MS Teams Meetings",
+		Description:      "Integration with MS Teams Meetings.",
 		AutoComplete:     true,
 		AutoCompleteDesc: "Available commands: start, disconnect",
 		AutoCompleteHint: "[command]",
@@ -37,62 +39,74 @@ func (p *Plugin) executeCommand(c *plugin.Context, args *model.CommandArgs) (str
 	command := split[0]
 	action := ""
 
-	if command != "/zoom" {
-		return fmt.Sprintf("Command '%s' is not /zoom. Please try again.", command), nil
+	if command != "/mstmeetings" {
+		return fmt.Sprintf("Command '%s' is not /mstmeetings. Please try again.", command), nil
 	}
 
 	if len(split) > 1 {
 		action = split[1]
 	} else {
-		return "Please specify an action for /zoom command.", nil
+		return "Please specify an action for /mstmeetings command.", nil
 	}
 
-	userID := args.UserId
+	switch action {
+	case "start":
+		return p.handleStart(split[1:], args)
+	case "disconnect":
+		return p.handleDisconnect(split[1:], args)
+	}
+
+	return fmt.Sprintf("Unknown action `%v`.", action), nil
+}
+
+func (p *Plugin) handleStart(args []string, extra *model.CommandArgs) (string, error) {
+	if len(args) > 0 {
+		return "Too many parameters.", nil
+	}
+	userID := extra.UserId
 	user, appErr := p.API.GetUser(userID)
 	if appErr != nil {
-		return fmt.Sprintf("We could not retrieve user (userId: %v)", args.UserId), nil
+		return "Cannot get user.", errors.Wrap(appErr, "cannot get user")
 	}
 
-	if action == "start" {
-		if _, appErr = p.API.GetChannelMember(args.ChannelId, userID); appErr != nil {
-			return fmt.Sprintf("We could not get channel members (channelId: %v)", args.ChannelId), nil
-		}
+	if _, appErr = p.API.GetChannelMember(extra.ChannelId, userID); appErr != nil {
+		return "We could not get channel members.", errors.Wrap(appErr, "cannot get channel member")
+	}
 
-		recentMeeting, recentMeetingID, creatorName, appErr := p.checkPreviousMessages(args.ChannelId)
-		if appErr != nil {
-			return fmt.Sprintf("Error checking previous messages"), nil
-		}
+	recentMeeting, recentMeetingURL, creatorName, appErr := p.checkPreviousMessages(extra.ChannelId)
+	if appErr != nil {
+		return "Error checking previous messages.", errors.Wrap(appErr, "cannot check previous messages")
+	}
 
-		if recentMeeting {
-			p.postConfirm(recentMeetingID, args.ChannelId, "", userID, creatorName)
-			return "", nil
-		}
-
-		zoomUser, authErr := p.authenticateAndFetchZoomUser(userID, user.Email, args.ChannelId)
-		if authErr != nil {
-			return authErr.Message, authErr.Err
-		}
-
-		meetingID := zoomUser.Pmi
-
-		_, appErr = p.postMeeting(user, meetingID, args.ChannelId, "")
-		if appErr != nil {
-			return "Failed to post message. Please try again.", nil
-		}
+	if recentMeeting {
+		p.postConfirmCreateOrJoin(recentMeetingURL, extra.ChannelId, "", userID, creatorName)
 		return "", nil
 	}
 
-	if action == "disconnect" {
-		err := p.disconnect(userID)
-		if err != nil {
-			return "Failed to disconnect the user, err=" + err.Error(), nil
-		}
-		return "User disconnected from Zoom.", nil
+	_, authErr := p.authenticateAndFetchUser(userID, user.Email, extra.ChannelId)
+	if authErr != nil {
+		return authErr.Message, authErr.Err
 	}
 
-	return fmt.Sprintf("Unknown action %v", action), nil
+	_, _, err := p.postMeeting(user, extra.ChannelId, "")
+	if err != nil {
+		return "Failed to post message. Please try again.", errors.Wrap(appErr, "cannot post message")
+	}
+	return "", nil
 }
 
+func (p *Plugin) handleDisconnect(args []string, extra *model.CommandArgs) (string, error) {
+	if len(args) > 0 {
+		return "Too many parameters.", nil
+	}
+	err := p.disconnect(extra.UserId)
+	if err != nil {
+		return "Failed to disconnect the user, err=" + err.Error(), nil
+	}
+	return "User disconnected from MS Teams Meetings.", nil
+}
+
+// ExecuteCommand is called when any registered by this plugin command is executed
 func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	msg, err := p.executeCommand(c, args)
 	if err != nil {
