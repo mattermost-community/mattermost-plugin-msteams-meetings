@@ -2,22 +2,32 @@
 // See License for license information.
 
 import React from 'react';
+import {Store, Action} from 'redux';
+import {PluginRegistry} from 'mattermost-webapp/plugins/registry';
+import {Channel} from 'mattermost-redux/types/channels'
 
 import {getConfig} from 'mattermost-redux/selectors/entities/general';
 
 import {id as pluginId} from './manifest';
 
-import Icon from './components/icon.jsx';
+import Icon from './components/icon';
 import PostTypeMSTMeetings from './components/post_type_mstmeetings';
 import {startMeeting} from './actions';
 import Client from './client';
+import { GlobalState } from 'mattermost-redux/types/store';
+
+declare global {
+    interface Window {
+        registerPlugin(id: string, plugin: Plugin): void
+    }
+}
 
 class Plugin {
     // eslint-disable-next-line no-unused-vars
-    initialize(registry, store) {
+    public async initialize(registry: PluginRegistry, store: Store<GlobalState, Action<object>>) {
         registry.registerChannelHeaderButtonAction(
             <Icon/>,
-            (channel) => {
+            (channel: Channel) => {
                 startMeeting(channel.id)(store.dispatch, store.getState);
             },
             'Start MS Teams Meeting'
@@ -29,7 +39,7 @@ class Plugin {
 
 window.registerPlugin(pluginId, new Plugin());
 
-const getServerRoute = (state) => {
+const getServerRoute = (state: GlobalState) => {
     const config = getConfig(state);
 
     let basePath = '';

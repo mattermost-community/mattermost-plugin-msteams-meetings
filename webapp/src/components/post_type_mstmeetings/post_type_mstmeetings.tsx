@@ -2,75 +2,76 @@
 // See License for license information.
 
 import React from 'react';
-import PropTypes from 'prop-types';
 
 import {makeStyleFromTheme} from 'mattermost-redux/utils/theme_utils';
 
 import {Svgs} from '../../constants';
 import {formatDate} from '../../utils/date_utils';
+import {Post} from 'mattermost-redux/types/posts';
 
-export default class PostTypeMSTMeetings extends React.PureComponent {
-    static propTypes = {
-
-        /*
+type Props = {
+    /*
          * The post to render the message for.
          */
-        post: PropTypes.object.isRequired,
+        post: Post;
 
         /**
          * Set to render post body compactly.
          */
-        compactDisplay: PropTypes.bool,
+        compactDisplay?: boolean;
 
         /**
          * Flags if the post_message_view is for the RHS (Reply).
          */
-        isRHS: PropTypes.bool,
+        isRHS?: boolean;
 
         /**
          * Set to display times using 24 hours.
          */
-        useMilitaryTime: PropTypes.bool,
+        useMilitaryTime?: boolean;
 
         /*
          * Logged in user's theme.
          */
-        theme: PropTypes.object.isRequired,
+        theme: any,
 
         /*
          * Creator's name.
          */
-        creatorName: PropTypes.string.isRequired,
+        creatorName: string,
 
         /*
          * Current Channel Id.
          */
-        currentChannelId: PropTypes.string.isRequired,
+        currentChannelId: string,
 
         /*
          * Whether the post was sent from a bot. Used for backwards compatibility.
          */
-        fromBot: PropTypes.bool.isRequired,
+        fromBot: boolean,
 
-        actions: PropTypes.shape({
-            startMeeting: PropTypes.func.isRequired,
-        }).isRequired,
-    };
+        actions: {
+            startMeeting: (channelID: string, force: boolean) => void;
+        };
+}
 
-    static defaultProps = {
-        mentionKeys: [],
-        compactDisplay: false,
-        isRHS: false,
-    };
+export default class PostTypeMSTMeetings extends React.PureComponent<Props> {
+    public static get defaultProps() {
+        return {
+            mentionKeys: [],
+            compactDisplay: false,
+            isRHS: false,
+        };
+    }
 
     render() {
         const style = getStyle(this.props.theme);
         const post = this.props.post;
         const props = post.props || {};
 
-        let preText;
-        let content;
-        let subtitle;
+        let preText = '';
+        let content: JSX.Element | undefined;
+        let subtitle = '';
         if (props.meeting_status === 'STARTED') {
             preText = 'I have started a meeting';
             if (this.props.fromBot) {
@@ -105,7 +106,7 @@ export default class PostTypeMSTMeetings extends React.PureComponent {
 
             const startDate = new Date(post.create_at);
             const start = formatDate(startDate);
-            const length = Math.ceil((new Date(post.update_at) - startDate) / 1000 / 60);
+            const length = Math.ceil((new Date(post.update_at).getTime() - startDate.getTime()) / 1000 / 60);
 
             content = (
                 <div>

@@ -1,7 +1,7 @@
 // Copyright (c) 2017-present Mattermost, Inc. All Rights Reserved.
 // See License for license information.
 
-export function formatDate(date, useMilitaryTime = false) {
+export function formatDate(date: Date, useMilitaryTime = false) {
     const monthNames = [
         'Jan', 'Feb', 'Mar',
         'Apr', 'May', 'Jun', 'Jul',
@@ -27,9 +27,10 @@ export function formatDate(date, useMilitaryTime = false) {
         }
     }
 
+    let stringMinutes = '' + minutes;
     if (minutes < 10) {
-        minutes = '0' + minutes;
+        stringMinutes = '0' + minutes;
     }
 
-    return monthNames[monthIndex] + ' ' + day + ' at ' + hours + ':' + minutes + ampm;
+    return monthNames[monthIndex] + ' ' + day + ' at ' + hours + ':' + stringMinutes + ampm;
 }
