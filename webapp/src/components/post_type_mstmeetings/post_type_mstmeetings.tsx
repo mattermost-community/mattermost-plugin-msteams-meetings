@@ -4,55 +4,56 @@
 import React from 'react';
 
 import {makeStyleFromTheme} from 'mattermost-redux/utils/theme_utils';
+import {Post} from 'mattermost-redux/types/posts';
 
 import {Svgs} from '../../constants';
 import {formatDate} from '../../utils/date_utils';
-import {Post} from 'mattermost-redux/types/posts';
 
 type Props = {
+
     /*
-         * The post to render the message for.
-         */
-        post: Post;
+    * The post to render the message for.
+    */
+    post: Post;
 
-        /**
-         * Set to render post body compactly.
-         */
-        compactDisplay?: boolean;
+    /**
+     * Set to render post body compactly.
+     */
+    compactDisplay?: boolean;
 
-        /**
-         * Flags if the post_message_view is for the RHS (Reply).
-         */
-        isRHS?: boolean;
+    /**
+     * Flags if the post_message_view is for the RHS (Reply).
+     */
+    isRHS?: boolean;
 
-        /**
-         * Set to display times using 24 hours.
-         */
-        useMilitaryTime?: boolean;
+    /**
+     * Set to display times using 24 hours.
+     */
+    useMilitaryTime?: boolean;
 
-        /*
-         * Logged in user's theme.
-         */
-        theme: any,
+    /*
+        * Logged in user's theme.
+        */
+    theme: any,
 
-        /*
-         * Creator's name.
-         */
-        creatorName: string,
+    /*
+        * Creator's name.
+        */
+    creatorName: string,
 
-        /*
-         * Current Channel Id.
-         */
-        currentChannelId: string,
+    /*
+        * Current Channel Id.
+        */
+    currentChannelId: string,
 
-        /*
-         * Whether the post was sent from a bot. Used for backwards compatibility.
-         */
-        fromBot: boolean,
+    /*
+        * Whether the post was sent from a bot. Used for backwards compatibility.
+        */
+    fromBot: boolean,
 
-        actions: {
-            startMeeting: (channelID: string, force: boolean) => void;
-        };
+    actions: {
+        startMeeting: (channelID: string, force: boolean) => void;
+    };
 }
 
 export default class PostTypeMSTMeetings extends React.PureComponent<Props> {

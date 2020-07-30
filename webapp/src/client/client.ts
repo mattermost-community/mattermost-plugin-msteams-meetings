@@ -24,7 +24,7 @@ export default class Client {
     }
 }
 
-export const doPost = async (url: string, body: {}, headers = {}) => {
+export const doPost = async (url: string, body: Record<string, unknown>, headers = {}) => {
     const options = {
         method: 'post',
         body: JSON.stringify(body),

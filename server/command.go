@@ -69,7 +69,7 @@ func (p *Plugin) handleStart(args []string, extra *model.CommandArgs) (string, e
 		return "Cannot get user.", errors.Wrap(appErr, "cannot get user")
 	}
 
-	if _, appErr := p.API.GetChannelMember(extra.ChannelId, userID); appErr != nil {
+	if _, appErr = p.API.GetChannelMember(extra.ChannelId, userID); appErr != nil {
 		return "We could not get channel members.", errors.Wrap(appErr, "cannot get channel member")
 	}
 

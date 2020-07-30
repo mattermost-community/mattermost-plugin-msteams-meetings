@@ -12,7 +12,7 @@ export function formatDate(date: Date, useMilitaryTime = false) {
     const day = date.getDate();
     const monthIndex = date.getMonth();
     let hours = date.getHours();
-    let minutes = date.getMinutes();
+    const minutes = date.getMinutes();
 
     let ampm = '';
     if (!useMilitaryTime) {
@@ -27,7 +27,7 @@ export function formatDate(date: Date, useMilitaryTime = false) {
         }
     }
 
-    let stringMinutes = '' + minutes;
+    let stringMinutes = String(minutes);
     if (minutes < 10) {
         stringMinutes = '0' + minutes;
     }

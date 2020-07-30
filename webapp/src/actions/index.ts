@@ -2,10 +2,10 @@
 // See License for license information.
 
 import {PostTypes} from 'mattermost-redux/action_types';
+import {GetStateFunc} from 'mattermost-redux/types/actions';
+import {Dispatch} from 'redux';
 
 import Client from '../client';
-import { DispatchFunc, GetStateFunc } from 'mattermost-redux/types/actions';
-import { Dispatch } from 'redux';
 
 export function startMeeting(channelId: string, force = false) {
     return async (dispatch: Dispatch, getState: GetStateFunc) => {
