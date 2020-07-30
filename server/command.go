@@ -6,6 +6,7 @@ import (
 
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -48,48 +49,61 @@ func (p *Plugin) executeCommand(c *plugin.Context, args *model.CommandArgs) (str
 		return "Please specify an action for /mstmeetings command.", nil
 	}
 
-	userID := args.UserId
-	user, appErr := p.API.GetUser(userID)
-	if appErr != nil {
-		return fmt.Sprintf("We could not retrieve user (userId: %v)", args.UserId), nil
+	switch action {
+	case "start":
+		return p.handleStart(split[1:], args)
+	case "disconnect":
+		return p.handleDisconnect(split[1:], args)
 	}
 
-	if action == "start" {
-		if _, appErr = p.API.GetChannelMember(args.ChannelId, userID); appErr != nil {
-			return fmt.Sprintf("We could not get channel members (channelId: %v)", args.ChannelId), nil
-		}
+	return fmt.Sprintf("Unknown action `%v`.", action), nil
+}
 
-		recentMeeting, recentMeetingURL, creatorName, appErr := p.checkPreviousMessages(args.ChannelId)
-		if appErr != nil {
-			return fmt.Sprintf("Error checking previous messages"), nil
-		}
+func (p *Plugin) handleStart(args []string, extra *model.CommandArgs) (string, error) {
+	if len(args) > 0 {
+		return "Too many parameters.", nil
+	}
+	userID := extra.UserId
+	user, appErr := p.API.GetUser(userID)
+	if appErr != nil {
+		return "Cannot get user.", errors.Wrap(appErr, "cannot get user")
+	}
 
-		if recentMeeting {
-			p.postConfirm(recentMeetingURL, args.ChannelId, "", userID, creatorName)
-			return "", nil
-		}
+	if _, appErr := p.API.GetChannelMember(extra.ChannelId, userID); appErr != nil {
+		return "We could not get channel members.", errors.Wrap(appErr, "cannot get channel member")
+	}
 
-		_, authErr := p.authenticateAndFetchUser(userID, user.Email, args.ChannelId)
-		if authErr != nil {
-			return authErr.Message, authErr.Err
-		}
+	recentMeeting, recentMeetingURL, creatorName, appErr := p.checkPreviousMessages(extra.ChannelId)
+	if appErr != nil {
+		return "Error checking previous messages.", errors.Wrap(appErr, "cannot check previous messages")
+	}
 
-		_, _, err := p.postMeeting(user, args.ChannelId, "")
-		if err != nil {
-			return "Failed to post message. Please try again.", nil
-		}
+	if recentMeeting {
+		p.postConfirm(recentMeetingURL, extra.ChannelId, "", userID, creatorName)
 		return "", nil
 	}
 
-	if action == "disconnect" {
-		err := p.disconnect(userID)
-		if err != nil {
-			return "Failed to disconnect the user, err=" + err.Error(), nil
-		}
-		return "User disconnected from MS Teams Meetings.", nil
+	_, authErr := p.authenticateAndFetchUser(userID, user.Email, extra.ChannelId)
+	if authErr != nil {
+		return authErr.Message, authErr.Err
 	}
 
-	return fmt.Sprintf("Unknown action %v", action), nil
+	_, _, err := p.postMeeting(user, extra.ChannelId, "")
+	if err != nil {
+		return "Failed to post message. Please try again.", errors.Wrap(appErr, "cannot post message")
+	}
+	return "", nil
+}
+
+func (p *Plugin) handleDisconnect(args []string, extra *model.CommandArgs) (string, error) {
+	if len(args) > 0 {
+		return "Too many parameters.", nil
+	}
+	err := p.disconnect(extra.UserId)
+	if err != nil {
+		return "Failed to disconnect the user, err=" + err.Error(), nil
+	}
+	return "User disconnected from MS Teams Meetings.", nil
 }
 
 // ExecuteCommand is called when any registered by this plugin command is executed
