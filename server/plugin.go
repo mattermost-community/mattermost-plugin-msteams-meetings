@@ -112,7 +112,7 @@ func (p *Plugin) getOAuthConfig() (*oauth2.Config, error) {
 		return nil, err
 	}
 
-	redirectURL := fmt.Sprintf("%s/plugins/"+manifest.Id+"/oauth2/complete", siteURL)
+	redirectURL := fmt.Sprintf("%s/plugins/%s/oauth2/complete", siteURL, manifest.Id)
 
 	return &oauth2.Config{
 		ClientID:     clientID,
@@ -128,14 +128,10 @@ func (p *Plugin) getOAuthConfig() (*oauth2.Config, error) {
 
 // UserInfo defines the information we store from each user
 type UserInfo struct {
-	Email string
-
-	// OAuth Token, ttl 15 years
+	Email      string
 	OAuthToken *oauth2.Token
-
 	// Mattermost userID
 	UserID string
-
 	// Remote userID
 	RemoteID string
 }

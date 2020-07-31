@@ -16,7 +16,7 @@ func (c *Client) CreateMeeting(userID string) (*msgraph.OnlineMeeting, error) {
 	ctx := context.Background()
 	start := time.Now()
 	end := start.Add(1 * time.Hour)
-	subject := "some subject"
+	subject := "Mattermost Meeting"
 	in := msgraph.OnlineMeeting{
 		StartDateTime: &start,
 		EndDateTime:   &end,
@@ -26,7 +26,7 @@ func (c *Client) CreateMeeting(userID string) (*msgraph.OnlineMeeting, error) {
 
 	err := c.builder.Users().ID(userID).OnlineMeetings().Request().JSONRequest(ctx, http.MethodPost, "", &in, &out)
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot creat meeting")
+		return nil, errors.Wrap(err, "cannot create meeting")
 	}
 	return &out, nil
 }
