@@ -46,7 +46,7 @@ func (p *Plugin) executeCommand(c *plugin.Context, args *model.CommandArgs) (str
 	if len(split) > 1 {
 		action = split[1]
 	} else {
-		return "Please specify an action for /mstmeetings command.", nil
+		return p.handleHelp(split, args)
 	}
 
 	switch action {
@@ -57,6 +57,10 @@ func (p *Plugin) executeCommand(c *plugin.Context, args *model.CommandArgs) (str
 	}
 
 	return fmt.Sprintf("Unknown action `%v`.", action), nil
+}
+
+func (p *Plugin) handleHelp(args []string, extra *model.CommandArgs) (string, error) {
+	return "###### Mattermost MS Teams Meetings Plugin - Slash Command Help\n" + strings.Replace(commandHelp, "|", "`", -1), nil
 }
 
 func (p *Plugin) handleStart(args []string, extra *model.CommandArgs) (string, error) {
