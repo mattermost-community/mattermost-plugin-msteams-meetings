@@ -23,8 +23,8 @@ export function startMeeting(channelId: string, force = false) {
                 const e = JSON.parse(error.message);
 
                 // Error is from MS API
-                if (e && e.message) {
-                    m = '\nMSTMeeting error: ' + e.message;
+                if (e?.error?.message) {
+                    m = '\nMSTMeeting error: ' + e.error.message;
                 }
             }
 
