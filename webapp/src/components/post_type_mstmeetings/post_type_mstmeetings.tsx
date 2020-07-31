@@ -5,65 +5,30 @@ import React from 'react';
 
 import {makeStyleFromTheme} from 'mattermost-redux/utils/theme_utils';
 import {Post} from 'mattermost-redux/types/posts';
+import {Theme} from 'mattermost-redux/types/preferences';
 
 import {Svgs} from '../../constants';
 import {formatDate} from '../../utils/date_utils';
 
 type Props = {
-
-    /*
-    * The post to render the message for.
-    */
     post: Post;
-
-    /**
-     * Set to render post body compactly.
-     */
     compactDisplay?: boolean;
-
-    /**
-     * Flags if the post_message_view is for the RHS (Reply).
-     */
     isRHS?: boolean;
-
-    /**
-     * Set to display times using 24 hours.
-     */
     useMilitaryTime?: boolean;
-
-    /*
-        * Logged in user's theme.
-        */
-    theme: any,
-
-    /*
-        * Creator's name.
-        */
-    creatorName: string,
-
-    /*
-        * Current Channel Id.
-        */
-    currentChannelId: string,
-
-    /*
-        * Whether the post was sent from a bot. Used for backwards compatibility.
-        */
-    fromBot: boolean,
-
+    theme: Theme;
+    creatorName: string;
+    currentChannelId: string;
+    fromBot: boolean;
     actions: {
         startMeeting: (channelID: string, force: boolean) => void;
     };
 }
 
 export default class PostTypeMSTMeetings extends React.PureComponent<Props> {
-    public static get defaultProps() {
-        return {
-            mentionKeys: [],
-            compactDisplay: false,
-            isRHS: false,
-        };
-    }
+    static defaultProps = {
+        compactDisplay: false,
+        isRHS: false,
+    };
 
     render() {
         const style = getStyle(this.props.theme);
@@ -122,7 +87,7 @@ export default class PostTypeMSTMeetings extends React.PureComponent<Props> {
         } else if (props.meeting_status === 'RECENTLY_CREATED') {
             preText = `${this.props.creatorName} already created a MS Teams Meeting recently`;
 
-            subtitle = 'What do you want to do?';
+            subtitle = 'Would you like to join, or create your own meeting?';
             content = (
                 <div>
                     <div>

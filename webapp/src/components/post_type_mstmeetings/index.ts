@@ -3,43 +3,22 @@
 
 import {connect} from 'react-redux';
 import {ActionCreatorsMapObject, bindActionCreators, Dispatch} from 'redux';
-
 import {getBool} from 'mattermost-redux/selectors/entities/preferences';
 import {getCurrentChannelId} from 'mattermost-redux/selectors/entities/common';
 import {Post} from 'mattermost-redux/types/posts';
-import {ActionFunc} from 'mattermost-redux/types/actions';
 import {GlobalState} from 'mattermost-redux/types/store';
+import {Theme} from 'mattermost-redux/types/preferences';
 
 import {startMeeting} from '../../actions';
 
 import PostTypeMSTMeetings from './post_type_mstmeetings';
 
 type OwnProps = {
-
-    /*
-    * The post to render the message for.
-    */
     post: Post;
-
-    /**
-     * Set to render post body compactly.
-     */
     compactDisplay?: boolean;
-
-    /**
-     * Flags if the post_message_view is for the RHS (Reply).
-     */
     isRHS?: boolean;
-
-    /*
-        * Logged in user's theme.
-        */
-    theme: any,
-
-    /*
-        * Current Channel Id.
-        */
-    currentChannelId: string,
+    theme: Theme;
+    currentChannelId: string;
 }
 
 type Actions = {

@@ -183,10 +183,16 @@ func (p *Plugin) authenticateAndFetchUser(userID, userEmail, channelID string) (
 	var user *msgraph.User
 	var err error
 
+	siteURL, err := p.getSiteURL()
+	if err != nil {
+		p.API.LogError("authenticateAndFetchUser, cannot get site URL", "error", err.Error())
+		return nil, &authError{Message: "Cannot get Site URL. Contact your sys admin.", Err: err}
+	}
+
 	userInfo, apiErr := p.getUserInfo(userID)
 	oauthMsg := fmt.Sprintf(
 		oAuthMessage,
-		*p.API.GetConfig().ServiceSettings.SiteURL, channelID)
+		siteURL, channelID)
 
 	if apiErr != nil || userInfo == nil {
 		return nil, &authError{Message: oauthMsg, Err: apiErr}

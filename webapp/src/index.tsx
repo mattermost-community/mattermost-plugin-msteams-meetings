@@ -3,17 +3,17 @@
 
 import React from 'react';
 import {Store, Action} from 'redux';
-import {PluginRegistry} from 'mattermost-webapp/plugins/registry';
 import {Channel} from 'mattermost-redux/types/channels';
 import {GlobalState} from 'mattermost-redux/types/store';
 import {getConfig} from 'mattermost-redux/selectors/entities/general';
 
 import {id as pluginId} from './manifest';
-
 import Icon from './components/icon';
 import PostTypeMSTMeetings from './components/post_type_mstmeetings';
 import {startMeeting} from './actions';
 import Client from './client';
+// eslint-disable-next-line import/no-unresolved
+import {PluginRegistry} from './types/mattermost-webapp';
 
 declare global {
     interface Window {
@@ -22,7 +22,6 @@ declare global {
 }
 
 class Plugin {
-    // eslint-disable-next-line no-unused-vars
     public async initialize(registry: PluginRegistry, store: Store<GlobalState, Action<Record<string, unknown>>>) {
         registry.registerChannelHeaderButtonAction(
             <Icon/>,

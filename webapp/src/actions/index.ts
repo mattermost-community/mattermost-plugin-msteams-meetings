@@ -15,6 +15,8 @@ export function startMeeting(channelId: string, force = false) {
             if (meetingURL) {
                 window.open(meetingURL);
             }
+
+            return {data: true};
         } catch (error) {
             let m = '';
             if (error.message && error.message[0] === '{') {
@@ -53,7 +55,5 @@ export function startMeeting(channelId: string, force = false) {
 
             return {error};
         }
-
-        return {data: true};
     };
 }
