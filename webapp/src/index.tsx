@@ -3,6 +3,7 @@
 
 import React from 'react';
 import {Store, Action} from 'redux';
+
 import {Channel} from 'mattermost-redux/types/channels';
 import {GlobalState} from 'mattermost-redux/types/store';
 import {getConfig} from 'mattermost-redux/selectors/entities/general';

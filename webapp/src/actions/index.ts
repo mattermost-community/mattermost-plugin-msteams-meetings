@@ -1,9 +1,10 @@
 // Copyright (c) 2017-present Mattermost, Inc. All Rights Reserved.
 // See License for license information.
 
+import {Dispatch} from 'redux';
+
 import {PostTypes} from 'mattermost-redux/action_types';
 import {GetStateFunc} from 'mattermost-redux/types/actions';
-import {Dispatch} from 'redux';
 
 import Client from '../client';
 
@@ -18,14 +19,18 @@ export function startMeeting(channelId: string, force = false) {
 
             return {data: true};
         } catch (error) {
-            let m = '';
+            let m : string;
             if (error.message && error.message[0] === '{') {
                 const e = JSON.parse(error.message);
 
                 // Error is from MS API
                 if (e?.error?.message) {
                     m = '\nMSTMeeting error: ' + e.error.message;
+                } else {
+                    m = e;
                 }
+            } else {
+                m = error.message;
             }
 
             const post = {

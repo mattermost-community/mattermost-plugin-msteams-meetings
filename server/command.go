@@ -54,13 +54,19 @@ func (p *Plugin) executeCommand(c *plugin.Context, args *model.CommandArgs) (str
 		return p.handleStart(split[1:], args)
 	case "disconnect":
 		return p.handleDisconnect(split[1:], args)
+	case "help":
+		return p.handleHelp(split[1:], args)
 	}
 
-	return fmt.Sprintf("Unknown action `%v`.", action), nil
+	return fmt.Sprintf("Unknown action `%v`.\n%s", action, p.getHelpText()), nil
+}
+
+func (p *Plugin) getHelpText() string {
+	return "###### Mattermost MS Teams Meetings Plugin - Slash Command Help\n" + strings.Replace(commandHelp, "|", "`", -1)
 }
 
 func (p *Plugin) handleHelp(args []string, extra *model.CommandArgs) (string, error) {
-	return "###### Mattermost MS Teams Meetings Plugin - Slash Command Help\n" + strings.Replace(commandHelp, "|", "`", -1), nil
+	return p.getHelpText(), nil
 }
 
 func (p *Plugin) handleStart(args []string, extra *model.CommandArgs) (string, error) {

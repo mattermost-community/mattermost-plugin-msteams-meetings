@@ -3,6 +3,7 @@
 
 import {connect} from 'react-redux';
 import {ActionCreatorsMapObject, bindActionCreators, Dispatch} from 'redux';
+
 import {getBool} from 'mattermost-redux/selectors/entities/preferences';
 import {getCurrentChannelId} from 'mattermost-redux/selectors/entities/common';
 import {Post} from 'mattermost-redux/types/posts';
