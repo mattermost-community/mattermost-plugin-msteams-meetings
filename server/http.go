@@ -203,14 +203,33 @@ func (p *Plugin) postMeeting(creator *model.User, channelID string, topic string
 		return nil, nil, err
 	}
 
-	client := remote.NewClient(conf, userInfo.OAuthToken, p.API)
+	attendees := []string{}
 
-	graphUser, err := client.GetMe()
-	if err != nil {
+	channel, appErr := p.API.GetChannel(channelID)
+	if appErr != nil {
 		return nil, nil, err
 	}
 
-	meeting, err := client.CreateMeeting(*graphUser.ID)
+	if channel.IsGroupOrDirect() {
+		members, appErr := p.API.GetChannelMembers(channelID, 0, 100)
+		if appErr != nil {
+			return nil, nil, err
+		}
+		if members == nil {
+			return nil, nil, errors.New("returned members is nil")
+		}
+		for _, member := range *members {
+			attendeeInfo, err := p.getUserInfo(member.UserId)
+			if err != nil {
+				continue
+			}
+			attendees = append(attendees, attendeeInfo.RemoteID)
+		}
+	}
+
+	client := remote.NewClient(conf, userInfo.OAuthToken, p.API)
+
+	meeting, err := client.CreateMeeting(userInfo.RemoteID, attendees...)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -229,7 +248,7 @@ func (p *Plugin) postMeeting(creator *model.User, channelID string, topic string
 		},
 	}
 
-	post, appErr := p.API.CreatePost(post)
+	post, appErr = p.API.CreatePost(post)
 	if appErr != nil {
 		return nil, nil, appErr
 	}
