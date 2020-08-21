@@ -108,7 +108,7 @@ func (p *Plugin) OnConfigurationChange() error {
 		}
 	}
 	logger := logger.NewLogger(logger.Config{}, p.API, nil, "")
-	p.tracker = telemetry.NewTracker(p.telemetryClient, p.API.GetDiagnosticId(), p.API.GetServerVersion(), manifest.Id, manifest.Version, "zoom", enableDiagnostics, logger)
+	p.tracker = telemetry.NewTracker(p.telemetryClient, p.API.GetDiagnosticId(), p.API.GetServerVersion(), manifest.Id, manifest.Version, "msteamsmeetings", enableDiagnostics, logger)
 
 	p.setConfiguration(configuration)
 
