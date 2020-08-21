@@ -53,7 +53,7 @@ type Plugin struct {
 func (p *Plugin) OnActivate() error {
 	license := p.API.GetLicense()
 	if license == nil || license.Features.EnterprisePlugins == nil || !*license.Features.EnterprisePlugins {
-		return errors.New("You need a Enterprise License (E20) to activate this plugin.")
+		return errors.New("You need an Enterprise License (E20) to activate this plugin.")
 	}
 
 	config := p.getConfiguration()
