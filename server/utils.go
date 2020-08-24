@@ -10,6 +10,8 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/mattermost/mattermost-server/v5/model"
 )
 
 func pad(src []byte) []byte {
@@ -82,4 +84,14 @@ func closeBody(r *http.Response) {
 		ioutil.ReadAll(r.Body)
 		r.Body.Close()
 	}
+}
+
+func getString(key string, props model.StringInterface) string {
+	value := ""
+	if valueInterface, ok := props[key]; ok {
+		if valueString, ok := valueInterface.(string); ok {
+			value = valueString
+		}
+	}
+	return value
 }
