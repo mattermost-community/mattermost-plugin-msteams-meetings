@@ -23,6 +23,8 @@ const (
 	postTypeStarted = "STARTED"
 	postTypeEnded   = "ENDED"
 	postTypeConfirm = "RECENTLY_CREATED"
+
+	msteamsProviderName = "Microsoft Teams Meetings"
 )
 
 func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
@@ -228,6 +230,7 @@ func (p *Plugin) postMeeting(creator *model.User, channelID string, topic string
 			"meeting_personal":         true,
 			"meeting_topic":            topic,
 			"meeting_creator_username": creator.Username,
+			"meeting_provider":         msteamsProviderName,
 		},
 	}
 
@@ -267,7 +270,7 @@ func (p *Plugin) handleStartMeeting(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.URL.Query().Get("force") == "" {
-		recentMeeting, recentMeetingURL, creatorName, cpmErr := p.checkPreviousMessages(req.ChannelID)
+		recentMeeting, recentMeetingURL, creatorName, provider, cpmErr := p.checkPreviousMessages(req.ChannelID)
 		if cpmErr != nil {
 			http.Error(w, cpmErr.Error(), cpmErr.StatusCode)
 			return
@@ -278,7 +281,7 @@ func (p *Plugin) handleStartMeeting(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				p.API.LogWarn("failed to write response", "error", err.Error())
 			}
-			p.postConfirmCreateOrJoin(recentMeetingURL, req.ChannelID, req.Topic, userID, creatorName)
+			p.postConfirmCreateOrJoin(recentMeetingURL, req.ChannelID, req.Topic, userID, creatorName, provider)
 			p.trackMeetingDuplication(userID)
 			return
 		}
@@ -310,11 +313,15 @@ func (p *Plugin) handleStartMeeting(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (p *Plugin) postConfirmCreateOrJoin(meetingURL string, channelID string, topic string, userID string, creatorName string) *model.Post {
+func (p *Plugin) postConfirmCreateOrJoin(meetingURL string, channelID string, topic string, userID string, creatorName string, provider string) *model.Post {
+	message := "There is another recent meeting created on this channel."
+	if provider != msteamsProviderName {
+		message = fmt.Sprintf("There is another recent meeting created on this channel with %s.", provider)
+	}
 	post := &model.Post{
 		UserId:    p.botUserID,
 		ChannelId: channelID,
-		Message:   "There is another recent meeting created on this channel.",
+		Message:   message,
 		Type:      "custom_mstmeetings",
 		Props: map[string]interface{}{
 			"type":                     "custom_mstmeetings",
@@ -323,6 +330,7 @@ func (p *Plugin) postConfirmCreateOrJoin(meetingURL string, channelID string, to
 			"meeting_personal":         true,
 			"meeting_topic":            topic,
 			"meeting_creator_username": creatorName,
+			"meeting_provider":         provider,
 		},
 	}
 
@@ -343,19 +351,29 @@ func (p *Plugin) postConnect(channelID string, userID string) *model.Post {
 	return p.API.SendEphemeralPost(userID, post)
 }
 
-func (p *Plugin) checkPreviousMessages(channelID string) (recentMeeting bool, meetingLink string, creatorName string, err *model.AppError) {
+func (p *Plugin) checkPreviousMessages(channelID string) (recentMeeting bool, meetingLink string, creatorName string, provider string, err *model.AppError) {
 	var meetingTimeWindow int64 = 30 // 30 seconds
 
 	postList, appErr := p.API.GetPostsSince(channelID, (time.Now().Unix()-meetingTimeWindow)*1000)
 	if appErr != nil {
-		return false, "", "", appErr
+		return false, "", "", "", appErr
 	}
 
 	for _, post := range postList.ToSlice() {
-		if meetingLink, ok := post.Props["meeting_link"]; ok {
-			return true, meetingLink.(string), post.Props["meeting_creator_username"].(string), nil
+		meetingProvider := getString("meeting_provider", post.Props)
+		if meetingProvider == "" {
+			continue
 		}
+
+		meetingLink := getString("meeting_link", post.Props)
+		if meetingLink == "" {
+			continue
+		}
+
+		creator := getString("meeting_creator_username", post.Props)
+
+		return true, meetingLink, creator, meetingProvider, nil
 	}
 
-	return false, "", "", nil
+	return false, "", "", "", nil
 }

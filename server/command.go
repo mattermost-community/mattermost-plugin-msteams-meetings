@@ -83,13 +83,13 @@ func (p *Plugin) handleStart(args []string, extra *model.CommandArgs) (string, e
 		return "We could not get channel members.", errors.Wrap(appErr, "cannot get channel member")
 	}
 
-	recentMeeting, recentMeetingURL, creatorName, appErr := p.checkPreviousMessages(extra.ChannelId)
+	recentMeeting, recentMeetingURL, creatorName, provider, appErr := p.checkPreviousMessages(extra.ChannelId)
 	if appErr != nil {
 		return "Error checking previous messages.", errors.Wrap(appErr, "cannot check previous messages")
 	}
 
 	if recentMeeting {
-		p.postConfirmCreateOrJoin(recentMeetingURL, extra.ChannelId, "", userID, creatorName)
+		p.postConfirmCreateOrJoin(recentMeetingURL, extra.ChannelId, "", userID, creatorName, provider)
 		p.trackMeetingDuplication(extra.UserId)
 		return "", nil
 	}
