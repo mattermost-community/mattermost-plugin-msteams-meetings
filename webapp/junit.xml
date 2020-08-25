@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="1" failures="0" time="1.507">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2020-08-25T08:40:32" time="1.133" tests="1">
+    <testcase classname=" Plugin id and version are defined" name=" Plugin id and version are defined" time="0.002">
+    </testcase>
+  </testsuite>
+</testsuites>
