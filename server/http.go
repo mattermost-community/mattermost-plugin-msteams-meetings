@@ -8,14 +8,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
-	"time"
 
-	"github.com/mattermost/mattermost-plugin-msteams-meetings/server/remote"
-	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost-plugin-msteams-meetings/server/store"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/pkg/errors"
-	msgraph "github.com/yaegashi/msgraph.go/beta"
 	"golang.org/x/oauth2"
 )
 
@@ -60,14 +56,13 @@ func (p *Plugin) connectUser(w http.ResponseWriter, r *http.Request) {
 	conf, err := p.getOAuthConfig()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
-	key := fmt.Sprintf("%v_%v", model.NewId()[0:15], userID)
-	state := fmt.Sprintf("%v_%v", key, channelID)
-
-	appErr := p.API.KVSet(key, []byte(state))
-	if appErr != nil {
-		http.Error(w, appErr.Error(), http.StatusInternalServerError)
+	state, err := p.store.StoreState(userID, channelID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	url := conf.AuthCodeURL(state, oauth2.AccessTypeOffline)
@@ -94,32 +89,26 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 	}
 
 	state := r.URL.Query().Get("state")
-	stateComponents := strings.Split(state, "_")
 
-	if len(stateComponents) != stateLength {
-		p.API.LogDebug("complete oauth, state mismatch", "stateComponents", fmt.Sprintf("%v", stateComponents), "state", state)
+	key, userID, channelID, err := p.store.ParseState(state)
+	if err != nil {
+		p.API.LogDebug("complete oauth, cannot parse state", "error", err.Error())
 		http.Error(w, "invalid state", http.StatusBadRequest)
 		return
 	}
-	key := fmt.Sprintf("%v_%v", stateComponents[0], stateComponents[1])
 
-	var storedState []byte
-	var appErr *model.AppError
-	storedState, appErr = p.API.KVGet(key)
-	if appErr != nil {
+	storedState, err := p.store.GetState(key)
+	if err != nil {
 		http.Error(w, "missing stored state", http.StatusBadRequest)
 		return
 	}
 
-	if string(storedState) != state {
+	if storedState != state {
 		http.Error(w, "invalid state", http.StatusBadRequest)
 		return
 	}
 
-	userID := stateComponents[1]
-	channelID := stateComponents[2]
-
-	p.API.KVDelete(state)
+	p.store.DeleteState(key)
 
 	if userID != authedUserID {
 		http.Error(w, "Not authorized, incorrect user", http.StatusUnauthorized)
@@ -140,24 +129,25 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userInfo := &UserInfo{
+	userInfo := &store.UserInfo{
 		UserID:     userID,
 		OAuthToken: tok,
 		Email:      *remoteUser.Mail,
 		RemoteID:   *remoteUser.ID,
+		UPN:        *remoteUser.UserPrincipalName,
 	}
 
-	err = p.storeUserInfo(userInfo)
+	err = p.store.StoreUserInfo(userInfo)
 	if err != nil {
 		p.API.LogDebug("complete oauth, error storing the user info", "error", err.Error())
 		http.Error(w, "Unable to connect user to Microsoft", http.StatusInternalServerError)
 		return
 	}
 
-	user, err := p.API.GetUser(userID)
-	if err != nil {
-		p.API.LogError("complete oauth, error getting MM user", "error", err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	user, appErr := p.API.GetUser(userID)
+	if appErr != nil {
+		p.API.LogError("complete oauth, error getting MM user", "error", appErr.Error())
+		http.Error(w, appErr.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -191,69 +181,6 @@ type startMeetingRequest struct {
 	Personal  bool   `json:"personal"`
 	Topic     string `json:"topic"`
 	MeetingID int    `json:"meeting_id"`
-}
-
-func (p *Plugin) postMeeting(creator *model.User, channelID string, topic string) (*model.Post, *msgraph.OnlineMeeting, error) {
-	conf, err := p.getOAuthConfig()
-	if err != nil {
-		return nil, nil, err
-	}
-	userInfo, err := p.getUserInfo(creator.Id)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	attendees := []string{}
-
-	channel, appErr := p.API.GetChannel(channelID)
-	if appErr != nil {
-		return nil, nil, err
-	}
-
-	if channel.IsGroupOrDirect() {
-		members, appErr := p.API.GetChannelMembers(channelID, 0, 100)
-		if appErr != nil {
-			return nil, nil, err
-		}
-		if members == nil {
-			return nil, nil, errors.New("returned members is nil")
-		}
-		for _, member := range *members {
-			attendeeInfo, err := p.getUserInfo(member.UserId)
-			if err != nil {
-				continue
-			}
-			attendees = append(attendees, attendeeInfo.RemoteID)
-		}
-	}
-
-	client := remote.NewClient(conf, userInfo.OAuthToken, p.API)
-
-	meeting, err := client.CreateMeeting(userInfo.RemoteID, attendees...)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	post := &model.Post{
-		UserId:    creator.Id,
-		ChannelId: channelID,
-		Message:   fmt.Sprintf("Meeting started at [this link](%s).", *meeting.JoinURL),
-		Type:      "custom_mstmeetings",
-		Props: map[string]interface{}{
-			"meeting_link":             *meeting.JoinURL,
-			"meeting_status":           postTypeStarted,
-			"meeting_personal":         true,
-			"meeting_topic":            topic,
-			"meeting_creator_username": creator.Username,
-		},
-	}
-
-	post, appErr = p.API.CreatePost(post)
-	if appErr != nil {
-		return nil, nil, appErr
-	}
-
-	return post, meeting, nil
 }
 
 func (p *Plugin) handleStartMeeting(w http.ResponseWriter, r *http.Request) {
@@ -319,54 +246,4 @@ func (p *Plugin) handleStartMeeting(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		p.API.LogWarn("failed to write response", "error", err.Error())
 	}
-}
-
-func (p *Plugin) postConfirmCreateOrJoin(meetingURL string, channelID string, topic string, userID string, creatorName string) *model.Post {
-	post := &model.Post{
-		UserId:    p.botUserID,
-		ChannelId: channelID,
-		Message:   "There is another recent meeting created on this channel.",
-		Type:      "custom_mstmeetings",
-		Props: map[string]interface{}{
-			"type":                     "custom_mstmeetings",
-			"meeting_link":             meetingURL,
-			"meeting_status":           postTypeConfirm,
-			"meeting_personal":         true,
-			"meeting_topic":            topic,
-			"meeting_creator_username": creatorName,
-		},
-	}
-
-	return p.API.SendEphemeralPost(userID, post)
-}
-
-func (p *Plugin) postConnect(channelID string, userID string) *model.Post {
-	oauthMsg := fmt.Sprintf(
-		oAuthMessage,
-		*p.API.GetConfig().ServiceSettings.SiteURL, channelID)
-
-	post := &model.Post{
-		UserId:    p.botUserID,
-		ChannelId: channelID,
-		Message:   oauthMsg,
-	}
-
-	return p.API.SendEphemeralPost(userID, post)
-}
-
-func (p *Plugin) checkPreviousMessages(channelID string) (recentMeeting bool, meetingLink string, creatorName string, err *model.AppError) {
-	var meetingTimeWindow int64 = 30 // 30 seconds
-
-	postList, appErr := p.API.GetPostsSince(channelID, (time.Now().Unix()-meetingTimeWindow)*1000)
-	if appErr != nil {
-		return false, "", "", appErr
-	}
-
-	for _, post := range postList.ToSlice() {
-		if meetingLink, ok := post.Props["meeting_link"]; ok {
-			return true, meetingLink.(string), post.Props["meeting_creator_username"].(string), nil
-		}
-	}
-
-	return false, "", "", nil
 }

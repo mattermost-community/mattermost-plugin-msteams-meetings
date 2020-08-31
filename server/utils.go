@@ -1,85 +1,54 @@
 package main
 
 import (
-	"bytes"
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/rand"
-	"encoding/base64"
-	"errors"
-	"io"
-	"io/ioutil"
-	"net/http"
+	"time"
+
+	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/pkg/errors"
 )
 
-func pad(src []byte) []byte {
-	padding := aes.BlockSize - len(src)%aes.BlockSize
-	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
-	return append(src, padtext...)
+func (p *Plugin) getSiteURL() (string, error) {
+	siteURLRef := p.API.GetConfig().ServiceSettings.SiteURL
+	if siteURLRef == nil || *siteURLRef == "" {
+		return "", errors.New("error fetching siteUrl")
+	}
+
+	return *siteURLRef, nil
 }
 
-func unpad(src []byte) ([]byte, error) {
-	length := len(src)
-	unpadding := int(src[length-1])
+func (p *Plugin) checkPreviousMessages(channelID string) (recentMeeting bool, meetingLink string, creatorName string, err *model.AppError) {
+	var meetingTimeWindow int64 = 30 // 30 seconds
 
-	if unpadding > length {
-		return nil, errors.New("unpad error. This could happen when incorrect encryption key is used")
+	postList, appErr := p.API.GetPostsSince(channelID, (time.Now().Unix()-meetingTimeWindow)*1000)
+	if appErr != nil {
+		return false, "", "", appErr
 	}
 
-	return src[:(length - unpadding)], nil
+	for _, post := range postList.ToSlice() {
+		if meetingLink, ok := post.Props["meeting_link"]; ok {
+			return true, meetingLink.(string), post.Props["meeting_creator_username"].(string), nil
+		}
+	}
+
+	return false, "", "", nil
 }
 
-func encrypt(key []byte, text string) (string, error) {
-	block, err := aes.NewCipher(key)
+func (p *Plugin) dm(userID string, message string) error {
+	channel, err := p.API.GetDirectChannel(userID, p.botUserID)
 	if err != nil {
-		return "", err
+		p.API.LogInfo("couldn't get bot's DM channel", "user_id", userID, "bot_id", p.botUserID, "error", err.Error())
+		return err
 	}
 
-	msg := pad([]byte(text))
-	ciphertext := make([]byte, aes.BlockSize+len(msg))
-	iv := ciphertext[:aes.BlockSize]
-	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-		return "", err
+	post := &model.Post{
+		Message:   message,
+		ChannelId: channel.Id,
+		UserId:    p.botUserID,
 	}
 
-	cfb := cipher.NewCFBEncrypter(block, iv)
-	cfb.XORKeyStream(ciphertext[aes.BlockSize:], []byte(msg))
-	finalMsg := base64.URLEncoding.EncodeToString(ciphertext)
-	return finalMsg, nil
-}
-
-func decrypt(key []byte, text string) (string, error) {
-	block, err := aes.NewCipher(key)
+	_, err = p.API.CreatePost(post)
 	if err != nil {
-		return "", err
+		return err
 	}
-
-	decodedMsg, err := base64.URLEncoding.DecodeString(text)
-	if err != nil {
-		return "", err
-	}
-
-	if (len(decodedMsg) % aes.BlockSize) != 0 {
-		return "", errors.New("blocksize must be multiple of decoded message length")
-	}
-
-	iv := decodedMsg[:aes.BlockSize]
-	msg := decodedMsg[aes.BlockSize:]
-
-	cfb := cipher.NewCFBDecrypter(block, iv)
-	cfb.XORKeyStream(msg, msg)
-
-	unpadMsg, err := unpad(msg)
-	if err != nil {
-		return "", err
-	}
-
-	return string(unpadMsg), nil
-}
-
-func closeBody(r *http.Response) {
-	if r != nil && r.Body != nil {
-		ioutil.ReadAll(r.Body)
-		r.Body.Close()
-	}
+	return nil
 }
