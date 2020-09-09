@@ -14,7 +14,7 @@ func (p *Plugin) trackDisconnect(userID string) {
 }
 
 func (p *Plugin) trackMeetingStart(userID, source string) {
-	p.tracker.TrackUserEvent("start_meeting", userID, map[string]interface{}{
+	p.tracker.TrackUserEvent("meeting_started", userID, map[string]interface{}{
 		"source": source,
 	})
 }
