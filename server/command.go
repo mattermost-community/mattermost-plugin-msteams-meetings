@@ -116,6 +116,7 @@ func (p *Plugin) handleDisconnect(args []string, extra *model.CommandArgs) (stri
 	if err != nil {
 		return "Failed to disconnect the user, err=" + err.Error(), nil
 	}
+
 	p.trackDisconnect(extra.UserId)
 	return "User disconnected from MS Teams Meetings.", nil
 }

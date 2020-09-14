@@ -1,8 +1,10 @@
 package main
 
+type TelemetrySource string
+
 const (
-	telemetryStartSourceWebapp  = "webapp"
-	telemetryStartSourceCommand = "command"
+	telemetryStartSourceWebapp  TelemetrySource = "webapp"
+	telemetryStartSourceCommand TelemetrySource = "command"
 )
 
 func (p *Plugin) trackConnect(userID string) {
@@ -13,7 +15,7 @@ func (p *Plugin) trackDisconnect(userID string) {
 	p.tracker.TrackUserEvent("disconnect", userID, map[string]interface{}{})
 }
 
-func (p *Plugin) trackMeetingStart(userID, source string) {
+func (p *Plugin) trackMeetingStart(userID string, source TelemetrySource) {
 	p.tracker.TrackUserEvent("meeting_started", userID, map[string]interface{}{
 		"source": source,
 	})
