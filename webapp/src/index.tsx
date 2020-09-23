@@ -16,12 +16,6 @@ import Client from './client';
 // eslint-disable-next-line import/no-unresolved
 import {PluginRegistry} from './types/mattermost-webapp';
 
-declare global {
-    interface Window {
-        registerPlugin(id: string, plugin: Plugin): void
-    }
-}
-
 class Plugin {
     public async initialize(registry: PluginRegistry, store: Store<GlobalState, Action<Record<string, unknown>>>) {
         registry.registerChannelHeaderButtonAction(
@@ -33,6 +27,12 @@ class Plugin {
         );
         registry.registerPostTypeComponent('custom_mstmeetings', PostTypeMSTMeetings);
         Client.setServerRoute(getServerRoute(store.getState()));
+    }
+}
+
+declare global {
+    interface Window {
+        registerPlugin(id: string, plugin: Plugin): void
     }
 }
 
