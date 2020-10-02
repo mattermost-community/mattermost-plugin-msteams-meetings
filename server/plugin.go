@@ -17,6 +17,8 @@ import (
 	msgraph "github.com/yaegashi/msgraph.go/beta"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/microsoft"
+
+	pluginapi "github.com/mattermost/mattermost-plugin-api"
 )
 
 const (
@@ -51,9 +53,11 @@ type Plugin struct {
 
 // OnActivate checks if the configurations is valid and ensures the bot account exists
 func (p *Plugin) OnActivate() error {
-	license := p.API.GetLicense()
-	if license == nil || license.Features.EnterprisePlugins == nil || !*license.Features.EnterprisePlugins {
-		return errors.New("You need an Enterprise License (E20) to activate this plugin.")
+	pluginAPIClient := pluginapi.NewClient(p.API)
+	p.config = config.NewConfigService(pluginAPIClient, manifest)
+
+	if !pluginapi.IsE20LicensedOrDevelopment(pluginAPIClient.Configuration.GetConfig(), pluginAPIClient.System.GetLicense()) {
+		return errors.New("a valid Mattermost Enterprise E20 license is required to use this plugin")
 	}
 
 	config := p.getConfiguration()
