@@ -54,7 +54,6 @@ type Plugin struct {
 // OnActivate checks if the configurations is valid and ensures the bot account exists
 func (p *Plugin) OnActivate() error {
 	pluginAPIClient := pluginapi.NewClient(p.API)
-	p.config = config.NewConfigService(pluginAPIClient, manifest)
 
 	if !pluginapi.IsE20LicensedOrDevelopment(pluginAPIClient.Configuration.GetConfig(), pluginAPIClient.System.GetLicense()) {
 		return errors.New("a valid Mattermost Enterprise E20 license is required to use this plugin")
