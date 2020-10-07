@@ -28,7 +28,8 @@ func (p *Plugin) postMeeting(creator *model.User, channelID string, topic string
 	}
 
 	if channel.IsGroupOrDirect() {
-		members, appErr := p.API.GetChannelMembers(channelID, 0, 100)
+		var members *model.ChannelMembers
+		members, appErr = p.API.GetChannelMembers(channelID, 0, 100)
 		if appErr != nil {
 			return nil, nil, err
 		}
@@ -36,7 +37,8 @@ func (p *Plugin) postMeeting(creator *model.User, channelID string, topic string
 			return nil, nil, errors.New("returned members is nil")
 		}
 		for _, member := range *members {
-			attendeeInfo, err := p.store.GetUserInfo(member.UserId)
+			var attendeeInfo *store.UserInfo
+			attendeeInfo, err = p.store.GetUserInfo(member.UserId)
 			if err != nil {
 				continue
 			}
