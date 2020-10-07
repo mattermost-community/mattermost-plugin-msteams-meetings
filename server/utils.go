@@ -16,21 +16,31 @@ func (p *Plugin) getSiteURL() (string, error) {
 	return *siteURLRef, nil
 }
 
-func (p *Plugin) checkPreviousMessages(channelID string) (recentMeeting bool, meetingLink string, creatorName string, err *model.AppError) {
+func (p *Plugin) checkPreviousMessages(channelID string) (recentMeeting bool, meetingLink string, creatorName string, provider string, err *model.AppError) {
 	var meetingTimeWindow int64 = 30 // 30 seconds
 
 	postList, appErr := p.API.GetPostsSince(channelID, (time.Now().Unix()-meetingTimeWindow)*1000)
 	if appErr != nil {
-		return false, "", "", appErr
+		return false, "", "", "", appErr
 	}
 
 	for _, post := range postList.ToSlice() {
-		if meetingLink, ok := post.Props["meeting_link"]; ok {
-			return true, meetingLink.(string), post.Props["meeting_creator_username"].(string), nil
+		meetingProvider := getString("meeting_provider", post.Props)
+		if meetingProvider == "" {
+			continue
 		}
+
+		meetingLink := getString("meeting_link", post.Props)
+		if meetingLink == "" {
+			continue
+		}
+
+		creator := getString("meeting_creator_username", post.Props)
+
+		return true, meetingLink, creator, meetingProvider, nil
 	}
 
-	return false, "", "", nil
+	return false, "", "", "", nil
 }
 
 func (p *Plugin) dm(userID string, message string) error {
@@ -51,4 +61,14 @@ func (p *Plugin) dm(userID string, message string) error {
 		return err
 	}
 	return nil
+}
+
+func getString(key string, props model.StringInterface) string {
+	value := ""
+	if valueInterface, ok := props[key]; ok {
+		if valueString, ok := valueInterface.(string); ok {
+			value = valueString
+		}
+	}
+	return value
 }

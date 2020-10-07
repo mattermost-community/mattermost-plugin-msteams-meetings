@@ -62,6 +62,7 @@ func (p *Plugin) postMeeting(creator *model.User, channelID string, topic string
 			"meeting_personal":         true,
 			"meeting_topic":            topic,
 			"meeting_creator_username": creator.Username,
+			"meeting_provider":         msteamsProviderName,
 		},
 	}
 
@@ -73,11 +74,15 @@ func (p *Plugin) postMeeting(creator *model.User, channelID string, topic string
 	return post, meeting, nil
 }
 
-func (p *Plugin) postConfirmCreateOrJoin(meetingURL string, channelID string, topic string, userID string, creatorName string) *model.Post {
+func (p *Plugin) postConfirmCreateOrJoin(meetingURL string, channelID string, topic string, userID string, creatorName string, provider string) *model.Post {
+	message := "There is another recent meeting created on this channel."
+	if provider != msteamsProviderName {
+		message = fmt.Sprintf("There is another recent meeting created on this channel with %s.", provider)
+	}
 	post := &model.Post{
 		UserId:    p.botUserID,
 		ChannelId: channelID,
-		Message:   "There is another recent meeting created on this channel.",
+		Message:   message,
 		Type:      "custom_mstmeetings",
 		Props: map[string]interface{}{
 			"type":                     "custom_mstmeetings",
@@ -86,6 +91,7 @@ func (p *Plugin) postConfirmCreateOrJoin(meetingURL string, channelID string, to
 			"meeting_personal":         true,
 			"meeting_topic":            topic,
 			"meeting_creator_username": creatorName,
+			"meeting_provider":         provider,
 		},
 	}
 

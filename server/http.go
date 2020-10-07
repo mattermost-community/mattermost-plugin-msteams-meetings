@@ -19,6 +19,8 @@ const (
 	postTypeStarted = "STARTED"
 	postTypeEnded   = "ENDED"
 	postTypeConfirm = "RECENTLY_CREATED"
+
+	msteamsProviderName = "Microsoft Teams Meetings"
 )
 
 func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
@@ -211,7 +213,7 @@ func (p *Plugin) handleStartMeeting(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.URL.Query().Get("force") == "" {
-		recentMeeting, recentMeetingURL, creatorName, cpmErr := p.checkPreviousMessages(req.ChannelID)
+		recentMeeting, recentMeetingURL, creatorName, provider, cpmErr := p.checkPreviousMessages(req.ChannelID)
 		if cpmErr != nil {
 			http.Error(w, cpmErr.Error(), cpmErr.StatusCode)
 			return
@@ -222,7 +224,7 @@ func (p *Plugin) handleStartMeeting(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				p.API.LogWarn("failed to write response", "error", err.Error())
 			}
-			p.postConfirmCreateOrJoin(recentMeetingURL, req.ChannelID, req.Topic, userID, creatorName)
+			p.postConfirmCreateOrJoin(recentMeetingURL, req.ChannelID, req.Topic, userID, creatorName, provider)
 			return
 		}
 	}
