@@ -7,8 +7,8 @@ import {makeStyleFromTheme} from 'mattermost-redux/utils/theme_utils';
 import {Post} from 'mattermost-redux/types/posts';
 import {Theme} from 'mattermost-redux/types/preferences';
 
-import {Svgs} from '../../constants';
 import {formatDate} from '../../utils/date_utils';
+import Icon from 'components/icon';
 
 type Props = {
     post: Post;
@@ -51,10 +51,9 @@ export default class PostTypeMSTMeetings extends React.PureComponent<Props> {
                     target='_blank'
                     href={props.meeting_link}
                 >
-                    <i
-                        style={style.buttonIcon}
-                        dangerouslySetInnerHTML={{__html: Svgs.VIDEO_CAMERA_3}}
-                    />
+                    <i style={style.buttonIcon}>
+                        <Icon/>
+                    </i>
                     {'JOIN MEETING'}
                 </a>
             );
@@ -108,10 +107,9 @@ export default class PostTypeMSTMeetings extends React.PureComponent<Props> {
                             target='_blank'
                             href={props.meeting_link}
                         >
-                            <i
-                                style={style.buttonIcon}
-                                dangerouslySetInnerHTML={{__html: Svgs.VIDEO_CAMERA_3}}
-                            />
+                            <i style={style.buttonIcon}>
+                                <Icon/>
+                            </i>
                             {'JOIN EXISTING MEETING'}
                         </a>
                     </div>
