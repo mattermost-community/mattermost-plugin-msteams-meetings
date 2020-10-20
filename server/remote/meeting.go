@@ -13,7 +13,7 @@ import (
 	msgraph "github.com/yaegashi/msgraph.go/beta"
 )
 
-func (c *Client) CreateMeeting(creator *store.UserInfo, attendeesIDs ...*store.UserInfo) (*msgraph.OnlineMeeting, error) {
+func (c *Client) CreateMeeting(creator *store.UserInfo, attendeesIDs []*store.UserInfo) (*msgraph.OnlineMeeting, error) {
 	ctx := context.Background()
 	start := time.Now()
 	end := start.Add(1 * time.Hour)

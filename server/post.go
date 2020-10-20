@@ -48,7 +48,7 @@ func (p *Plugin) postMeeting(creator *model.User, channelID string, topic string
 
 	client := remote.NewClient(conf, userInfo.OAuthToken, p.API)
 
-	meeting, err := client.CreateMeeting(userInfo, attendees...)
+	meeting, err := client.CreateMeeting(userInfo, attendees)
 	if err != nil {
 		return nil, nil, err
 	}
