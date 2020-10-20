@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"sync"
 
+	pluginapi "github.com/mattermost/mattermost-plugin-api"
 	"github.com/mattermost/mattermost-plugin-msteams-meetings/server/store"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
@@ -39,9 +40,10 @@ type Plugin struct {
 
 // OnActivate checks if the configurations is valid and ensures the bot account exists
 func (p *Plugin) OnActivate() error {
-	license := p.API.GetLicense()
-	if license == nil || license.Features.EnterprisePlugins == nil || !*license.Features.EnterprisePlugins {
-		return errors.New("You need an Enterprise License (E20) to activate this plugin.")
+	pluginAPIClient := pluginapi.NewClient(p.API)
+
+	if !pluginapi.IsE20LicensedOrDevelopment(pluginAPIClient.Configuration.GetConfig(), pluginAPIClient.System.GetLicense()) {
+		return errors.New("a valid Mattermost Enterprise E20 license is required to use this plugin")
 	}
 
 	config := p.getConfiguration()
