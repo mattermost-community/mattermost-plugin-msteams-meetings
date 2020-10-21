@@ -2,10 +2,9 @@
 
 package main
 
-var manifest = struct {
-	Id      string
-	Version string
-}{
+import "github.com/mattermost/mattermost-server/v5/model"
+
+var manifest = model.Manifest{
 	Id:      "com.mattermost.msteamsmeetings",
 	Version: "1.0.0",
 }
