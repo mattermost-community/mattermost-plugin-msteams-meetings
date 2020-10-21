@@ -63,7 +63,7 @@ func (p *Plugin) executeCommand(c *plugin.Context, args *model.CommandArgs) (str
 }
 
 func (p *Plugin) getHelpText() string {
-	return "###### Mattermost MS Teams Meetings Plugin - Slash Command Help\n" + strings.Replace(commandHelp, "|", "`", -1)
+	return "###### Mattermost MS Teams Meetings Plugin - Slash Command Help\n" + strings.ReplaceAll(commandHelp, "|", "`")
 }
 
 func (p *Plugin) handleHelp(args []string, extra *model.CommandArgs) (string, error) {
