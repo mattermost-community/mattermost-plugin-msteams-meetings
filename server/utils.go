@@ -43,26 +43,6 @@ func (p *Plugin) checkPreviousMessages(channelID string) (recentMeeting bool, me
 	return false, "", "", "", nil
 }
 
-func (p *Plugin) dm(userID string, message string) error {
-	channel, err := p.API.GetDirectChannel(userID, p.botUserID)
-	if err != nil {
-		p.API.LogInfo("couldn't get bot's DM channel", "user_id", userID, "bot_id", p.botUserID, "error", err.Error())
-		return err
-	}
-
-	post := &model.Post{
-		Message:   message,
-		ChannelId: channel.Id,
-		UserId:    p.botUserID,
-	}
-
-	_, err = p.API.CreatePost(post)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func getString(key string, props model.StringInterface) string {
 	value := ""
 	if valueInterface, ok := props[key]; ok {

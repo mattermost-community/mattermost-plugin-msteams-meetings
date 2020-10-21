@@ -8,8 +8,10 @@ import (
 	"path/filepath"
 	"sync"
 
-	pluginapi "github.com/mattermost/mattermost-plugin-api"
 	"github.com/mattermost/mattermost-plugin-msteams-meetings/server/store"
+
+	pluginapi "github.com/mattermost/mattermost-plugin-api"
+	"github.com/mattermost/mattermost-plugin-api/experimental/telemetry"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/pkg/errors"
@@ -34,6 +36,9 @@ type Plugin struct {
 	// configuration is the active plugin configuration. Consult getConfiguration and
 	// setConfiguration for usage.
 	configuration *configuration
+
+	telemetryClient telemetry.Client
+	tracker         telemetry.Tracker
 
 	store store.Store
 }
@@ -85,6 +90,22 @@ func (p *Plugin) OnActivate() error {
 
 	p.store = store.Store{
 		API: p.API,
+	}
+
+	p.telemetryClient, err = telemetry.NewRudderClient()
+	if err != nil {
+		p.API.LogWarn("telemetry client not started", "error", err.Error())
+	}
+
+	return nil
+}
+
+func (p *Plugin) OnDeactivate() error {
+	if p.telemetryClient != nil {
+		err := p.telemetryClient.Close()
+		if err != nil {
+			p.API.LogWarn("OnDeactivate: failed to close telemetryClient", "error", err.Error())
+		}
 	}
 
 	return nil

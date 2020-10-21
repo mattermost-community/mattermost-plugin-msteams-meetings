@@ -6,6 +6,7 @@ package main
 import (
 	"reflect"
 
+	"github.com/mattermost/mattermost-plugin-api/experimental/telemetry"
 	"github.com/pkg/errors"
 )
 
@@ -98,6 +99,15 @@ func (p *Plugin) OnConfigurationChange() error {
 	if err := p.API.LoadPluginConfiguration(configuration); err != nil {
 		return errors.Wrap(err, "failed to load plugin configuration")
 	}
+
+	enableDiagnostics := false
+	if config := p.API.GetConfig(); config != nil {
+		if configValue := config.LogSettings.EnableDiagnostics; configValue != nil {
+			enableDiagnostics = *configValue
+		}
+	}
+
+	p.tracker = telemetry.NewTracker(p.telemetryClient, p.API.GetDiagnosticId(), p.API.GetServerVersion(), manifest.Id, manifest.Version, "msteamsmeetings", enableDiagnostics)
 
 	p.setConfiguration(configuration)
 

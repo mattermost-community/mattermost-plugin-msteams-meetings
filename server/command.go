@@ -12,6 +12,7 @@ import (
 const (
 	commandHelp = `* |/mstmeetings start| - Start an MS Teams meeting.
 	* |/mstmeetings disconnect| - Disconnect from Mattermost`
+	tooManyParametersText = "Too many parameters."
 )
 
 func getCommand() *model.Command {
@@ -62,7 +63,7 @@ func (p *Plugin) executeCommand(c *plugin.Context, args *model.CommandArgs) (str
 }
 
 func (p *Plugin) getHelpText() string {
-	return "###### Mattermost MS Teams Meetings Plugin - Slash Command Help\n" + strings.Replace(commandHelp, "|", "`", -1)
+	return "###### Mattermost MS Teams Meetings Plugin - Slash Command Help\n" + strings.ReplaceAll(commandHelp, "|", "`")
 }
 
 func (p *Plugin) handleHelp(args []string, extra *model.CommandArgs) (string, error) {
@@ -71,7 +72,7 @@ func (p *Plugin) handleHelp(args []string, extra *model.CommandArgs) (string, er
 
 func (p *Plugin) handleStart(args []string, extra *model.CommandArgs) (string, error) {
 	if len(args) > 1 {
-		return "Too many parameters.", nil
+		return tooManyParametersText, nil
 	}
 	userID := extra.UserId
 	user, appErr := p.API.GetUser(userID)
@@ -90,6 +91,7 @@ func (p *Plugin) handleStart(args []string, extra *model.CommandArgs) (string, e
 
 	if recentMeeting {
 		p.postConfirmCreateOrJoin(recentMeetingURL, extra.ChannelId, "", userID, creatorName, provider)
+		p.trackMeetingDuplication(extra.UserId)
 		return "", nil
 	}
 
@@ -102,17 +104,21 @@ func (p *Plugin) handleStart(args []string, extra *model.CommandArgs) (string, e
 	if err != nil {
 		return "Failed to post message. Please try again.", errors.Wrap(appErr, "cannot post message")
 	}
+
+	p.trackMeetingStart(extra.UserId, telemetryStartSourceCommand)
 	return "", nil
 }
 
 func (p *Plugin) handleDisconnect(args []string, extra *model.CommandArgs) (string, error) {
 	if len(args) > 1 {
-		return "Too many parameters.", nil
+		return tooManyParametersText, nil
 	}
 	err := p.disconnect(extra.UserId)
 	if err != nil {
 		return "Failed to disconnect the user, err=" + err.Error(), nil
 	}
+
+	p.trackDisconnect(extra.UserId)
 	return "User disconnected from MS Teams Meetings.", nil
 }
 

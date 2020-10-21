@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/mattermost/mattermost-plugin-msteams-meetings/server/store"
+
 	"github.com/pkg/errors"
 	msgraph "github.com/yaegashi/msgraph.go/beta"
 )
