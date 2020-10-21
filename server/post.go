@@ -5,6 +5,7 @@ import (
 
 	"github.com/mattermost/mattermost-plugin-msteams-meetings/server/remote"
 	"github.com/mattermost/mattermost-plugin-msteams-meetings/server/store"
+
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/pkg/errors"
 	msgraph "github.com/yaegashi/msgraph.go/beta"

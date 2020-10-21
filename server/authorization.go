@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/mattermost/mattermost-plugin-msteams-meetings/server/remote"
+
 	msgraph "github.com/yaegashi/msgraph.go/beta"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/microsoft"

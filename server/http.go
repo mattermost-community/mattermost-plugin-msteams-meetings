@@ -10,6 +10,7 @@ import (
 	"net/http"
 
 	"github.com/mattermost/mattermost-plugin-msteams-meetings/server/store"
+
 	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
@@ -17,7 +18,6 @@ import (
 
 const (
 	postTypeStarted = "STARTED"
-	postTypeEnded   = "ENDED"
 	postTypeConfirm = "RECENTLY_CREATED"
 
 	msteamsProviderName = "Microsoft Teams Meetings"
@@ -110,7 +110,7 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	p.store.DeleteState(key)
+	_ = p.store.DeleteState(key)
 
 	if userID != authedUserID {
 		http.Error(w, "Not authorized, incorrect user", http.StatusUnauthorized)
@@ -177,7 +177,7 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 `
 
 	w.Header().Set("Content-Type", "text/html")
-	w.Write([]byte(html))
+	_, _ = w.Write([]byte(html))
 }
 
 type startMeetingRequest struct {
@@ -188,7 +188,6 @@ type startMeetingRequest struct {
 }
 
 func (p *Plugin) handleStartMeeting(w http.ResponseWriter, r *http.Request) {
-
 	userID := r.Header.Get("Mattermost-User-Id")
 	if userID == "" {
 		http.Error(w, "Not authorized", http.StatusUnauthorized)

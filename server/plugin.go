@@ -8,9 +8,10 @@ import (
 	"path/filepath"
 	"sync"
 
+	"github.com/mattermost/mattermost-plugin-msteams-meetings/server/store"
+
 	pluginapi "github.com/mattermost/mattermost-plugin-api"
 	"github.com/mattermost/mattermost-plugin-api/experimental/telemetry"
-	"github.com/mattermost/mattermost-plugin-msteams-meetings/server/store"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/pkg/errors"
