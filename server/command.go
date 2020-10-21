@@ -70,7 +70,7 @@ func (p *Plugin) handleHelp(args []string, extra *model.CommandArgs) (string, er
 }
 
 func (p *Plugin) handleStart(args []string, extra *model.CommandArgs) (string, error) {
-	if len(args) > 0 {
+	if len(args) > 1 {
 		return "Too many parameters.", nil
 	}
 	userID := extra.UserId
@@ -109,7 +109,7 @@ func (p *Plugin) handleStart(args []string, extra *model.CommandArgs) (string, e
 }
 
 func (p *Plugin) handleDisconnect(args []string, extra *model.CommandArgs) (string, error) {
-	if len(args) > 0 {
+	if len(args) > 1 {
 		return "Too many parameters.", nil
 	}
 	err := p.disconnect(extra.UserId)
