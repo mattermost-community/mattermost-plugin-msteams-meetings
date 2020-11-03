@@ -14,6 +14,7 @@ export default function Icon() {
                 {(ariaLabel: string) => (
                     <span
                         aria-label={ariaLabel}
+                        className='icon'
                     >
                         <svg
                             width='19'
