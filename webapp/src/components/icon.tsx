@@ -30,13 +30,13 @@ export default function Icon() {
                                 fillRule='evenodd'
                                 clipRule='evenodd'
                                 d='M1.6 0C0.716344 0 0 0.716345 0 1.6V18.4C0 19.2837 0.716345 20 1.6 20H18.4C19.2837 20 20 19.2837 20 18.4V1.6C20 0.716344 19.2837 0 18.4 0H1.6ZM3.6 2C2.71634 2 2 2.71634 2 3.6V16.4C2 17.2837 2.71634 18 3.6 18H16.4C17.2837 18 18 17.2837 18 16.4V3.6C18 2.71634 17.2837 2 16.4 2H3.6Z'
-                                fill='currentColor'
+                                fill='inherit'
                             />
                             <path
                                 fillRule='evenodd'
                                 clipRule='evenodd'
                                 d='M9 5H6V7H9V15H11V7H14V5H11H9Z'
-                                fill='currentColor'
+                                fill='inherit'
                             />
                         </svg>
                     </span>
