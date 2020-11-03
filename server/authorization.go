@@ -43,7 +43,7 @@ func (p *Plugin) authenticateAndFetchUser(userID, userEmail, channelID string) (
 	}
 	user, err = p.getUserWithToken(userInfo.OAuthToken)
 	if err != nil {
-		return nil, &authError{Message: oauthMsg, Err: apiErr}
+		return nil, &authError{Message: oauthMsg, Err: err}
 	}
 
 	return user, nil
