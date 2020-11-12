@@ -131,6 +131,24 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if remoteUser.Mail == nil {
+		p.API.LogDebug("user has no mail")
+		http.Error(w, "User has no mail. Please check the user is propertly configured in Microsoft", http.StatusInternalServerError)
+		return
+	}
+
+	if remoteUser.ID == nil {
+		p.API.LogDebug("user has no ID")
+		http.Error(w, "User has no ID. Please check the user is propertly configured in Microsoft", http.StatusInternalServerError)
+		return
+	}
+
+	if remoteUser.UserPrincipalName == nil {
+		p.API.LogDebug("user has no UPN")
+		http.Error(w, "User has no user principal name. Please check the user is propertly configured in Microsoft", http.StatusInternalServerError)
+		return
+	}
+
 	userInfo := &store.UserInfo{
 		UserID:     userID,
 		OAuthToken: tok,
