@@ -17,5 +17,12 @@ func (c *Client) GetMe() (*msgraph.User, error) {
 		c.api.LogError(errors.Wrap(err, "cannot get user").Error())
 		return nil, err
 	}
+
+	if graphUser == nil {
+		err = errors.New("empty user")
+		c.api.LogError(errors.Wrap(err, "cannot get user").Error())
+		return nil, err
+	}
+
 	return graphUser, nil
 }
