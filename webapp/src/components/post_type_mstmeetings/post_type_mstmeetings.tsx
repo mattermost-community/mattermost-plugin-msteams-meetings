@@ -7,8 +7,8 @@ import {makeStyleFromTheme} from 'mattermost-redux/utils/theme_utils';
 import {Post} from 'mattermost-redux/types/posts';
 import {Theme} from 'mattermost-redux/types/preferences';
 
-import {formatDate} from '../../utils/date_utils';
 import Icon from 'components/icon';
+import { ActionResult } from 'mattermost-redux/types/actions';
 
 type Props = {
     post: Post;
@@ -20,7 +20,7 @@ type Props = {
     currentChannelId: string;
     fromBot: boolean;
     actions: {
-        startMeeting: (channelID: string, force: boolean) => void;
+        startMeeting: (channelID: string, force: boolean) => ActionResult;
     };
 }
 
@@ -28,6 +28,16 @@ export default function PostTypeMSTMeetings(props: Props) {
     const style = getStyle(props.theme);
     const post = props.post;
     const postProps = post.props || {};
+
+    const [creatingMeeting, setCreatingMeeting] = React.useState(false);
+
+    const handleForceStart = async () => {
+        if (!creatingMeeting) {
+            setCreatingMeeting(true);
+            await props.actions.startMeeting(props.currentChannelId, true);
+            setCreatingMeeting(false);
+        }
+    }
 
     let preText = '';
     let content: JSX.Element | undefined;
@@ -62,7 +72,7 @@ export default function PostTypeMSTMeetings(props: Props) {
                         className='btn btn-lg btn-primary'
                         style={style.button}
                         rel='noopener noreferrer'
-                        onClick={() => props.actions.startMeeting(props.currentChannelId, true)}
+                        onClick={handleForceStart}
                     >
                         {'CREATE NEW MEETING'}
                     </a>

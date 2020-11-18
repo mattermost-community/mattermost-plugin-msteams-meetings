@@ -13,6 +13,7 @@ import {Theme} from 'mattermost-redux/types/preferences';
 import {startMeeting} from '../../actions';
 
 import PostTypeMSTMeetings from './post_type_mstmeetings';
+import { ActionResult } from 'mattermost-redux/types/actions';
 
 type OwnProps = {
     post: Post;
@@ -23,7 +24,7 @@ type OwnProps = {
 }
 
 type Actions = {
-    startMeeting: (channelID: string, force: boolean) => void;
+    startMeeting: (channelID: string, force: boolean) => ActionResult;
 }
 
 function mapStateToProps(state: GlobalState, ownProps: OwnProps) {
