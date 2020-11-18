@@ -20,7 +20,7 @@ export default function Icon() {
                             width='19'
                             height='19'
                             viewBox='0 0 20 20'
-                            fill='none'
+                            fill='inherit'
                             xmlns='http://www.w3.org/2000/svg'
                             style={{
                                 verticalAlign: 'middle',
