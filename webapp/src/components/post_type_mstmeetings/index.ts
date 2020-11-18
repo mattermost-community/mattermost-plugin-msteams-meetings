@@ -6,6 +6,7 @@ import {ActionCreatorsMapObject, bindActionCreators, Dispatch} from 'redux';
 
 import {getBool} from 'mattermost-redux/selectors/entities/preferences';
 import {getCurrentChannelId} from 'mattermost-redux/selectors/entities/common';
+import {ActionResult} from 'mattermost-redux/types/actions';
 import {Post} from 'mattermost-redux/types/posts';
 import {GlobalState} from 'mattermost-redux/types/store';
 import {Theme} from 'mattermost-redux/types/preferences';
@@ -13,7 +14,6 @@ import {Theme} from 'mattermost-redux/types/preferences';
 import {startMeeting} from '../../actions';
 
 import PostTypeMSTMeetings from './post_type_mstmeetings';
-import { ActionResult } from 'mattermost-redux/types/actions';
 
 type OwnProps = {
     post: Post;

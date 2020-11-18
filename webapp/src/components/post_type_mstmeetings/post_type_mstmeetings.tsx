@@ -4,11 +4,11 @@
 import React from 'react';
 
 import {makeStyleFromTheme} from 'mattermost-redux/utils/theme_utils';
+import {ActionResult} from 'mattermost-redux/types/actions';
 import {Post} from 'mattermost-redux/types/posts';
 import {Theme} from 'mattermost-redux/types/preferences';
 
 import Icon from 'components/icon';
-import { ActionResult } from 'mattermost-redux/types/actions';
 
 type Props = {
     post: Post;
@@ -37,7 +37,7 @@ export default function PostTypeMSTMeetings(props: Props) {
             await props.actions.startMeeting(props.currentChannelId, true);
             setCreatingMeeting(false);
         }
-    }
+    };
 
     let preText = '';
     let content: JSX.Element | undefined;
