@@ -77,3 +77,11 @@ You're all set for configuration inside of Azure.
 - `Client Secret` - copy from Azure App (Generated in `Certificates & secrets`, earlier in these instructions)
 
 4. Choose **Save** to apply the configuration.
+
+## Onboarding users
+
+When you’ve tested the plugin and confirmed it’s working, notify your team so they get started. Copy and paste the text below, edit it to suit your requirements, and send it out.
+
+> Hi team,
+
+> The MS Teams Meetings plugin has been configured so you can use it for calls from within Mattermost. To get started, run the `/connect` slash command from any channel within Mattermost. Visit the documentation for more information.
