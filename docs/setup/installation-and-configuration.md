@@ -1,6 +1,6 @@
 ## Installation
 
-The Mattermost MS Teams Meetings plugin is provided in the Mattermost Plugin Marketplace.
+The Mattermost MS Teams Meetings plugin is provided in the Mattermost Plugin Marketplace. Once enabled, clicking the video icon in a Mattermost channel invites team members to join an MS Teams meeting, hosted using the credentials of the user who initiated the call.
 
 ### Requirements
 
