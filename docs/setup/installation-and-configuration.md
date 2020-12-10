@@ -1,6 +1,6 @@
 ## Installation
 
-The Mattermost MS Teams Meetings plugin is included in Mattermost.
+The Mattermost MS Teams Meetings plugin is provided in the Mattermost Plugin Marketplace.
 
 ### Requirements
 
