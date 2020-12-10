@@ -1,6 +1,6 @@
 ## Connecting an account
 
-Use the ``/connect`` slash command to connect.
+Use the `/connect` slash command to connect.
 
 ## Starting a call
 
@@ -8,4 +8,4 @@ Start a call either by clicking the header button or the start slash command. Ev
 
 ## Disconnecting an account
 
-Use the ``/disconnect`` slash command to disconnect the account.
+Use the `/disconnect` slash command to disconnect the account.
