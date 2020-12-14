@@ -84,4 +84,4 @@ When you’ve tested the plugin and confirmed it’s working, notify your team s
 
 > Hi team,
 
-> The MS Teams Meetings plugin has been configured so you can use it for calls from within Mattermost. To get started, run the `/connect` slash command from any channel within Mattermost. Visit the documentation for more information.
+> The MS Teams Meetings plugin has been configured so you can use it for calls from within Mattermost. To get started, run the `/mstmeetings connect` slash command from any channel within Mattermost. Visit the documentation for more information.
