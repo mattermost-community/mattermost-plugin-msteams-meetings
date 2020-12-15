@@ -51,7 +51,7 @@ If your server doesn't have access to the internet, you can download the latest 
 
 <img width="500" src="https://user-images.githubusercontent.com/6913320/76350226-c2961200-62e1-11ea-9080-19a9b75c2aee.png"/>
 
-9. Select **Delegated permissions**, and scroll down to select the ``OnlineMeetings.ReadWrite`` permissions.
+9. Select **Delegated permissions**, and scroll down to select the `OnlineMeetings.ReadWrite` permissions.
 
 <img width="300" src="https://user-images.githubusercontent.com/6913320/76350551-5a93fb80-62e2-11ea-8eb3-812735691af9.png"/>
 
