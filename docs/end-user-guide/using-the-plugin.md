@@ -1,6 +1,6 @@
 ## Connecting an account
 
-Use the `/connect` slash command to connect.
+Use the `/mstmeetings connect` slash command to connect.
 
 ## Starting a call
 
