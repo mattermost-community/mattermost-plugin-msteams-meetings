@@ -8,4 +8,4 @@ Inside the `/server` directory, you will find the Go files that make up the serv
 
 ## Web App
 
-Inside the `/webapp` directory, you will find the JS and React files that make up the client-side of the plugin. Within there, modify files and components as necessary. Test your syntax by running `npm run build`.
+Inside the `/webapp` directory, you will find the JavaScript files that make up the client-side of the plugin. Within that directory, modify files and components as necessary. Test your syntax by running `npm run build`.
