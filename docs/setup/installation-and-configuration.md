@@ -15,7 +15,7 @@ The Mattermost MS Teams Meetings plugin is provided in the Mattermost Plugin Mar
 
 ### Manual Installation
 
-If your server doesn't have access to the internet, you can download the latest [plugin binary release](https://github.com/mattermost/mattermost-plugin-msteams-meetings/releases) and upload it to your server via **System Console > Plugin Management**. The releases on this page are the same used by the Marketplace.
+If your server doesn't have access to the internet, you can download the latest [plugin binary release](https://github.com/mattermost/mattermost-plugin-msteams-meetings/releases) and upload it to your server via **System Console > Plugin Management**. The releases on this page are the same versions available on the Plugin Marketplace.
 
 ## Configuration
 
