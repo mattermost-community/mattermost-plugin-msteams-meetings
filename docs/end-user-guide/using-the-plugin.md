@@ -9,5 +9,3 @@ Start a call either by selecting the video icon in a Mattermost channel or by us
 ## Disconnecting an MS Teams account from Mattermost
 
 Use the `/mstmeetings disconnect` slash command to disconnect an MS Teams account from Mattermost.
-
-To connect another account to Mattermost, follow the configuration instructions again. If you are disconnecting in order to refresh the token, then use `/mstmeetings connect` to reconnect.
