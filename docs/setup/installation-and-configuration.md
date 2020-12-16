@@ -5,7 +5,7 @@ The Mattermost MS Teams Meetings plugin is provided in the Mattermost Plugin Mar
 ### Requirements
 
 * Mattermost Server v5.26+ is required.
-* Enterprise Edition E20 is required.
+* Mattermost Enterprise Edition E20 is required.
 
 ### Marketplace Installation
 
