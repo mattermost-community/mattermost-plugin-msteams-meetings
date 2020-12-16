@@ -1,4 +1,4 @@
-## Connecting an account
+## Connecting an MS Teams account to Mattermost
 
 Use the `/mstmeetings connect` slash command to connect.
 
