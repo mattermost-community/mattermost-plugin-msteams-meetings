@@ -73,7 +73,7 @@ You're all set for configuration inside of the Azure portal.
 3. Enter the following values in the fields provided:
 
 - `tenantID` - copy from the Azure portal
-- `clientID` - copy from Azure App
+- `clientID` - copy from the Azure portal
 - `Client Secret` - copy from the Azure portal (generated in **Certificates & secrets** earlier in these instructions)
 
 4. Choose **Save** to apply the configuration.
