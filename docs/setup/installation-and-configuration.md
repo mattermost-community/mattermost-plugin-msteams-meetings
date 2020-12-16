@@ -21,7 +21,7 @@ If your server doesn't have access to the internet, you can download the latest 
 
 ### Step 1: Create a Mattermost App in Azure
 
-1. Sign into [the Azure portal](https://portal.azure.com) using an admin Azure account.
+1. Sign in to [the Azure portal](https://portal.azure.com) using an admin Azure account.
 2. Navigate to [App Registrations](https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/RegisteredApps).
 3. Select **New registration** at the top of the page.
 
