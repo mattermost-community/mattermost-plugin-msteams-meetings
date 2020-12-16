@@ -80,7 +80,7 @@ You're all set for configuration inside of the Azure portal.
 
 ## Onboarding users
 
-When you’ve tested the plugin and confirmed it’s working, notify your team so they get started. Copy and paste the text below, edit it to suit your requirements, and send it out.
+When you’ve tested the plugin and confirmed it’s working, notify your team so they can get started. Copy and paste the text below, edit it to suit your requirements, and send it out.
 
 > Hi team,
 
