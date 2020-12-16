@@ -72,7 +72,7 @@ You're all set for configuration inside of the Azure portal.
 2. Go to **System Console > Plugins > MS Teams Meetings**.
 3. Enter the following values in the fields provided:
 
-- `tenantID` - copy from Azure App
+- `tenantID` - copy from the Azure portal
 - `clientID` - copy from Azure App
 - `Client Secret` - copy from the Azure portal (generated in **Certificates & secrets** earlier in these instructions)
 
