@@ -39,7 +39,7 @@ If your server doesn't have access to the internet, you can download the latest 
 
 <img width="300" src="https://user-images.githubusercontent.com/6913320/76348833-3d116280-62df-11ea-8b13-d39a0a2f2024.png"/>
 
-6. Select **New client secret > Add**, and copy the new secret on the bottom right corner of the screen. We'll use this value later in the Mattermost admin console.
+6. Select **New client secret > Add**, then copy the new secret in the bottom right corner of the screen. We'll use this value later in the Mattermost System Console.
 
 <img width="300" src="https://user-images.githubusercontent.com/6913320/76349025-9da09f80-62df-11ea-8c8f-0b39cad4597e.png"/>
 
