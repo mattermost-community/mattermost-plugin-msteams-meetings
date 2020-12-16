@@ -9,7 +9,7 @@ The Mattermost MS Teams Meetings plugin is provided in the Mattermost Plugin Mar
 
 ### Marketplace Installation
 
-1. Go to **Main Menu > Plugin Marketplace** in Mattermost.
+1. In Mattermost, go to **Main Menu > Plugin Marketplace**.
 2. Search for "MS Teams" or manually find the plugin from the list and click **Install**.
 3. After the plugin is downloaded and installed, select **Configure**.
 
