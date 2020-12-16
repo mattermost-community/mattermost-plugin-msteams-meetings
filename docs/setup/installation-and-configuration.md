@@ -69,7 +69,7 @@ You're all set for configuration inside of the Azure portal.
 
 <img width="300" src="https://user-images.githubusercontent.com/6913320/76779336-9109c480-6781-11ea-8cde-4b79e5b2f3cd.png"/>
 
-2. Go to **System Console > PLUGINS > MS Teams Meetings**.
+2. Go to **System Console > Plugins > MS Teams Meetings**.
 3. Enter the following values in the fields provided:
 
 - `tenantID` - copy from Azure App
