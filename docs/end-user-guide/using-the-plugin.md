@@ -4,7 +4,7 @@ Use the `/mstmeetings connect` slash command to connect an MS Teams account to M
 
 ## Starting a call
 
-Start a call either by clicking the header button or the `/mstmeetings start` slash command. Every meeting you create will create a new meeting room in MS Teams. If two meetings are created really close (less than 30 seconds) you will get a prompt asking you whether you are sure you want to create the meeting.
+Start a call either by selecting the video icon in a Mattermost channel or by using the `/mstmeetings start` slash command. Every meeting you start creates a new meeting room in MS Teams. If you start two meetings really close together (less than 30 seconds apart) you will get a prompt asking you whether you are sure you want to create the meeting.
 
 ## Disconnecting an account
 
