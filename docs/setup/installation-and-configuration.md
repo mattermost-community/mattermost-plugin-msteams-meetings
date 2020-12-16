@@ -61,7 +61,7 @@ If your server doesn't have access to the internet, you can download the latest 
 
 11. Select **Grant admin consent for...** to grant the permissions for the application.
 
-You're all set for configuration inside of Azure.
+You're all set for configuration inside of the Azure portal.
 
 ### Step 2: Configure Plugin Settings
 
