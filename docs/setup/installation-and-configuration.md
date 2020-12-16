@@ -31,31 +31,33 @@ If your server doesn't have access to the internet, you can download the latest 
 
 - Name: **Mattermost MS Teams Meetings Plugin**
 - Supported account types: **Default value (Single tenant)**
-- Redirect URI: **https://(MM_SITE_URL)/plugins/com.mattermost.msteamsmeetings/oauth2/complete**. Replace `(MM_SITE_URL)` with your Mattermost server's Site URL. Select **Register** to submit the form.
+- Redirect URI: **https://(MM_SITE_URL)/plugins/com.mattermost.msteamsmeetings/oauth2/complete**. Replace `(MM_SITE_URL)` with your Mattermost server's URL. 
+
+5. Select **Register** to submit the form.
 
 <img width="500 src="https://user-images.githubusercontent.com/6913320/76348298-55cd4880-62de-11ea-8e0e-4ace3a8f8fcb.png"/>
 
-5. Navigate to **Certificates & secrets** in the left pane.
+6. Navigate to **Certificates & secrets** in the left pane.
 
 <img width="300" src="https://user-images.githubusercontent.com/6913320/76348833-3d116280-62df-11ea-8b13-d39a0a2f2024.png"/>
 
-6. Select **New client secret > Add**, then copy the new secret in the bottom right corner of the screen. We'll use this value later in the Mattermost System Console.
+7. Select **New client secret > Add**, then copy the new secret in the bottom right corner of the screen. We'll use this value later in the Mattermost System Console.
 
 <img width="300" src="https://user-images.githubusercontent.com/6913320/76349025-9da09f80-62df-11ea-8c8f-0b39cad4597e.png"/>
 
-7. Navigate to **API permissions** in the left pane.
+8. Navigate to **API permissions** in the left pane.
 
 <img width="300" src="https://user-images.githubusercontent.com/6913320/76349582-a9d92c80-62e0-11ea-9414-5efd12c09b3f.png"/>
 
-8. Select **Add a permission** and choose **Microsoft Graph** in the right pane.
+9. Select **Add a permission** and choose **Microsoft Graph** in the right pane.
 
 <img width="500" src="https://user-images.githubusercontent.com/6913320/76350226-c2961200-62e1-11ea-9080-19a9b75c2aee.png"/>
 
-9. Select **Delegated permissions**, and scroll down to select the `OnlineMeetings.ReadWrite` permissions.
+10. Select **Delegated permissions**, and scroll down to select the `OnlineMeetings.ReadWrite` permissions.
 
 <img width="300" src="https://user-images.githubusercontent.com/6913320/76350551-5a93fb80-62e2-11ea-8eb3-812735691af9.png"/>
 
-10. Select **Add permissions** to submit the form.
+11. Select **Add permissions** to submit the form.
 
 <img width="300" src="https://user-images.githubusercontent.com/6913320/80412303-abb07c80-889b-11ea-9640-7c2f264c790f.png"/>
 
@@ -72,9 +74,9 @@ You're all set for configuration inside of the Azure portal.
 2. Go to **System Console > Plugins > MS Teams Meetings**.
 3. Enter the following values in the fields provided:
 
-- `tenantID` - copy from the Azure portal
-- `clientID` - copy from the Azure portal
-- `Client Secret` - copy from the Azure portal (generated in **Certificates & secrets** earlier in these instructions)
+- `tenantID` - Copy from the Azure portal
+- `clientID` - Copy from the Azure portal
+- `Client Secret` - Copy from the Azure portal (generated in **Certificates & secrets** earlier in these instructions)
 
 4. Choose **Save** to apply the configuration.
 
