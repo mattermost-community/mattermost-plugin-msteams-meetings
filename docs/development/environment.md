@@ -4,7 +4,7 @@ This plugin contains both a server and web app portion. Read our documentation a
 
 ## Server
 
-Inside the `/server` directory, you will find the Go files that make up the server-side of the plugin. Within there, build the plugin like you would any other Go application.
+Inside the `/server` directory, you will find the Go files that make up the server-side of the plugin. Within that directory, build the plugin like you would any other Go application.
 
 ## Web App
 
