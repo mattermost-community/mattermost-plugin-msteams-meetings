@@ -1,7 +1,7 @@
 
 # Mattermost MS Teams Meetings Plugin 
 
-Start and join voice calls, video calls and use screen sharing with your team members via MS Teams Meetings.
+Start and join voice calls, video calls, and use screen sharing with your team members via MS Teams Meetings.
 
 ![Screenshot](https://user-images.githubusercontent.com/177788/42196048-af54d2b8-7e30-11e8-80a0-5e160ae06f03.png)
 
