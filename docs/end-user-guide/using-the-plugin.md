@@ -1,6 +1,6 @@
 ## Connecting an MS Teams account to Mattermost
 
-Use the `/mstmeetings connect` slash command to connect.
+Use the `/mstmeetings connect` slash command to connect an MS Teams account to Mattermost.
 
 ## Starting a call
 
