@@ -16,4 +16,4 @@
 
 ## Support
 
-* [Help and Support](development/help-and-support.md)
+* [Help and Support](help-and-support.md)
