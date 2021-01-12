@@ -22,20 +22,20 @@
         "settings": [
             {
                 "key": "OAuth2Authority",
-                "display_name": "Azure Directory (tenant) ID",
+                "display_name": "Azure Directory (tenant) ID:",
                 "type": "text",
-                "help_text": "Directory (tenant) ID"
+                "help_text": "Directory (tenant) ID."
             },
             {
                 "key": "OAuth2ClientId",
-                "display_name": "Azure Application (client) ID",
+                "display_name": "Azure Application (client) ID:",
                 "type": "text",
                 "help_text": "Microsoft Office Client ID.",
                 "default": ""
             },
             {
                 "key": "OAuth2ClientSecret",
-                "display_name": "Azure Application (client) Secret",
+                "display_name": "Azure Application (client) Secret:",
                 "type": "text",
                 "help_text": "Microsoft Office Client Secret.",
                 "default": ""
