@@ -22,24 +22,25 @@
         "settings": [
             {
                 "key": "OAuth2Authority",
-                "display_name": "Azure Directory (tenant) ID:",
+                "display_name": "Azure - Directory (tenant) ID:",
                 "type": "text",
-                "help_text": "Directory (tenant) ID."
+                "help_text": "Copy the 'Directory (tenant) ID' value from the App Overview Page in the Azure Portal."
             },
             {
                 "key": "OAuth2ClientId",
-                "display_name": "Azure Application (client) ID:",
+                "display_name": "Azure - Application (client) ID:",
                 "type": "text",
-                "help_text": "Microsoft Office Client ID.",
+                "help_text": "Copy the 'Application (client) ID' value from the App Overview Page in the Azure Portal.",
                 "default": ""
             },
             {
                 "key": "OAuth2ClientSecret",
-                "display_name": "Azure Application (client) Secret:",
+                "display_name": "Azure - Application (client) Secret:",
                 "type": "text",
-                "help_text": "Microsoft Office Client Secret.",
+                "help_text": "Copy the `Client Secret` value (not ID) that was created on the App's `Certificates and Secrets` tab",
                 "default": ""
             }
         ]
+        "header": "Please refer to installation instructions [**here**](https://app.gitbook.com/@mattermost/s/microsoft-teams-pluginmsteams-meetings-plugin/setup/installation-and-configuration) for creating a new Application in the Azure Portal."
     }
 }
