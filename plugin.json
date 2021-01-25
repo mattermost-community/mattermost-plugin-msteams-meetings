@@ -30,7 +30,7 @@
                 "key": "OAuth2ClientId",
                 "display_name": "Azure - Application (client) ID:",
                 "type": "text",
-                "help_text": "Copy the 'Application (client) ID' value from the App Overview Page in the Azure Portal.",
+                "help_text": "Copy the **Application (client) ID** value from the App Overview Page in the Azure Portal.",
                 "default": ""
             },
             {
