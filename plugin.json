@@ -24,7 +24,7 @@
                 "key": "OAuth2Authority",
                 "display_name": "Azure - Directory (tenant) ID:",
                 "type": "text",
-                "help_text": "Copy the 'Directory (tenant) ID' value from the App Overview Page in the Azure Portal."
+                "help_text": "Copy the **Directory (tenant) ID** value from the App Overview Page in the Azure Portal."
             },
             {
                 "key": "OAuth2ClientId",
