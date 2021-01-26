@@ -4,9 +4,9 @@
     "description": "MS Teams Meetings audio and video conferencing plugin for Mattermost 5.2+.",
     "homepage_url": "https://mattermost.gitbook.io/microsoft-teams-pluginmsteams-meetings-plugin",
     "support_url": "https://github.com/mattermost/mattermost-plugin-msteams-meetings/issues",
-    "release_notes_url": "https://github.com/mattermost/mattermost-plugin-msteams-meetings/releases/tag/v0.1.0",
+    "release_notes_url": "https://github.com/mattermost/mattermost-plugin-msteams-meetings/releases/tag/v1.0.0",
     "icon_path": "assets/profile.svg",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "min_server_version": "5.26.0",
     "server": {
         "executables": {
