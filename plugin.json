@@ -37,7 +37,7 @@
                 "key": "OAuth2ClientSecret",
                 "display_name": "Azure - Application (client) Secret:",
                 "type": "text",
-                "help_text": "Copy the **Client Secret** value (not ID) that was created on the App's **Certificates and Secrets** tab",
+                "help_text": "Copy the **Client Secret** value (not ID) that was created on the App's **Certificates and Secrets** tab.",
                 "default": ""
             }
         ],
