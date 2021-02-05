@@ -29,13 +29,13 @@ If your server doesn't have access to the internet, you can download the latest 
 
 4. Fill out the form with the following values:
 
-- Name: **Mattermost MS Teams Meetings Plugin**
-- Supported account types: **Default value (Single tenant)**
-- Redirect URI: **https://(MM_SITE_URL)/plugins/com.mattermost.msteamsmeetings/oauth2/complete**. Replace `(MM_SITE_URL)` with your Mattermost server's URL. 
+    - Name: **Mattermost MS Teams Meetings Plugin**
+    - Supported account types: **Default value (Single tenant)**
+    - Redirect URI: **https://(MM_SITE_URL)/plugins/com.mattermost.msteamsmeetings/oauth2/complete**. Replace `(MM_SITE_URL)` with your Mattermost server's URL. 
 
 5. Select **Register** to submit the form.
 
-<img width="500 src="https://user-images.githubusercontent.com/6913320/76348298-55cd4880-62de-11ea-8e0e-4ace3a8f8fcb.png"/>
+<img width="500" src="https://user-images.githubusercontent.com/6913320/76348298-55cd4880-62de-11ea-8e0e-4ace3a8f8fcb.png"/>
 
 6. Navigate to **Certificates & secrets** in the left pane.
 
@@ -61,7 +61,7 @@ If your server doesn't have access to the internet, you can download the latest 
 
 <img width="300" src="https://user-images.githubusercontent.com/6913320/80412303-abb07c80-889b-11ea-9640-7c2f264c790f.png"/>
 
-11. Select **Grant admin consent for...** to grant the permissions for the application.
+12. Select **Grant admin consent for...** to grant the permissions for the application.
 
 You're all set for configuration inside of the Azure portal.
 
@@ -74,9 +74,9 @@ You're all set for configuration inside of the Azure portal.
 2. Go to **System Console > Plugins > MS Teams Meetings**.
 3. Enter the following values in the fields provided:
 
-- `tenantID` - Copy from the Azure portal
-- `clientID` - Copy from the Azure portal
-- `Client Secret` - Copy from the Azure portal (generated in **Certificates & secrets** earlier in these instructions)
+    - `tenantID` - Copy from the Azure portal
+    - `clientID` - Copy from the Azure portal
+    - `Client Secret` - Copy from the Azure portal (generated in **Certificates & secrets** earlier in these instructions)
 
 4. Choose **Save** to apply the configuration.
 
