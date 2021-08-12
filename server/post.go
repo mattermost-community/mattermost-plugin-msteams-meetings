@@ -29,7 +29,6 @@ func (p *Plugin) postWarning(creator *model.User, channelID string, userID strin
 			membersCount := len(*members)
 			message += "\n" + fmt.Sprintf("You are about a create a meeting in a channel with %d members", membersCount)
 		}
-
 	}
 
 	post := &model.Post{

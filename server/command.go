@@ -77,7 +77,7 @@ func (p *Plugin) handleStartConfirm(args []string, extra *model.CommandArgs) (st
 	userID := extra.UserId
 	user, appErr := p.API.GetUser(userID)
 	if appErr != nil {
-		return "Cannot get user.", errors.Wrap(appErr, "cannot get user")
+		return "User not found.", errors.Wrap(appErr, "cannot get user")
 	}
 	channelID := extra.ChannelId
 	channel, err := p.API.GetChannel(channelID)
@@ -97,7 +97,6 @@ func (p *Plugin) handleStartConfirm(args []string, extra *model.CommandArgs) (st
 			membersCount := len(*members)
 			message += "\n" + fmt.Sprintf("You are about a create a meeting in a channel with %d members", membersCount)
 		}
-
 	}
 
 	post := &model.Post{
@@ -119,45 +118,6 @@ func (p *Plugin) handleStartConfirm(args []string, extra *model.CommandArgs) (st
 		return "", appErr
 	}
 
-	return "", nil
-}
-
-func (p *Plugin) handleStart(args []string, extra *model.CommandArgs) (string, error) {
-	if len(args) > 1 {
-		return tooManyParametersText, nil
-	}
-	userID := extra.UserId
-	user, appErr := p.API.GetUser(userID)
-	if appErr != nil {
-		return "Cannot get user.", errors.Wrap(appErr, "cannot get user")
-	}
-
-	if _, appErr = p.API.GetChannelMember(extra.ChannelId, userID); appErr != nil {
-		return "We could not get channel members.", errors.Wrap(appErr, "cannot get channel member")
-	}
-
-	recentMeeting, recentMeetingURL, creatorName, provider, appErr := p.checkPreviousMessages(extra.ChannelId)
-	if appErr != nil {
-		return "Error checking previous messages.", errors.Wrap(appErr, "cannot check previous messages")
-	}
-
-	if recentMeeting {
-		p.postConfirmCreateOrJoin(recentMeetingURL, extra.ChannelId, "", userID, creatorName, provider)
-		p.trackMeetingDuplication(extra.UserId)
-		return "", nil
-	}
-
-	_, authErr := p.authenticateAndFetchUser(userID, user.Email, extra.ChannelId)
-	if authErr != nil {
-		return authErr.Message, authErr.Err
-	}
-
-	_, _, err := p.postMeeting(user, extra.ChannelId, "")
-	if err != nil {
-		return "Failed to post message. Please try again.", errors.Wrap(appErr, "cannot post message")
-	}
-
-	p.trackMeetingStart(extra.UserId, telemetryStartSourceCommand)
 	return "", nil
 }
 

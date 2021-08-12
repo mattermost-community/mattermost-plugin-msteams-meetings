@@ -237,6 +237,7 @@ func (p *Plugin) handleWarnAndConfirm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	p.postWarning(user, req.ChannelID, userID)
+	return
 }
 
 func (p *Plugin) handleStartMeeting(w http.ResponseWriter, r *http.Request) {
