@@ -84,7 +84,7 @@ func (p *Plugin) handleStartConfirm(args []string, extra *model.CommandArgs) (st
 	if err != nil {
 		return "", err
 	}
-	message := "Confirm you want to start the meeting"
+	message := ""
 	if channel.IsGroupOrDirect() {
 		var members *model.ChannelMembers
 		members, err = p.API.GetChannelMembers(channelID, 0, 100)
@@ -95,7 +95,7 @@ func (p *Plugin) handleStartConfirm(args []string, extra *model.CommandArgs) (st
 		if members != nil {
 			p.API.LogDebug(fmt.Sprintf("%d members in channel %s", len(*members), channelID))
 			membersCount := len(*members)
-			message += "\n" + fmt.Sprintf("You are about a create a meeting in a channel with %d members, do you want to continue creating the meeting?", membersCount)
+			message += "\n" + fmt.Sprintf("You are about a create a meeting in a channel with %d members", membersCount)
 		}
 
 	}
