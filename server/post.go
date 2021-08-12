@@ -27,7 +27,7 @@ func (p *Plugin) postWarning(creator *model.User, channelID string, userID strin
 		if members != nil {
 			p.API.LogDebug(fmt.Sprintf("%d members in channel %s", len(*members), channelID))
 			membersCount := len(*members)
-			message += "\n" + fmt.Sprintf("You are about a create a meeting in a channel with %d members, do you want to continue creating the meeting?", membersCount)
+			message += "\n" + fmt.Sprintf("You are about a create a meeting in a channel with %d members", membersCount)
 		}
 
 	}
