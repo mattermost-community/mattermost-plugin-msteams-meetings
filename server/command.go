@@ -52,7 +52,7 @@ func (p *Plugin) executeCommand(c *plugin.Context, args *model.CommandArgs) (str
 
 	switch action {
 	case "start":
-		return p.handleStart(split[1:], args)
+		return p.handleStartConfirm(split[1:], args)
 	case "disconnect":
 		return p.handleDisconnect(split[1:], args)
 	case "help":
@@ -68,6 +68,58 @@ func (p *Plugin) getHelpText() string {
 
 func (p *Plugin) handleHelp(args []string, extra *model.CommandArgs) (string, error) {
 	return p.getHelpText(), nil
+}
+
+func (p *Plugin) handleStartConfirm(args []string, extra *model.CommandArgs) (string, error) {
+	if len(args) > 1 {
+		return tooManyParametersText, nil
+	}
+	userID := extra.UserId
+	user, appErr := p.API.GetUser(userID)
+	if appErr != nil {
+		return "Cannot get user.", errors.Wrap(appErr, "cannot get user")
+	}
+	channelID := extra.ChannelId
+	channel, err := p.API.GetChannel(channelID)
+	if err != nil {
+		return "", err
+	}
+	message := "Confirm you want to start the meeting"
+	if channel.IsGroupOrDirect() {
+		var members *model.ChannelMembers
+		members, err = p.API.GetChannelMembers(channelID, 0, 100)
+		if err != nil {
+			return "", err
+		}
+
+		if members != nil {
+			p.API.LogDebug(fmt.Sprintf("%d members in channel %s", len(*members), channelID))
+			membersCount := len(*members)
+			message += "\n" + fmt.Sprintf("You are about a create a meeting in a channel with %d members, do you want to continue creating the meeting?", membersCount)
+		}
+
+	}
+
+	post := &model.Post{
+		UserId:    p.botUserID,
+		ChannelId: channelID,
+		Message:   message,
+		Type:      "custom_mstmeetings",
+		Props: map[string]interface{}{
+			"type":                     "custom_mstmeetings",
+			"meeting_status":           postTypeDialogWarn,
+			"meeting_personal":         true,
+			"meeting_creator_username": user.Username,
+			"meeting_provider":         msteamsProviderName,
+			"message":                  message,
+		},
+	}
+	_, appErr = p.API.CreatePost(post)
+	if appErr != nil {
+		return "", appErr
+	}
+
+	return "", nil
 }
 
 func (p *Plugin) handleStart(args []string, extra *model.CommandArgs) (string, error) {

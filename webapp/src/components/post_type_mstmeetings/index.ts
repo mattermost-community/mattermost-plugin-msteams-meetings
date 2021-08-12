@@ -11,7 +11,7 @@ import {Post} from 'mattermost-redux/types/posts';
 import {GlobalState} from 'mattermost-redux/types/store';
 import {Theme} from 'mattermost-redux/types/preferences';
 
-import {startMeeting} from '../../actions';
+import {warnAndConfirm, startMeeting} from '../../actions';
 
 import PostTypeMSTMeetings from './post_type_mstmeetings';
 
@@ -25,6 +25,7 @@ type OwnProps = {
 
 type Actions = {
     startMeeting: (channelID: string, force: boolean) => ActionResult;
+    warnAndConfirm: (channelID: string) => ActionResult;
 }
 
 function mapStateToProps(state: GlobalState, ownProps: OwnProps) {
@@ -40,6 +41,7 @@ function mapStateToProps(state: GlobalState, ownProps: OwnProps) {
 function mapDispatchToProps(dispatch: Dispatch) {
     return {
         actions: bindActionCreators<ActionCreatorsMapObject, Actions>({
+            warnAndConfirm,
             startMeeting,
         }, dispatch),
     };

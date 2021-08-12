@@ -17,8 +17,9 @@ import (
 )
 
 const (
-	postTypeStarted = "STARTED"
-	postTypeConfirm = "RECENTLY_CREATED"
+	postTypeStarted    = "STARTED"
+	postTypeDialogWarn = "WARN_DIALOG"
+	postTypeConfirm    = "RECENTLY_CREATED"
 
 	msteamsProviderName = "Microsoft Teams Meetings"
 )
@@ -31,7 +32,9 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 	}
 
 	switch path := r.URL.Path; path {
-	case "/api/v1/meetings":
+	case "/api/v1/meetings/confirm":
+		p.handleWarnAndConfirm(w, r)
+	case "/api/v1/meetings/start":
 		p.handleStartMeeting(w, r)
 	case "/oauth2/connect":
 		p.connectUser(w, r)
@@ -203,6 +206,37 @@ type startMeetingRequest struct {
 	Personal  bool   `json:"personal"`
 	Topic     string `json:"topic"`
 	MeetingID int    `json:"meeting_id"`
+}
+
+type confirmMeeting struct {
+	ChannelID string `json:"channel_id"`
+	Personal  bool   `json:"personal"`
+}
+
+func (p *Plugin) handleWarnAndConfirm(w http.ResponseWriter, r *http.Request) {
+	userID := r.Header.Get("Mattermost-User-Id")
+
+	if userID == "" {
+		p.API.LogWarn("handleWarnAndConfirm 1")
+		http.Error(w, "Not authorized", http.StatusUnauthorized)
+		return
+	}
+
+	var req confirmMeeting
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		p.API.LogWarn("handleWarnAndConfirm 2", "error", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	user, appErr := p.API.GetUser(userID)
+	if appErr != nil {
+		p.API.LogWarn("handleWarnAndConfirm 3")
+		http.Error(w, appErr.Error(), appErr.StatusCode)
+		return
+	}
+	p.postWarning(user, req.ChannelID, userID)
 }
 
 func (p *Plugin) handleStartMeeting(w http.ResponseWriter, r *http.Request) {

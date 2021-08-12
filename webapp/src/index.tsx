@@ -11,7 +11,7 @@ import {getConfig} from 'mattermost-redux/selectors/entities/general';
 import {id as pluginId} from './manifest';
 import Icon from './components/icon';
 import PostTypeMSTMeetings from './components/post_type_mstmeetings';
-import {startMeeting} from './actions';
+import {warnAndConfirm} from './actions';
 import Client from './client';
 // eslint-disable-next-line import/no-unresolved
 import {PluginRegistry} from './types/mattermost-webapp';
@@ -24,7 +24,7 @@ class Plugin {
             async (channel: Channel) => {
                 if (!creatingMeeting) {
                     creatingMeeting = true;
-                    await startMeeting(channel.id)(store.dispatch, store.getState);
+                    await warnAndConfirm(channel.id)(store.dispatch, store.getState);
                     creatingMeeting = false;
                 }
             },

@@ -21,6 +21,7 @@ type Props = {
     fromBot: boolean;
     actions: {
         startMeeting: (channelID: string, force: boolean) => ActionResult;
+        warnAndConfirm: (channelID: string) => ActionResult;
     };
 }
 
@@ -39,10 +40,34 @@ export default function PostTypeMSTMeetings(props: Props) {
         }
     };
 
+    const handleStartMeeting = async () => {
+        if (!creatingMeeting) {
+            setCreatingMeeting(true);
+            await props.actions.startMeeting(props.currentChannelId, false);
+            setCreatingMeeting(false);
+        }
+    };
+
     let preText = '';
     let content: JSX.Element | undefined;
     let subtitle = '';
-    if (postProps.meeting_status === 'STARTED') {
+    if (postProps.meeting_status === 'WARN_DIALOG') {
+        preText = postProps.message;
+        content = (
+            <a
+                className='btn btn-lg btn-primary'
+                style={style.button}
+                rel='noopener noreferrer'
+                target='_blank'
+                onClick={handleStartMeeting}
+            >
+                <i style={style.buttonIcon}>
+                    <Icon/>
+                </i>
+                {'CREATE MEETING'}
+            </a>
+        );
+    } else if (postProps.meeting_status === 'STARTED') {
         preText = 'I have started a meeting';
         if (props.fromBot) {
             preText = `${props.creatorName} has started a meeting`;

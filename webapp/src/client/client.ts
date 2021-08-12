@@ -14,7 +14,12 @@ export default class Client {
     }
 
     startMeeting = async (channelId: string, personal = true, topic = '', meetingId = 0, force = false) => {
-        const res = await doPost(`${this.url}/api/v1/meetings${force ? '?force=true' : ''}`, {channel_id: channelId, personal, topic, meeting_id: meetingId});
+        const res = await doPost(`${this.url}/api/v1/meetings/start${force ? '?force=true' : ''}`, {channel_id: channelId, personal, topic, meeting_id: meetingId});
+        return res.meeting_url;
+    }
+
+    warnAndConfirmMeeting = async (channelId: string, personal = true, topic = '', meetingId = 0) => {
+        const res = await doPost(`${this.url}/api/v1/meetings/confirm`, {channel_id: channelId, personal: true});
         return res.meeting_url;
     }
 

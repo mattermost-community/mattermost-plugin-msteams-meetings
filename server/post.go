@@ -11,6 +11,46 @@ import (
 	msgraph "github.com/yaegashi/msgraph.go/beta"
 )
 
+func (p *Plugin) postWarning(creator *model.User, channelID string, userID string) (*model.Post, error) {
+	channel, err := p.API.GetChannel(channelID)
+	if err != nil {
+		return nil, err
+	}
+	message := ""
+	if channel.IsGroupOrDirect() {
+		var members *model.ChannelMembers
+		members, err = p.API.GetChannelMembers(channelID, 0, 100)
+		if err != nil {
+			return nil, err
+		}
+
+		if members != nil {
+			p.API.LogDebug(fmt.Sprintf("%d members in channel %s", len(*members), channelID))
+			membersCount := len(*members)
+			message += "\n" + fmt.Sprintf("You are about a create a meeting in a channel with %d members, do you want to continue creating the meeting?", membersCount)
+		}
+
+	}
+
+	post := &model.Post{
+		UserId:    p.botUserID,
+		ChannelId: channelID,
+		Message:   message,
+		Type:      "custom_mstmeetings",
+		Props: map[string]interface{}{
+			"type":                     "custom_mstmeetings",
+			"meeting_status":           postTypeDialogWarn,
+			"meeting_personal":         true,
+			"meeting_creator_username": creator.Username,
+			"meeting_provider":         msteamsProviderName,
+			"message":                  message,
+		},
+	}
+	// postStr,  := json.Marshal(post)
+	// p.API.LogDebug("post log", "post", string(postStr))
+	return p.API.SendEphemeralPost(userID, post), nil
+}
+
 func (p *Plugin) postMeeting(creator *model.User, channelID string, topic string) (*model.Post, *msgraph.OnlineMeeting, error) {
 	conf, err := p.getOAuthConfig()
 	if err != nil {
