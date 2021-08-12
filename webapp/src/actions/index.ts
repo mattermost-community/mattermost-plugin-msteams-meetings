@@ -63,7 +63,6 @@ export function startMeeting(channelId: string, force = false) {
     };
 }
 
-
 export function warnAndConfirm(channelId: string) {
     return async (dispatch: Dispatch, getState: GetStateFunc) => {
         try {
