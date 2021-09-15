@@ -102,7 +102,7 @@ func (p *Plugin) handleStart(args []string, extra *model.CommandArgs) (string, e
 
 	_, _, err := p.postMeeting(user, extra.ChannelId, "")
 	if err != nil {
-		return "Failed to post message. Please try again.", errors.Wrap(appErr, "cannot post message")
+		return "Failed to post message. Please try again.", errors.Wrap(err, "cannot post message")
 	}
 
 	p.trackMeetingStart(extra.UserId, telemetryStartSourceCommand)
