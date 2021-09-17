@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"sync"
 
+	pluginapi "github.com/mattermost/mattermost-plugin-api"
 	"github.com/mattermost/mattermost-plugin-msteams-meetings/server/store"
 
 	"github.com/mattermost/mattermost-plugin-api/experimental/telemetry"
@@ -46,6 +47,8 @@ type Plugin struct {
 
 // OnActivate checks if the configurations is valid and ensures the bot account exists
 func (p *Plugin) OnActivate() error {
+	pluginAPIClient := pluginapi.NewClient(p.API)
+
 	if !HasEnterpriseFeatures(p.API.GetConfig(), p.API.GetLicense()) {
 		return errors.New(licenseErrorMessage)
 	}
