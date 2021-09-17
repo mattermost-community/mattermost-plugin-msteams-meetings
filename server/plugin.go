@@ -10,7 +10,6 @@ import (
 
 	"github.com/mattermost/mattermost-plugin-msteams-meetings/server/store"
 
-	pluginapi "github.com/mattermost/mattermost-plugin-api"
 	"github.com/mattermost/mattermost-plugin-api/experimental/telemetry"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
@@ -21,6 +20,8 @@ const (
 	botUserName    = "mstmeetings"
 	botDisplayName = "MS Teams Meetings"
 	botDescription = "Created by the MS Teams Meetings plugin."
+
+	licenseErrorMessage = "The MS Teams Meetings plugin requires an E20, Professional, or Enterprise license."
 )
 
 // Plugin defines the plugin struct
@@ -45,10 +46,8 @@ type Plugin struct {
 
 // OnActivate checks if the configurations is valid and ensures the bot account exists
 func (p *Plugin) OnActivate() error {
-	pluginAPIClient := pluginapi.NewClient(p.API)
-
-	if !pluginapi.IsE20LicensedOrDevelopment(pluginAPIClient.Configuration.GetConfig(), pluginAPIClient.System.GetLicense()) {
-		return errors.New("a valid Mattermost Enterprise E20 license is required to use this plugin")
+	if !HasEnterpriseFeatures(p.API.GetConfig(), p.API.GetLicense()) {
+		return errors.New(licenseErrorMessage)
 	}
 
 	config := p.getConfiguration()
