@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"strings"
 
+	pluginapi "github.com/mattermost/mattermost-plugin-api"
+	"github.com/mattermost/mattermost-plugin-api/experimental/command"
+
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/pkg/errors"
@@ -15,14 +18,20 @@ const (
 	tooManyParametersText = "Too many parameters."
 )
 
-func getCommand() *model.Command {
+func getCommand(client *pluginapi.Client) *model.Command {
+	iconData, err := command.GetIconData(&client.System, "assets/profile.svg")
+	if err != nil {
+		client.Log.Warn("Error getting icon data", "err", err.Error())
+	}
+
 	return &model.Command{
-		Trigger:          "mstmeetings",
-		DisplayName:      "MS Teams Meetings",
-		Description:      "Integration with MS Teams Meetings.",
-		AutoComplete:     true,
-		AutoCompleteDesc: "Available commands: start, disconnect",
-		AutoCompleteHint: "[command]",
+		Trigger:              "mstmeetings",
+		DisplayName:          "MS Teams Meetings",
+		Description:          "Integration with MS Teams Meetings.",
+		AutoComplete:         true,
+		AutoCompleteDesc:     "Available commands: start, disconnect",
+		AutoCompleteHint:     "[command]",
+		AutocompleteIconData: iconData,
 	}
 }
 
