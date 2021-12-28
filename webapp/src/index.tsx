@@ -13,6 +13,8 @@ import Icon from './components/icon';
 import PostTypeMSTMeetings from './components/post_type_mstmeetings';
 import {startMeeting} from './actions';
 import Client from './client';
+import {getPluginURL, getServerRoute} from './selectors';
+
 // eslint-disable-next-line import/no-unresolved
 import {PluginRegistry} from './types/mattermost-webapp';
 
@@ -29,9 +31,28 @@ class Plugin {
                 }
             },
             'Start MS Teams Meeting',
+            'Start MS Teams Meeting',
         );
         registry.registerPostTypeComponent('custom_mstmeetings', PostTypeMSTMeetings);
         Client.setServerRoute(getServerRoute(store.getState()));
+
+        if (registry.registerAppBarComponent) {
+            const appBarIconPath = '/public/app-bar-icon.png';
+            const pluginURL = getPluginURL(store.getState());
+            const iconURL = pluginURL + appBarIconPath;
+
+            registry.registerAppBarComponent(
+                iconURL,
+                async (channel: Channel) => {
+                    if (!creatingMeeting) {
+                        creatingMeeting = true;
+                        await startMeeting(channel.id)(store.dispatch, store.getState);
+                        creatingMeeting = false;
+                    }
+                },
+                'Start MS Teams Meeting',
+            );
+        }
     }
 }
 
@@ -42,18 +63,3 @@ declare global {
 }
 
 window.registerPlugin(pluginId, new Plugin());
-
-const getServerRoute = (state: GlobalState) => {
-    const config = getConfig(state);
-
-    let basePath = '';
-    if (config && config.SiteURL) {
-        basePath = new URL(config.SiteURL).pathname;
-
-        if (basePath && basePath[basePath.length - 1] === '/') {
-            basePath = basePath.substr(0, basePath.length - 1);
-        }
-    }
-
-    return basePath;
-};
