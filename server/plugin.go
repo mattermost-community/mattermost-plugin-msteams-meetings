@@ -14,8 +14,6 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/pkg/errors"
-
-	"github.com/mattermost/mattermost-plugin-msteams-meetings/server/store"
 )
 
 const (
@@ -42,8 +40,6 @@ type Plugin struct {
 
 	telemetryClient telemetry.Client
 	tracker         telemetry.Tracker
-
-	store store.Store
 }
 
 // OnActivate checks if the configurations is valid and ensures the bot account exists
@@ -89,10 +85,6 @@ func (p *Plugin) OnActivate() error {
 
 	if appErr := p.API.SetProfileImage(botUserID, profileImage); appErr != nil {
 		return errors.Wrap(appErr, "couldn't set profile image")
-	}
-
-	p.store = store.Store{
-		API: p.API,
 	}
 
 	p.telemetryClient, err = telemetry.NewRudderClient()
