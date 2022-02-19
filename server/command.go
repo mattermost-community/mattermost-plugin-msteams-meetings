@@ -14,6 +14,7 @@ import (
 
 const (
 	commandHelp = "###### Mattermost MS Teams Meetings Plugin - Slash Command Help\n" +
+		"* |/mstmeetings help| - Display this help text. \n" +
 		"* |/mstmeetings start| - Start an MS Teams meeting. \n" +
 		"* |/mstmeetings disconnect| - Disconnect from Mattermost. \n"
 	tooManyParametersText = "Too many parameters."
@@ -30,7 +31,7 @@ func getCommand(client *pluginapi.Client) *model.Command {
 		DisplayName:          "MS Teams Meetings",
 		Description:          "Integration with MS Teams Meetings.",
 		AutoComplete:         true,
-		AutoCompleteDesc:     "Available commands: start, disconnect",
+		AutoCompleteDesc:     "Available commands: help, start, disconnect",
 		AutoCompleteHint:     "[command]",
 		AutocompleteIconData: iconData,
 		AutocompleteData:     getAutocompleteData(),
@@ -40,6 +41,9 @@ func getCommand(client *pluginapi.Client) *model.Command {
 func getAutocompleteData() *model.AutocompleteData {
 	command := model.NewAutocompleteData("mstmeetings", "[command]",
 		"Available commands: start, disconnect")
+
+	help := model.NewAutocompleteData("help", "", "Display usage information")
+	command.AddCommand(help)
 
 	start := model.NewAutocompleteData("start", "", "Start an MS Teams meeting")
 	command.AddCommand(start)
