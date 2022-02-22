@@ -4,6 +4,7 @@
 package main
 
 import (
+	"encoding/json"
 	"reflect"
 
 	"github.com/mattermost/mattermost-plugin-api/experimental/telemetry"
@@ -26,6 +27,39 @@ type configuration struct {
 	OAuth2ClientID     string `json:"oauth2clientid"`
 	OAuth2ClientSecret string `json:"oauth2clientsecret"`
 	EncryptionKey      string `json:"encryptionkey"`
+}
+
+func (c *configuration) ToMap() (map[string]interface{}, error) {
+	var out map[string]interface{}
+	data, err := json.Marshal(c)
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(data, &out)
+	if err != nil {
+		return nil, err
+	}
+
+	return out, nil
+}
+
+func (c *configuration) setDefaults() (bool, error) {
+	if c.OAuth2ClientID != "" {
+		return false, nil
+	}
+
+	changed := false
+	if c.EncryptionKey == "" {
+		secret, err := generateSecret()
+		if err != nil {
+			return false, err
+		}
+
+		c.EncryptionKey = secret
+		changed = true
+	}
+
+	return changed, nil
 }
 
 // Clone shallow copies the configuration. Your implementation may require a deep copy if
@@ -74,31 +108,35 @@ func (p *Plugin) getConfiguration() *configuration {
 // This method panics if setConfiguration is called with the existing configuration. This almost
 // certainly means that the configuration was modified without being cloned and may result in
 // an unsafe access.
-func (p *Plugin) setConfiguration(configuration *configuration) {
+func (p *Plugin) setConfiguration(c *configuration) {
 	p.configurationLock.Lock()
 	defer p.configurationLock.Unlock()
 
-	if configuration != nil && p.configuration == configuration {
+	if c != nil && p.configuration == c {
 		// Ignore assignment if the configuration struct is empty. Go will optimize the
 		// allocation for same to point at the same memory address, breaking the check
 		// above.
-		if reflect.ValueOf(*configuration).NumField() == 0 {
+		if reflect.ValueOf(*c).NumField() == 0 {
 			return
 		}
 
 		panic("setConfiguration called with the existing configuration")
 	}
 
-	p.configuration = configuration
+	p.configuration = c
 }
 
 // OnConfigurationChange is invoked when configuration changes may have been made.
 func (p *Plugin) OnConfigurationChange() error {
-	var configuration = new(configuration)
+	var c = new(configuration)
 
 	// Load the public configuration fields from the Mattermost server configuration.
-	if err := p.API.LoadPluginConfiguration(configuration); err != nil {
+	if err := p.API.LoadPluginConfiguration(c); err != nil {
 		return errors.Wrap(err, "failed to load plugin configuration")
+	}
+	err := p.setDefaultConfiguration(c)
+	if err != nil {
+		return errors.Wrap(err, "failed to set default configuration")
 	}
 
 	enableDiagnostics := false
@@ -110,7 +148,28 @@ func (p *Plugin) OnConfigurationChange() error {
 
 	p.tracker = telemetry.NewTracker(p.telemetryClient, p.API.GetDiagnosticId(), p.API.GetServerVersion(), manifest.Id, manifest.Version, "msteamsmeetings", enableDiagnostics)
 
-	p.setConfiguration(configuration)
+	p.setConfiguration(c)
+
+	return nil
+}
+
+func (p *Plugin) setDefaultConfiguration(config *configuration) error {
+	changed, err := config.setDefaults()
+	if err != nil {
+		return err
+	}
+
+	if changed {
+		configMap, err := config.ToMap()
+		if err != nil {
+			return err
+		}
+
+		appErr := p.API.SavePluginConfig(configMap)
+		if appErr != nil {
+			return appErr
+		}
+	}
 
 	return nil
 }

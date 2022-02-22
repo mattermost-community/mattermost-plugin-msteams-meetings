@@ -199,3 +199,16 @@ func lastN(s string, n int) string {
 	}
 	return string(out)
 }
+
+func generateSecret() (string, error) {
+	b := make([]byte, 256)
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", err
+	}
+	s := base64.RawStdEncoding.EncodeToString(b)
+
+	s = s[:32]
+
+	return s, nil
+}
