@@ -54,6 +54,10 @@ func (p *Plugin) postMeeting(creator *model.User, channelID string, topic string
 		return nil, nil, err
 	}
 
+	if !p.API.HasPermissionToChannel(creator.Id, channelID, model.PERMISSION_CREATE_POST) {
+		return nil, nil, errors.New("cannot create post in this channel")
+	}
+
 	post := &model.Post{
 		UserId:    creator.Id,
 		ChannelId: channelID,
