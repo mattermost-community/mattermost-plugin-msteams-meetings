@@ -128,7 +128,8 @@ func (p *Plugin) setConfiguration(c *configuration) {
 
 // OnConfigurationChange is invoked when configuration changes may have been made.
 func (p *Plugin) OnConfigurationChange() error {
-	var c = new(configuration)
+	prev := p.getConfiguration()
+	c := new(configuration)
 
 	// Load the public configuration fields from the Mattermost server configuration.
 	if err := p.API.LoadPluginConfiguration(c); err != nil {
@@ -149,6 +150,16 @@ func (p *Plugin) OnConfigurationChange() error {
 	p.tracker = telemetry.NewTracker(p.telemetryClient, p.API.GetDiagnosticId(), p.API.GetServerVersion(), manifest.Id, manifest.Version, "msteamsmeetings", enableDiagnostics)
 
 	p.setConfiguration(c)
+
+	if prev.EncryptionKey != "" && prev.EncryptionKey != c.EncryptionKey {
+		go func() {
+			p.API.LogInfo("Detected a change in the encryption key, resetting users' OAuth2 tokens")
+			resetErr := p.resetAllOAuthTokens()
+			if resetErr != nil {
+				p.API.LogError("Failed to reset users' OAuth2 tokens", "error", err.Error)
+			}
+		}()
+	}
 
 	return nil
 }
