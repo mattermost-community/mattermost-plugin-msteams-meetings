@@ -51,7 +51,7 @@ func (s *Store) GetUserInfo(userID string) (*UserInfo, error) {
 
 	infoBytes, appErr := s.API.KVGet(tokenKey + userID)
 	if appErr != nil || infoBytes == nil {
-		return nil, errors.New("connect the user account to microsoft teams.")
+		return nil, errors.New("connect the user account to Microsoft Teams")
 	}
 
 	err := json.Unmarshal(infoBytes, &userInfo)
