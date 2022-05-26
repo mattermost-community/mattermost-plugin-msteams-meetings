@@ -44,7 +44,10 @@ func (c *configuration) ToMap() (map[string]interface{}, error) {
 }
 
 func (c *configuration) setDefaults() (bool, error) {
-	if c.OAuth2ClientID == "" {
+	// If the ClientID has been set, we don't touch the EncryptionKey since
+	// doing so would invalidate the existing connected users. The system
+	// administrators can manually trigger this from the system console.
+	if c.OAuth2ClientID != "" {
 		return false, nil
 	}
 
