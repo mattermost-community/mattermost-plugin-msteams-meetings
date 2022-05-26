@@ -44,7 +44,7 @@ func (c *configuration) ToMap() (map[string]interface{}, error) {
 }
 
 func (c *configuration) setDefaults() (bool, error) {
-	if c.OAuth2ClientID != "" {
+	if c.OAuth2ClientID == "" {
 		return false, nil
 	}
 
@@ -129,13 +129,14 @@ func (p *Plugin) setConfiguration(c *configuration) {
 // OnConfigurationChange is invoked when configuration changes may have been made.
 func (p *Plugin) OnConfigurationChange() error {
 	prev := p.getConfiguration()
-	c := new(configuration)
 
 	// Load the public configuration fields from the Mattermost server configuration.
-	if err := p.API.LoadPluginConfiguration(c); err != nil {
+	loaded := configuration{}
+	if err := p.API.LoadPluginConfiguration(&loaded); err != nil {
 		return errors.Wrap(err, "failed to load plugin configuration")
 	}
-	err := p.setDefaultConfiguration(c)
+
+	err := p.setDefaultConfiguration(&loaded)
 	if err != nil {
 		return errors.Wrap(err, "failed to set default configuration")
 	}
@@ -149,14 +150,17 @@ func (p *Plugin) OnConfigurationChange() error {
 
 	p.tracker = telemetry.NewTracker(p.telemetryClient, p.API.GetDiagnosticId(), p.API.GetServerVersion(), manifest.Id, manifest.Version, "msteamsmeetings", enableDiagnostics)
 
-	p.setConfiguration(c)
+	p.setConfiguration(&loaded)
 
-	if prev.EncryptionKey != "" && prev.EncryptionKey != c.EncryptionKey {
+	// If there was a real change to the configuration, reset all tokens.
+	// Special case the first time OnConfigurationChange is invoked on plugin
+	// load.
+	if (*prev != configuration{}) && *prev != loaded {
+		p.API.LogInfo("detected a change in the OAuth2 configuration: resetting user tokens, all users will need to reconnect to Microsoft Teams.")
 		go func() {
-			p.API.LogInfo("Detected a change in the encryption key, resetting users' OAuth2 tokens")
 			resetErr := p.resetAllOAuthTokens()
 			if resetErr != nil {
-				p.API.LogError("Failed to reset users' OAuth2 tokens", "error", err.Error)
+				p.API.LogError("failed to reset users' OAuth2 tokens", "error", resetErr.Error)
 			}
 		}()
 	}
@@ -180,7 +184,8 @@ func (p *Plugin) setDefaultConfiguration(config *configuration) error {
 		if appErr != nil {
 			return appErr
 		}
-	}
 
+		p.API.LogInfo("auto-generated encryption key in the configration")
+	}
 	return nil
 }

@@ -37,14 +37,14 @@
                 "key": "OAuth2ClientSecret",
                 "display_name": "Azure - Application (client) Secret:",
                 "type": "text",
-                "help_text": "Copy the **Client Secret** value (not ID) that was created on the App's **Certificates and Secrets** tab.",
+                "help_text": "Copy the **Client Secret Value** (not the ID) that was created on the App's **Certificates and Secrets** tab.",
                 "default": ""
             },
             {
                 "key": "EncryptionKey",
                 "display_name": "At Rest Encryption Key:",
                 "type": "generated",
-                "help_text": "The AES encryption key used to encrypt stored access tokens. **Caution**: when this token is re-generated all previously stored access tokens will be cleared and all users will be required to re-connect to MS Teams."
+                "help_text": "The AES encryption key used to encrypt stored access tokens.\n\n**Caution**: when this token is re-generated all previously stored access tokens will be cleared and all users will be required to re-connect to MS Teams."
             }
         ],
         "header": "Please refer to installation instructions [**here**](https://app.gitbook.com/@mattermost/s/microsoft-teams-pluginmsteams-meetings-plugin/setup/installation-and-configuration) for creating a new Application in the Azure Portal."

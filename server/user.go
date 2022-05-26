@@ -218,67 +218,81 @@ func generateSecret() (string, error) {
 	return s, nil
 }
 
-const pageSize = 100
+// const pageSize = 100
 
 func (p *Plugin) resetAllOAuthTokens() error {
-	tryReset := func(key string) (bool, string, error) {
-		data, appErr := p.API.KVGet(key)
-		if appErr != nil {
-			return false, "", appErr
-		}
-		ui := UserInfo{}
-		err := json.Unmarshal(data, &ui)
-		if err != nil {
-			// nothing to do
-			return false, "", nil
-		}
-		if ui.OAuthToken == nil && ui.EncryptedOAuthToken == "" {
-			// nothing to do
-			return false, "", nil
-		}
-		ui.OAuthToken = nil
-		ui.EncryptedOAuthToken = ""
-
-		err = p.StoreUserInfo(&ui)
-		if err != nil {
-			return false, "", err
-		}
-
-		return true, ui.Email, nil
-	}
-	okCount := 0
-	errorCount := 0
-	for page := 0; ; page++ {
-		keys, appErr := p.API.KVList(page, pageSize)
-		if appErr != nil {
-			return appErr
-		}
-		if len(keys) == 0 {
-			// Done.
-			break
-		}
-
-		for _, key := range keys {
-			changed, email, err := tryReset(key)
-			switch {
-			case err != nil:
-				errorCount++
-				p.API.LogWarn("error resetting user OAuth2 token", "key", key, "error", err.Error())
-			case changed:
-				okCount++
-				p.API.LogDebug("reset user OAuth2 token", "key", key, "email", email)
-			}
-		}
+	// At this time the only data the plugin stores in the KV store is the user
+	// OAuth2 tokens, and the temporary state to use during OAuth2
+	// authentication flow. Since a change in the encryption key invalidates all
+	// connections, we can safely remove all of plugin's data since it'll be
+	// irrelevant anyway.
+	appErr := p.API.KVDeleteAll()
+	if appErr != nil {
+		return appErr
 	}
 
-	if errorCount > 0 {
-		p.API.LogError("Errors while resetting OAuth2 tokens, see WARNING level logs for details.", "errors", errorCount)
-	}
+	// TODO: Leaving the more selective implementation commented out in case we
+	// need to store keys other than the connected user mappings and tokens.
 
-	if okCount > 0 {
-		p.API.LogInfo("Successfully reset OAuth2 tokens.", "count", okCount)
-	} else {
-		p.API.LogInfo("Did not find any OAuth2 tokens to reset.")
-	}
+	// tryReset := func(key string) (bool, string, error) {
+	// 	data, appErr := p.API.KVGet(key)
+	// 	if appErr != nil {
+	// 		return false, "", appErr
+	// 	}
+	// 	ui := UserInfo{}
+	// 	err := json.Unmarshal(data, &ui)
+	// 	if err != nil {
+	// 		// nothing to do
+	// 		return false, "", nil
+	// 	}
+	// 	if ui.OAuthToken == nil && ui.EncryptedOAuthToken == "" {
+	// 		// nothing to do
+	// 		return false, "", nil
+	// 	}
+	// 	ui.OAuthToken = nil
+	// 	ui.EncryptedOAuthToken = ""
+
+	// 	err = p.StoreUserInfo(&ui)
+	// 	if err != nil {
+	// 		return false, "", err
+	// 	}
+
+	// 	return true, ui.Email, nil
+	// }
+	// okCount := 0
+	// errorCount := 0
+	// for page := 0; ; page++ {
+	// 	keys, appErr := p.API.KVList(page, pageSize)
+	// 	if appErr != nil {
+	// 		return appErr
+	// 	}
+	// 	if len(keys) == 0 {
+	// 		// Done.
+	// 		break
+	// 	}
+
+	// 	for _, key := range keys {
+	// 		changed, email, err := tryReset(key)
+	// 		switch {
+	// 		case err != nil:
+	// 			errorCount++
+	// 			p.API.LogWarn("error resetting user OAuth2 token", "key", key, "error", err.Error())
+	// 		case changed:
+	// 			okCount++
+	// 			p.API.LogDebug("reset user OAuth2 token", "key", key, "email", email)
+	// 		}
+	// 	}
+	// }
+
+	// if errorCount > 0 {
+	// 	p.API.LogError("Errors while resetting OAuth2 tokens, see WARNING level logs for details.", "errors", errorCount)
+	// }
+
+	// if okCount > 0 {
+	// 	p.API.LogInfo("Successfully reset OAuth2 tokens.", "count", okCount)
+	// } else {
+	// 	p.API.LogInfo("Did not find any OAuth2 tokens to reset.")
+	// }
+
 	return nil
 }
