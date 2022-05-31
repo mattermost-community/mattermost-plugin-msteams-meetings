@@ -55,8 +55,7 @@ func (p *Plugin) OnActivate() error {
 		return err
 	}
 
-	err := p.setDefaultConfiguration(config)
-	if err != nil {
+	if err := p.setDefaultConfiguration(config); err != nil {
 		return errors.Wrap(err, "failed to set default configuration")
 	}
 
