@@ -139,11 +139,6 @@ func (p *Plugin) OnConfigurationChange() error {
 		return errors.Wrap(err, "failed to load plugin configuration")
 	}
 
-	err := p.setDefaultConfiguration(&loaded)
-	if err != nil {
-		return errors.Wrap(err, "failed to set default configuration")
-	}
-
 	enableDiagnostics := false
 	if config := p.API.GetConfig(); config != nil {
 		if configValue := config.LogSettings.EnableDiagnostics; configValue != nil {
