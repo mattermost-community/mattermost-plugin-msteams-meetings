@@ -11,7 +11,7 @@ import (
 
 	"github.com/mattermost/mattermost-plugin-msteams-meetings/server/store"
 
-	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/mattermost/mattermost-server/v6/plugin"
 	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
 )

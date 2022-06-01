@@ -6,7 +6,7 @@ package remote
 import (
 	"context"
 
-	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/mattermost/mattermost-server/v6/plugin"
 	msgraph "github.com/yaegashi/msgraph.go/beta"
 	"golang.org/x/oauth2"
 )

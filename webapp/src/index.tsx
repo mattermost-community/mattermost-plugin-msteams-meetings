@@ -8,7 +8,7 @@ import {Channel} from 'mattermost-redux/types/channels';
 import {GlobalState} from 'mattermost-redux/types/store';
 import {getConfig} from 'mattermost-redux/selectors/entities/general';
 
-import {id as pluginId} from './manifest';
+import manifest from './manifest';
 import Icon from './components/icon';
 import PostTypeMSTMeetings from './components/post_type_mstmeetings';
 import {startMeeting} from './actions';
@@ -16,7 +16,7 @@ import Client from './client';
 // eslint-disable-next-line import/no-unresolved
 import {PluginRegistry} from './types/mattermost-webapp';
 
-class Plugin {
+export default class Plugin {
     public async initialize(registry: PluginRegistry, store: Store<GlobalState, Action<Record<string, unknown>>>) {
         let creatingMeeting = false;
         registry.registerChannelHeaderButtonAction(
@@ -41,7 +41,7 @@ declare global {
     }
 }
 
-window.registerPlugin(pluginId, new Plugin());
+window.registerPlugin(manifest.id, new Plugin());
 
 const getServerRoute = (state: GlobalState) => {
     const config = getConfig(state);

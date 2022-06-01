@@ -11,8 +11,8 @@ import (
 	pluginapi "github.com/mattermost/mattermost-plugin-api"
 
 	"github.com/mattermost/mattermost-plugin-api/experimental/telemetry"
-	"github.com/mattermost/mattermost-server/v5/model"
-	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost-server/v6/plugin"
 	"github.com/pkg/errors"
 
 	"github.com/mattermost/mattermost-plugin-msteams-meetings/server/store"
@@ -48,7 +48,7 @@ type Plugin struct {
 
 // OnActivate checks if the configurations is valid and ensures the bot account exists
 func (p *Plugin) OnActivate() error {
-	pluginAPIClient := pluginapi.NewClient(p.API)
+	pluginAPIClient := pluginapi.NewClient(p.API, p.Driver)
 
 	if !HasEnterpriseFeatures(p.API.GetConfig(), p.API.GetLicense()) {
 		return errors.New(licenseErrorMessage)
@@ -63,7 +63,7 @@ func (p *Plugin) OnActivate() error {
 		return err
 	}
 
-	botUserID, err := p.Helpers.EnsureBot(&model.Bot{
+	botUserID, err := pluginAPIClient.Bot.EnsureBot(&model.Bot{
 		Username:    botUserName,
 		DisplayName: botDisplayName,
 		Description: botDescription,

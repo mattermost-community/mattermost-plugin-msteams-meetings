@@ -6,7 +6,7 @@ import (
 	"github.com/mattermost/mattermost-plugin-msteams-meetings/server/remote"
 	"github.com/mattermost/mattermost-plugin-msteams-meetings/server/store"
 
-	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/pkg/errors"
 	msgraph "github.com/yaegashi/msgraph.go/beta"
 )
@@ -29,7 +29,7 @@ func (p *Plugin) postMeeting(creator *model.User, channelID string, topic string
 	}
 
 	if channel.IsGroupOrDirect() {
-		var members *model.ChannelMembers
+		var members model.ChannelMembers
 		members, appErr = p.API.GetChannelMembers(channelID, 0, 100)
 		if appErr != nil {
 			return nil, nil, err
@@ -37,7 +37,7 @@ func (p *Plugin) postMeeting(creator *model.User, channelID string, topic string
 		if members == nil {
 			return nil, nil, errors.New("returned members is nil")
 		}
-		for _, member := range *members {
+		for _, member := range members {
 			var attendeeInfo *store.UserInfo
 			attendeeInfo, err = p.store.GetUserInfo(member.UserId)
 			if err != nil {
