@@ -55,10 +55,6 @@ func (p *Plugin) OnActivate() error {
 		return err
 	}
 
-	if err := p.setDefaultConfiguration(config); err != nil {
-		return errors.Wrap(err, "failed to set default configuration")
-	}
-
 	if _, err := p.getSiteURL(); err != nil {
 		return err
 	}

@@ -43,28 +43,6 @@ func (c *configuration) ToMap() (map[string]interface{}, error) {
 	return out, nil
 }
 
-func (c *configuration) setDefaults() (bool, error) {
-	// If the ClientID has been set, we don't touch the EncryptionKey since
-	// doing so would invalidate the existing connected users. The system
-	// administrators can manually trigger this from the system console.
-	if c.OAuth2ClientID != "" {
-		return false, nil
-	}
-
-	changed := false
-	if c.EncryptionKey == "" {
-		secret, err := generateSecret()
-		if err != nil {
-			return false, err
-		}
-
-		c.EncryptionKey = secret
-		changed = true
-	}
-
-	return changed, nil
-}
-
 // Clone shallow copies the configuration. Your implementation may require a deep copy if
 // your configuration has reference types.
 func (c *configuration) Clone() *configuration {
@@ -139,6 +117,10 @@ func (p *Plugin) OnConfigurationChange() error {
 		return errors.Wrap(err, "failed to load plugin configuration")
 	}
 
+	if err := p.setDefaultConfiguration(&loaded); err != nil {
+		return errors.Wrap(err, "failed to set default configuration")
+	}
+
 	enableDiagnostics := false
 	if config := p.API.GetConfig(); config != nil {
 		if configValue := config.LogSettings.EnableDiagnostics; configValue != nil {
@@ -166,24 +148,26 @@ func (p *Plugin) OnConfigurationChange() error {
 	return nil
 }
 
-func (p *Plugin) setDefaultConfiguration(config *configuration) error {
-	changed, err := config.setDefaults()
+func (p *Plugin) setDefaultConfiguration(c *configuration) error {
+	if c.EncryptionKey != "" {
+		return nil
+	}
+	secret, err := generateSecret()
 	if err != nil {
 		return err
 	}
 
-	if changed {
-		configMap, err := config.ToMap()
-		if err != nil {
-			return err
-		}
-
-		appErr := p.API.SavePluginConfig(configMap)
-		if appErr != nil {
-			return appErr
-		}
-
-		p.API.LogInfo("auto-generated encryption key in the configration")
+	c.EncryptionKey = secret
+	configMap, err := c.ToMap()
+	if err != nil {
+		return err
 	}
+
+	appErr := p.API.SavePluginConfig(configMap)
+	if appErr != nil {
+		return appErr
+	}
+
+	p.API.LogInfo("auto-generated encryption key in the configration")
 	return nil
 }
