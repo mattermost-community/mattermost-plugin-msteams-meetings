@@ -43,6 +43,13 @@ func (c *configuration) ToMap() (map[string]interface{}, error) {
 	return out, nil
 }
 
+func (c configuration) differsOAuth2(other configuration) bool {
+	return c.OAuth2Authority != other.OAuth2Authority ||
+		c.OAuth2ClientID != other.OAuth2ClientID ||
+		c.OAuth2ClientSecret != other.OAuth2ClientSecret ||
+		c.EncryptionKey != other.EncryptionKey
+}
+
 // Clone shallow copies the configuration. Your implementation may require a deep copy if
 // your configuration has reference types.
 func (c *configuration) Clone() *configuration {
@@ -132,10 +139,8 @@ func (p *Plugin) OnConfigurationChange() error {
 
 	p.setConfiguration(&loaded)
 
-	// If there was a real change to the configuration, reset all tokens.
-	// Special case the first time OnConfigurationChange is invoked on plugin
-	// load.
-	if (*prev != configuration{}) && *prev != loaded {
+	firstLoad := (*prev == configuration{})
+	if !firstLoad && loaded.differsOAuth2(*prev) {
 		p.API.LogInfo("detected a change in the OAuth2 configuration: resetting user tokens, all users will need to reconnect to Microsoft Teams.")
 		go func() {
 			resetErr := p.resetAllOAuthTokens()

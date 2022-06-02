@@ -20,7 +20,7 @@ type UserInfo struct {
 	Email string
 
 	OAuthToken          *oauth2.Token `json:",omitempty"`
-	EncryptedOAuthToken string        `json:"encrypted_oauth_token,omitempty"`
+	EncryptedOAuthToken string        `json:",omitempty"`
 
 	// Mattermost userID
 	UserID string

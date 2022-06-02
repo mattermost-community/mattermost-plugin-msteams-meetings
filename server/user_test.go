@@ -31,7 +31,7 @@ func TestEncryptUserData(t *testing.T) {
 	data, err := ui.EncryptedJSON(key)
 	require.NoError(t, err)
 	require.Regexp(t,
-		`\{"Email":"test@test","encrypted_oauth_token":"[^"]+","UserID":"test","RemoteID":"test-remote","UPN":"test-upn"\}`,
+		`\{"Email":"test@test","EncryptedOAuthToken":"[^"]+","UserID":"test","RemoteID":"test-remote","UPN":"test-upn"\}`,
 		string(data))
 
 	decrypted, err := DecryptUserInfo(data, key)
