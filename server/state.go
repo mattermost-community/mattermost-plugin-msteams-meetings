@@ -1,4 +1,4 @@
-package store
+package main
 
 import (
 	"errors"
@@ -12,11 +12,11 @@ const (
 	stateLength = 3
 )
 
-func (s *Store) StoreState(userID string, extra string) (string, error) {
+func (p *Plugin) StoreState(userID string, extra string) (string, error) {
 	key := fmt.Sprintf("%v_%v", model.NewId()[0:15], userID)
 	state := fmt.Sprintf("%v_%v", key, extra)
 
-	appErr := s.API.KVSet(key, []byte(state))
+	appErr := p.API.KVSet(key, []byte(state))
 	if appErr != nil {
 		return "", appErr
 	}
@@ -24,27 +24,27 @@ func (s *Store) StoreState(userID string, extra string) (string, error) {
 	return state, nil
 }
 
-func (s *Store) GetState(key string) (string, error) {
-	storedState, appErr := s.API.KVGet(key)
+func (p *Plugin) GetState(key string) (string, error) {
+	storedState, appErr := p.API.KVGet(key)
 	if appErr != nil {
 		return "", appErr
 	}
 	return string(storedState), nil
 }
 
-func (s *Store) DeleteState(key string) error {
-	appErr := s.API.KVDelete(key)
+func (p *Plugin) DeleteState(key string) error {
+	appErr := p.API.KVDelete(key)
 	if appErr != nil {
 		return appErr
 	}
 	return nil
 }
 
-func (s *Store) ParseState(state string) (key, userID, extra string, err error) {
+func (p *Plugin) ParseState(state string) (key, userID, extra string, err error) {
 	stateComponents := strings.Split(state, "_")
 
 	if len(stateComponents) != stateLength {
-		s.API.LogDebug("complete oauth, state mismatch", "stateComponents", fmt.Sprintf("%v", stateComponents), "state", state)
+		p.API.LogDebug("complete oauth, state mismatch", "stateComponents", fmt.Sprintf("%v", stateComponents), "state", state)
 		return "", "", "", errors.New("status mismatch")
 	}
 

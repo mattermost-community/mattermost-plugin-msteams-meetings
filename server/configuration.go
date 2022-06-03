@@ -4,6 +4,7 @@
 package main
 
 import (
+	"encoding/json"
 	"reflect"
 
 	"github.com/mattermost/mattermost-plugin-api/experimental/telemetry"
@@ -22,9 +23,31 @@ import (
 // If you add non-reference types to your configuration struct, be sure to rewrite Clone as a deep
 // copy appropriate for your types.
 type configuration struct {
-	OAuth2Authority    string
-	OAuth2ClientID     string
-	OAuth2ClientSecret string
+	OAuth2Authority    string `json:"oauth2authority"`
+	OAuth2ClientID     string `json:"oauth2clientid"`
+	OAuth2ClientSecret string `json:"oauth2clientsecret"`
+	EncryptionKey      string `json:"encryptionkey"`
+}
+
+func (c *configuration) ToMap() (map[string]interface{}, error) {
+	var out map[string]interface{}
+	data, err := json.Marshal(c)
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(data, &out)
+	if err != nil {
+		return nil, err
+	}
+
+	return out, nil
+}
+
+func (c configuration) differsOAuth2(other configuration) bool {
+	return c.OAuth2Authority != other.OAuth2Authority ||
+		c.OAuth2ClientID != other.OAuth2ClientID ||
+		c.OAuth2ClientSecret != other.OAuth2ClientSecret ||
+		c.EncryptionKey != other.EncryptionKey
 }
 
 // Clone shallow copies the configuration. Your implementation may require a deep copy if
@@ -73,31 +96,36 @@ func (p *Plugin) getConfiguration() *configuration {
 // This method panics if setConfiguration is called with the existing configuration. This almost
 // certainly means that the configuration was modified without being cloned and may result in
 // an unsafe access.
-func (p *Plugin) setConfiguration(configuration *configuration) {
+func (p *Plugin) setConfiguration(c *configuration) {
 	p.configurationLock.Lock()
 	defer p.configurationLock.Unlock()
 
-	if configuration != nil && p.configuration == configuration {
+	if c != nil && p.configuration == c {
 		// Ignore assignment if the configuration struct is empty. Go will optimize the
 		// allocation for same to point at the same memory address, breaking the check
 		// above.
-		if reflect.ValueOf(*configuration).NumField() == 0 {
+		if reflect.ValueOf(*c).NumField() == 0 {
 			return
 		}
 
 		panic("setConfiguration called with the existing configuration")
 	}
 
-	p.configuration = configuration
+	p.configuration = c
 }
 
 // OnConfigurationChange is invoked when configuration changes may have been made.
 func (p *Plugin) OnConfigurationChange() error {
-	var configuration = new(configuration)
+	prev := p.getConfiguration()
 
 	// Load the public configuration fields from the Mattermost server configuration.
-	if err := p.API.LoadPluginConfiguration(configuration); err != nil {
+	loaded := configuration{}
+	if err := p.API.LoadPluginConfiguration(&loaded); err != nil {
 		return errors.Wrap(err, "failed to load plugin configuration")
+	}
+
+	if err := p.setDefaultConfiguration(&loaded); err != nil {
+		return errors.Wrap(err, "failed to set default configuration")
 	}
 
 	enableDiagnostics := false
@@ -109,7 +137,42 @@ func (p *Plugin) OnConfigurationChange() error {
 
 	p.tracker = telemetry.NewTracker(p.telemetryClient, p.API.GetDiagnosticId(), p.API.GetServerVersion(), manifest.Id, manifest.Version, "msteamsmeetings", enableDiagnostics)
 
-	p.setConfiguration(configuration)
+	p.setConfiguration(&loaded)
 
+	firstLoad := (*prev == configuration{})
+	if !firstLoad && loaded.differsOAuth2(*prev) {
+		p.API.LogInfo("detected a change in the OAuth2 configuration: resetting user tokens, all users will need to reconnect to Microsoft Teams.")
+		go func() {
+			resetErr := p.resetAllOAuthTokens()
+			if resetErr != nil {
+				p.API.LogError("failed to reset users' OAuth2 tokens", "error", resetErr.Error)
+			}
+		}()
+	}
+
+	return nil
+}
+
+func (p *Plugin) setDefaultConfiguration(c *configuration) error {
+	if c.EncryptionKey != "" {
+		return nil
+	}
+	secret, err := generateSecret()
+	if err != nil {
+		return err
+	}
+
+	c.EncryptionKey = secret
+	configMap, err := c.ToMap()
+	if err != nil {
+		return err
+	}
+
+	appErr := p.API.SavePluginConfig(configMap)
+	if appErr != nil {
+		return appErr
+	}
+
+	p.API.LogInfo("auto-generated encryption key in the configration")
 	return nil
 }
