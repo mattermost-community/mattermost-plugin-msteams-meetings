@@ -46,6 +46,8 @@ linters:
     - whitespace
 
 issues:
+  exclude:
+    - fieldalignment
   exclude-rules:
     - path: server/manifest.go
       linters:
