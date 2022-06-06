@@ -18,18 +18,27 @@ import {PluginRegistry} from './types/mattermost-webapp';
 
 class Plugin {
     public async initialize(registry: PluginRegistry, store: Store<GlobalState, Action<Record<string, unknown>>>) {
+        const helpText = 'Start MS Teams Meeting';
+
         let creatingMeeting = false;
-        registry.registerChannelHeaderButtonAction(
-            <Icon/>,
-            async (channel: Channel) => {
-                if (!creatingMeeting) {
-                    creatingMeeting = true;
-                    await startMeeting(channel.id)(store.dispatch, store.getState);
-                    creatingMeeting = false;
-                }
-            },
-            'Start MS Teams Meeting',
-        );
+        const action = async (channel: Channel) => {
+            if (!creatingMeeting) {
+                creatingMeeting = true;
+                await startMeeting(channel.id)(store.dispatch, store.getState);
+                creatingMeeting = false;
+            }
+        };
+
+        // Channel header icon
+        registry.registerChannelHeaderButtonAction(<Icon/>, action, helpText);
+
+        // App Bar icon
+        if (registry.registerAppBarComponent) {
+            const siteUrl = getConfig(store.getState())?.SiteURL || '';
+            const iconURL = `${siteUrl}/plugins/${pluginId}/public/app-bar-icon.png`;
+            registry.registerAppBarComponent(iconURL, action, helpText);
+        }
+
         registry.registerPostTypeComponent('custom_mstmeetings', PostTypeMSTMeetings);
         Client.setServerRoute(getServerRoute(store.getState()));
     }
