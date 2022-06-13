@@ -43,7 +43,7 @@ func (c *configuration) ToMap() (map[string]interface{}, error) {
 	return out, nil
 }
 
-func (c configuration) differsOAuth2(other configuration) bool {
+func (c *configuration) differsOAuth2(other *configuration) bool {
 	return c.OAuth2Authority != other.OAuth2Authority ||
 		c.OAuth2ClientID != other.OAuth2ClientID ||
 		c.OAuth2ClientSecret != other.OAuth2ClientSecret ||
@@ -79,10 +79,6 @@ func (c *configuration) IsValid() error {
 func (p *Plugin) getConfiguration() *configuration {
 	p.configurationLock.RLock()
 	defer p.configurationLock.RUnlock()
-
-	if p.configuration == nil {
-		return &configuration{}
-	}
 
 	return p.configuration
 }
@@ -124,8 +120,29 @@ func (p *Plugin) OnConfigurationChange() error {
 		return errors.Wrap(err, "failed to load plugin configuration")
 	}
 
-	if err := p.setDefaultConfiguration(&loaded); err != nil {
-		return errors.Wrap(err, "failed to set default configuration")
+	changedEncryptionKey := false
+	resetUserKeys := (prev != nil && loaded.differsOAuth2(prev))
+	if loaded.EncryptionKey == "" {
+		secret, err := generateSecret()
+		if err != nil {
+			return err
+		}
+		loaded.EncryptionKey = secret
+		resetUserKeys = true
+		changedEncryptionKey = true
+		p.API.LogInfo("auto-generated encryption key in the configration")
+	}
+
+	p.setConfiguration(&loaded)
+
+	if changedEncryptionKey {
+		go p.storeConfiguration(&loaded)
+	}
+	if resetUserKeys {
+		// not sure how to avoid executing this from each server since
+		// cluster.Mutex relies on KV, which is wiped out. Should be safe to
+		// delete multiple times though.
+		go p.resetAllOAuthTokens()
 	}
 
 	enableDiagnostics := false
@@ -137,42 +154,23 @@ func (p *Plugin) OnConfigurationChange() error {
 
 	p.tracker = telemetry.NewTracker(p.telemetryClient, p.API.GetDiagnosticId(), p.API.GetServerVersion(), manifest.Id, manifest.Version, "msteamsmeetings", enableDiagnostics)
 
-	p.setConfiguration(&loaded)
-
-	firstLoad := (*prev == configuration{})
-	if !firstLoad && loaded.differsOAuth2(*prev) {
-		p.API.LogInfo("detected a change in the OAuth2 configuration: resetting user tokens, all users will need to reconnect to Microsoft Teams.")
-		go func() {
-			resetErr := p.resetAllOAuthTokens()
-			if resetErr != nil {
-				p.API.LogError("failed to reset users' OAuth2 tokens", "error", resetErr.Error)
-			}
-		}()
-	}
-
 	return nil
 }
 
-func (p *Plugin) setDefaultConfiguration(c *configuration) error {
-	if c.EncryptionKey != "" {
-		return nil
-	}
-	secret, err := generateSecret()
-	if err != nil {
-		return err
-	}
-
-	c.EncryptionKey = secret
+func (p *Plugin) storeConfiguration(c *configuration) {
+	var err error
+	defer func() {
+		if err != nil {
+			p.API.LogError("Failed to store updated plugin configuration with an encryption key: %s", err.Error())
+		}
+	}()
 	configMap, err := c.ToMap()
 	if err != nil {
-		return err
+		return
 	}
-
 	appErr := p.API.SavePluginConfig(configMap)
 	if appErr != nil {
-		return appErr
+		err = appErr
+		return
 	}
-
-	p.API.LogInfo("auto-generated encryption key in the configration")
-	return nil
 }
