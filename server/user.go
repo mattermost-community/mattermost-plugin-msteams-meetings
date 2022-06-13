@@ -224,7 +224,7 @@ func (p *Plugin) resetAllOAuthTokens() {
 	// authentication flow. Since a change in the encryption key invalidates all
 	// connections, we can safely remove all of plugin's data since it'll be
 	// irrelevant anyway.
-	p.API.LogInfo("resetting all users' OAuth2 tokens, everyone will need to reconnect to MS Teams")
+	p.API.LogInfo("OAuth2 configuration changed. Resetting all users' tokens, everyone will need to reconnect to MS Teams")
 	appErr := p.API.KVDeleteAll()
 	if appErr != nil {
 		p.API.LogError("failed to reset users' OAuth2 tokens", "error", appErr.Error())
