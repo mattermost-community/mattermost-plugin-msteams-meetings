@@ -218,15 +218,16 @@ func generateSecret() (string, error) {
 	return s, nil
 }
 
-func (p *Plugin) resetAllOAuthTokens() error {
+func (p *Plugin) resetAllOAuthTokens() {
 	// At this time the only data the plugin stores in the KV store is the user
 	// OAuth2 tokens, and the temporary state to use during OAuth2
 	// authentication flow. Since a change in the encryption key invalidates all
 	// connections, we can safely remove all of plugin's data since it'll be
 	// irrelevant anyway.
+	p.API.LogInfo("OAuth2 configuration changed. Resetting all users' tokens, everyone will need to reconnect to MS Teams")
 	appErr := p.API.KVDeleteAll()
 	if appErr != nil {
-		return appErr
+		p.API.LogError("failed to reset users' OAuth2 tokens", "error", appErr.Error())
+		return
 	}
-	return nil
 }
