@@ -9,4 +9,5 @@ require (
 	github.com/stretchr/testify v1.6.1
 	github.com/yaegashi/msgraph.go v0.1.4
 	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
+	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
 )
