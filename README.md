@@ -12,10 +12,6 @@ Start and join voice calls, video calls and use screen sharing with your team me
 
 Visit the [MS Teams Meetings documentation](https://mattermost.gitbook.io/microsoft-teams-pluginmsteams-meetings-plugin/) for guidance on installation, configuration, and usage.
 
-## License
-
-This repository is licensed under the [Mattermost Source Available License](LICENSE).
-
 ## Development
 
 Visit the [MS Teams Meetings documentation](https://mattermost.gitbook.io/microsoft-teams-pluginmsteams-meetings-plugin/development/environment) for information on getting started with development.
