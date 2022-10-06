@@ -14,8 +14,7 @@ Visit the [MS Teams Meetings documentation](https://mattermost.gitbook.io/micros
 
 ## License
 
-This repository is licensed under the [Mattermost Source Available License](LICENSE), and requires a valid Mattermost E20, Professional, or Enterprise license. See our [documentation](https://docs.mattermost.com/about/frequently-asked-questions.html#mattermost-source-available-license) to learn more. If you are contributing to the project, please enable [ServiceSettings.EnableDeveloper](https://docs.mattermost.com/configure/configuration-settings.html#enable-developer-mode) in your server's config. The plugin will not start and show an error message in your server logs, if you are the missing the Enterprise License.
-
+This repository is licensed under the [Mattermost Source Available License](LICENSE).
 
 ## Development
 
