@@ -9,8 +9,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/mattermost/mattermost-plugin-msteams-meetings/server/store"
-
 	"github.com/mattermost/mattermost-server/v6/plugin"
 	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
@@ -61,7 +59,7 @@ func (p *Plugin) connectUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	state, err := p.store.StoreState(userID, channelID)
+	state, err := p.StoreState(userID, channelID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -92,14 +90,14 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 
 	state := r.URL.Query().Get("state")
 
-	key, userID, channelID, err := p.store.ParseState(state)
+	key, userID, channelID, err := p.ParseState(state)
 	if err != nil {
 		p.API.LogDebug("complete oauth, cannot parse state", "error", err.Error())
 		http.Error(w, "invalid state", http.StatusBadRequest)
 		return
 	}
 
-	storedState, err := p.store.GetState(key)
+	storedState, err := p.GetState(key)
 	if err != nil {
 		http.Error(w, "missing stored state", http.StatusBadRequest)
 		return
@@ -110,7 +108,7 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = p.store.DeleteState(key)
+	_ = p.DeleteState(key)
 
 	if userID != authedUserID {
 		http.Error(w, "Not authorized, incorrect user", http.StatusUnauthorized)
@@ -149,7 +147,7 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userInfo := &store.UserInfo{
+	userInfo := &UserInfo{
 		UserID:     userID,
 		OAuthToken: tok,
 		Email:      *remoteUser.Mail,
@@ -157,7 +155,7 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 		UPN:        *remoteUser.UserPrincipalName,
 	}
 
-	err = p.store.StoreUserInfo(userInfo)
+	err = p.StoreUserInfo(userInfo)
 	if err != nil {
 		p.API.LogDebug("complete oauth, error storing the user info", "error", err.Error())
 		http.Error(w, "Unable to connect user to Microsoft", http.StatusInternalServerError)

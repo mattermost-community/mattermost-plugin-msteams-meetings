@@ -3,9 +3,6 @@ package main
 import (
 	"fmt"
 
-	"github.com/mattermost/mattermost-plugin-msteams-meetings/server/remote"
-	"github.com/mattermost/mattermost-plugin-msteams-meetings/server/store"
-
 	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/pkg/errors"
 	msgraph "github.com/yaegashi/msgraph.go/beta"
@@ -16,12 +13,16 @@ func (p *Plugin) postMeeting(creator *model.User, channelID string, topic string
 	if err != nil {
 		return nil, nil, err
 	}
-	userInfo, err := p.store.GetUserInfo(creator.Id)
+	userInfo, err := p.GetUserInfo(creator.Id)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	attendees := []*store.UserInfo{}
+	if !p.API.HasPermissionToChannel(creator.Id, channelID, model.PermissionCreatePost) {
+		return nil, nil, errors.New("cannot create post in this channel")
+	}
+
+	attendees := []*UserInfo{}
 
 	channel, appErr := p.API.GetChannel(channelID)
 	if appErr != nil {
@@ -38,8 +39,8 @@ func (p *Plugin) postMeeting(creator *model.User, channelID string, topic string
 			return nil, nil, errors.New("returned members is nil")
 		}
 		for _, member := range members {
-			var attendeeInfo *store.UserInfo
-			attendeeInfo, err = p.store.GetUserInfo(member.UserId)
+			var attendeeInfo *UserInfo
+			attendeeInfo, err = p.GetUserInfo(member.UserId)
 			if err != nil {
 				continue
 			}
@@ -47,7 +48,7 @@ func (p *Plugin) postMeeting(creator *model.User, channelID string, topic string
 		}
 	}
 
-	client := remote.NewClient(conf, userInfo.OAuthToken, p.API)
+	client := p.NewClient(conf, userInfo.OAuthToken)
 
 	meeting, err := client.CreateMeeting(userInfo, attendees)
 	if err != nil {

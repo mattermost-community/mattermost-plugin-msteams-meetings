@@ -89,7 +89,7 @@ endif
 ## Ensures NPM dependencies are installed without having to run this all the time.
 webapp/node_modules: $(wildcard webapp/package.json)
 ifneq ($(HAS_WEBAPP),)
-	cd webapp && $(NPM) install
+	cd webapp && $(NPM) install --verbose
 	touch $@
 endif
 
@@ -114,7 +114,7 @@ ifneq ($(wildcard $(ASSETS_DIR)/.),)
 	cp -r $(ASSETS_DIR) dist/$(PLUGIN_ID)/
 endif
 ifneq ($(HAS_PUBLIC),)
-	cp -r public dist/$(PLUGIN_ID)/
+	cp -r public dist/$(PLUGIN_ID)/public/
 endif
 ifneq ($(HAS_SERVER),)
 	mkdir -p dist/$(PLUGIN_ID)/server
@@ -219,7 +219,7 @@ ifneq ($(HAS_WEBAPP),)
 ifeq ($(HAS_MM_UTILITIES),)
 	@echo "You must clone github.com/mattermost/mattermost-utilities repo in .. to use this command"
 else
-	cd $(MM_UTILITIES_DIR) && npm install && npm run babel && node mmjstool/build/index.js i18n extract-webapp --webapp-dir $(PWD)/webapp
+	cd $(MM_UTILITIES_DIR) && npm install --verbose && npm run babel && node mmjstool/build/index.js i18n extract-webapp --webapp-dir $(PWD)/webapp
 endif
 endif
 

@@ -6,5 +6,5 @@ import "github.com/mattermost/mattermost-server/v6/model"
 
 var manifest = model.Manifest{
 	Id:      "com.mattermost.msteamsmeetings",
-	Version: "1.0.1",
+	Version: "2.0.0",
 }

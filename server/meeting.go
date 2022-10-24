@@ -1,20 +1,18 @@
 // Copyright (c) 2017-present Mattermost, Inc. All Rights Reserved.
 // See License for license information.
 
-package remote
+package main
 
 import (
 	"context"
 	"net/http"
 	"time"
 
-	"github.com/mattermost/mattermost-plugin-msteams-meetings/server/store"
-
 	"github.com/pkg/errors"
 	msgraph "github.com/yaegashi/msgraph.go/beta"
 )
 
-func (c *Client) CreateMeeting(creator *store.UserInfo, attendeesIDs []*store.UserInfo) (*msgraph.OnlineMeeting, error) {
+func (c *Client) CreateMeeting(creator *UserInfo, attendeesIDs []*UserInfo) (*msgraph.OnlineMeeting, error) {
 	ctx := context.Background()
 	start := time.Now()
 	end := start.Add(1 * time.Hour)

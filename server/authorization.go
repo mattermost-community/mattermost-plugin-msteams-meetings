@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/mattermost/mattermost-plugin-msteams-meetings/server/remote"
-
 	msgraph "github.com/yaegashi/msgraph.go/beta"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/microsoft"
@@ -33,7 +31,7 @@ func (p *Plugin) authenticateAndFetchUser(userID, userEmail, channelID string) (
 		return nil, &authError{Message: "Cannot get Site URL. Contact your sys admin.", Err: err}
 	}
 
-	userInfo, apiErr := p.store.GetUserInfo(userID)
+	userInfo, apiErr := p.GetUserInfo(userID)
 	oauthMsg := fmt.Sprintf(
 		oAuthMessage,
 		siteURL, channelID)
@@ -50,7 +48,7 @@ func (p *Plugin) authenticateAndFetchUser(userID, userEmail, channelID string) (
 }
 
 func (p *Plugin) disconnect(userID string) error {
-	return p.store.RemoveUser(userID)
+	return p.RemoveUser(userID)
 }
 
 func (p *Plugin) getOAuthConfig() (*oauth2.Config, error) {
@@ -85,7 +83,7 @@ func (p *Plugin) getUserWithToken(token *oauth2.Token) (*msgraph.User, error) {
 		return nil, err
 	}
 
-	client := remote.NewClient(conf, token, p.API)
+	client := p.NewClient(conf, token)
 
 	user, err := client.GetMe()
 	if err != nil {

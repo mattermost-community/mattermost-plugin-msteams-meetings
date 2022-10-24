@@ -4,9 +4,9 @@
     "description": "MS Teams Meetings audio and video conferencing plugin for Mattermost 5.2+.",
     "homepage_url": "https://mattermost.gitbook.io/microsoft-teams-pluginmsteams-meetings-plugin",
     "support_url": "https://github.com/mattermost/mattermost-plugin-msteams-meetings/issues",
-    "release_notes_url": "https://github.com/mattermost/mattermost-plugin-msteams-meetings/releases/tag/v1.0.1",
+    "release_notes_url": "https://github.com/mattermost/mattermost-plugin-msteams-meetings/releases/tag/v2.0.0",
     "icon_path": "assets/profile.svg",
-    "version": "1.0.1",
+    "version": "2.0.0",
     "min_server_version": "5.37.0",
     "server": {
         "executables": {
@@ -39,8 +39,14 @@
                 "key": "OAuth2ClientSecret",
                 "display_name": "Azure - Application (client) Secret:",
                 "type": "text",
-                "help_text": "Copy the **Client Secret** value (not ID) that was created on the App's **Certificates and Secrets** tab.",
+                "help_text": "Copy the **Client Secret Value** (not the ID) that was created on the App's **Certificates and Secrets** tab.",
                 "default": ""
+            },
+            {
+                "key": "EncryptionKey",
+                "display_name": "At Rest Encryption Key:",
+                "type": "generated",
+                "help_text": "The AES encryption key used to encrypt stored access tokens. Will be auto-generated if left-blank the first time you configure the plugin. Re-generating the key will clear all previously stored access tokens and all users will be required to re-connect to MS Teams."
             }
         ],
         "header": "Please refer to installation instructions [**here**](https://app.gitbook.com/@mattermost/s/microsoft-teams-pluginmsteams-meetings-plugin/setup/installation-and-configuration) for creating a new Application in the Azure Portal."
