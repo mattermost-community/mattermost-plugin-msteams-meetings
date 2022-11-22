@@ -20,8 +20,6 @@ const (
 	botUserName    = "mstmeetings"
 	botDisplayName = "MS Teams Meetings"
 	botDescription = "Created by the MS Teams Meetings plugin."
-
-	licenseErrorMessage = "The MS Teams Meetings plugin requires an E20, Professional, or Enterprise license."
 )
 
 // Plugin defines the plugin struct
@@ -45,10 +43,6 @@ type Plugin struct {
 // OnActivate checks if the configurations is valid and ensures the bot account exists
 func (p *Plugin) OnActivate() error {
 	pluginAPIClient := pluginapi.NewClient(p.API)
-
-	if !HasEnterpriseFeatures(p.API.GetConfig(), p.API.GetLicense()) {
-		return errors.New(licenseErrorMessage)
-	}
 
 	config := p.getConfiguration()
 	if err := config.IsValid(); err != nil {
