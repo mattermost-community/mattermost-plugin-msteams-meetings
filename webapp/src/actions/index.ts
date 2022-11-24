@@ -18,7 +18,7 @@ export function startMeeting(channelId: string, force = false) {
             }
 
             return {data: true};
-        } catch (error) {
+        } catch (error: any) {
             let m : string;
             if (error.message && error.message[0] === '{') {
                 const e = JSON.parse(error.message);

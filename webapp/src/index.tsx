@@ -13,8 +13,7 @@ import Icon from './components/icon';
 import PostTypeMSTMeetings from './components/post_type_mstmeetings';
 import {startMeeting} from './actions';
 import Client from './client';
-// eslint-disable-next-line import/no-unresolved
-import {PluginRegistry} from './types/mattermost-webapp';
+import type {PluginRegistry} from './types/mattermost-webapp';
 
 export default class Plugin {
     public async initialize(registry: PluginRegistry, store: Store<GlobalState, Action<Record<string, unknown>>>) {
@@ -35,7 +34,7 @@ export default class Plugin {
         // App Bar icon
         if (registry.registerAppBarComponent) {
             const siteUrl = getConfig(store.getState())?.SiteURL || '';
-            const iconURL = `${siteUrl}/plugins/${pluginId}/public/app-bar-icon.png`;
+            const iconURL = `${siteUrl}/plugins/${manifest.id}/public/app-bar-icon.png`;
             registry.registerAppBarComponent(iconURL, action, helpText);
         }
 
