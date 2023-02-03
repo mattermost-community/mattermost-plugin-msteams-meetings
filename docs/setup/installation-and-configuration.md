@@ -5,7 +5,6 @@ The Mattermost MS Teams Meetings plugin is provided in the Mattermost Plugin Mar
 ### Requirements
 
 * Mattermost Server v5.26+ is required.
-* Mattermost Enterprise Edition E20 is required.
 
 ### Marketplace Installation
 
@@ -31,7 +30,7 @@ If your server doesn't have access to the internet, you can download the latest 
 
     - Name: **Mattermost MS Teams Meetings Plugin**
     - Supported account types: **Default value (Single tenant)**
-    - Redirect URI: **https://(MM_SITE_URL)/plugins/com.mattermost.msteamsmeetings/oauth2/complete**. Replace `(MM_SITE_URL)` with your Mattermost server's URL. 
+    - Redirect URI: **https://(MM_SITE_URL)/plugins/com.mattermost.msteamsmeetings/oauth2/complete**. Replace `(MM_SITE_URL)` with your Mattermost server's URL.
 
 5. Select **Register** to submit the form.
 
