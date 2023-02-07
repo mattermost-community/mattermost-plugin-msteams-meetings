@@ -1,12 +1,12 @@
 name: ci
 on:
-  schedule: # nightly builds
+  schedule:
     - cron: "0 0 * * *"
   push:
     branches:
       - master
     tags:
-      - "v[0-9]+.[0-9]+.[0-9]+"
+      - "^v.*"
   pull_request:
 
 permissions:
