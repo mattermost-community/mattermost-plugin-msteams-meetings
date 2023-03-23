@@ -116,7 +116,7 @@ func (p *Plugin) StoreUserInfo(info *UserInfo) error {
 func (p *Plugin) GetUserInfo(userID string) (*UserInfo, error) {
 	infoBytes, appErr := p.API.KVGet(tokenKey + userID)
 	if appErr != nil || infoBytes == nil {
-		return nil, errors.New("must connect user account to Microsoft first")
+		return nil, errors.New("your Mattermost account is not connected to any Microsoft Teams account")
 	}
 
 	key := []byte(p.getConfiguration().EncryptionKey)

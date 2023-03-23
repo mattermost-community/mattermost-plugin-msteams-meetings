@@ -124,7 +124,7 @@ func (p *Plugin) handleDisconnect(args []string, extra *model.CommandArgs) (stri
 	}
 	err := p.disconnect(extra.UserId)
 	if err != nil {
-		return "Failed to disconnect the user, err=" + err.Error(), nil
+		return fmt.Sprintf("Failed to disconnect user, %s", err.Error()), nil
 	}
 
 	p.trackDisconnect(extra.UserId)
