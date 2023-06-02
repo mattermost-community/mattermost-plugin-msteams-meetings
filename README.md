@@ -144,6 +144,5 @@ Then run `make deploy` or `MM_DEBUG=1 make deploy` in case you want debugging fr
 
 ## Contact Us
 
-- For Mattermost Enterprise or Professional customers, please open a support case.
 - For questions, suggestions, and help, visit the [Plugin: Microsoft Teams Meetings](https://community.mattermost.com/core/channels/plugin-microsoft-teams-meetings) on our Community server.
 - To report a bug, please [open an issue](https://github.com/mattermost/mattermost-plugin-msteams-meetings/issues).
