@@ -25,7 +25,7 @@ Mattermost Server v5.26+ is required.
 2. Search for "MS Teams" or manually find the plugin from the list and select **Install**.
 3. After the plugin is downloaded and installed, select **Configure**.
 
-#### Manual Installation
+#### Manual installation
 
 If your server doesn't have access to the internet, you can download the latest [plugin binary release](https://github.com/mattermost/mattermost-plugin-msteams-meetings/releases) and upload it to your server via **System Console > Plugin Management**. The releases on this page are the same versions available on the Plugin Marketplace.
 
