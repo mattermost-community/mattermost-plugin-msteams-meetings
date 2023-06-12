@@ -7,25 +7,25 @@
 
 **Maintainer:** [@larkox](https://github.com/larkox)
 
-Start and join voice calls, video calls and use screen sharing with your team members via MS Teams Meetings.
+Start and join voice calls, video calls, and use screen sharing with your team members via MS Teams Meetings.
 
-## Admin Guide
+## Admin guide
 
 ### Installation
 
-The Mattermost MS Teams Meetings plugin is provided in the Mattermost Plugin Marketplace. Once enabled, clicking the video icon in a Mattermost channel invites team members to join an MS Teams meeting, hosted using the credentials of the user who initiated the call.
+The Mattermost MS Teams Meetings plugin is provided in the Mattermost Plugin Marketplace. Once enabled, selecting the video icon in a Mattermost channel invites team members to join an MS Teams meeting, hosted using the credentials of the user who initiated the call.
 
 ### Requirements
 
 Mattermost Server v5.26+ is required.
 
-#### Marketplace Installation
+#### Marketplace installation
 
 1. In Mattermost, go to **Main Menu > Plugin Marketplace**.
-2. Search for "MS Teams" or manually find the plugin from the list and click **Install**.
+2. Search for "MS Teams" or manually find the plugin from the list and select **Install**.
 3. After the plugin is downloaded and installed, select **Configure**.
 
-#### Manual Installation
+#### Manual installation
 
 If your server doesn't have access to the internet, you can download the latest [plugin binary release](https://github.com/mattermost/mattermost-plugin-msteams-meetings/releases) and upload it to your server via **System Console > Plugin Management**. The releases on this page are the same versions available on the Plugin Marketplace.
 
@@ -77,7 +77,7 @@ If your server doesn't have access to the internet, you can download the latest 
 
 You're all set for configuration inside of the Azure portal.
 
-#### Step 2: Configure Plugin Settings
+#### Step 2: Configure plugin settings
 
 1. Copy the **Client ID** and **Tenant ID** from the Azure portal.
 
@@ -92,7 +92,7 @@ You're all set for configuration inside of the Azure portal.
 
 4. Choose **Save** to apply the configuration.
 
-### Onboarding Users
+### Onboard users
 
 When you’ve tested the plugin and confirmed it’s working, notify your team so they can get started. Copy and paste the text below, edit it to suit your requirements, and send it out.
 
@@ -100,23 +100,23 @@ When you’ve tested the plugin and confirmed it’s working, notify your team s
 
 > The MS Teams Meetings plugin has been configured so you can use it for calls from within Mattermost. To get started, run the `/mstmeetings connect` slash command from any channel within Mattermost. Visit the documentation for more information.
 
-## User Guide
+## User guide
 
 ### Connect an MS Teams Account to Mattermost
 
 Use the `/mstmeetings connect` slash command to connect an MS Teams account to Mattermost.
 
-## Start a Call
+## Start a call
 
 Start a call either by selecting the video icon in a Mattermost channel or by using the `/mstmeetings start` slash command. Every meeting you start creates a new meeting room in MS Teams. If you start two meetings less than 30 seconds apart you'll be prompted to confirm that you want to create the meeting.
 
-## Disconnect an MS Teams Account from Mattermost
+## Disconnect an MS Teams account from Mattermost
 
 Use the `/mstmeetings disconnect` slash command to disconnect an MS Teams account from Mattermost.
 
 ## Development
 
-### Enviroment
+### Environment
 
 This plugin contains both a server and web app portion. Read our documentation about the [Developer Workflow](https://developers.mattermost.com/extend/plugins/developer-workflow/) and [Developer Setup](https://developers.mattermost.com/extend/plugins/developer-setup/) for more information about developing and extending plugins.
 
@@ -124,7 +124,7 @@ This plugin contains both a server and web app portion. Read our documentation a
 
 Inside the `/server` directory, you will find the Go files that make up the server-side of the plugin. Within that directory, build the plugin like you would any other Go application.
 
-#### Web App
+#### Web app
 
 Inside the `/webapp` directory, you will find the JavaScript files that make up the client-side of the plugin. Within that directory, modify files and components as necessary. Test your syntax by running `npm run build`.
 
@@ -142,7 +142,7 @@ export MM_ADMIN_PASSWORD=<MYPASSWORD>
 
 Then run `make deploy` or `MM_DEBUG=1 make deploy` in case you want debugging from the root of the `mattermost-plugin-msteams-meetings` project.
 
-## Contact Us
+## Contact us
 
 - For questions, suggestions, and help, visit the [Plugin: Microsoft Teams Meetings](https://community.mattermost.com/core/channels/plugin-microsoft-teams-meetings) on our Community server.
 - To report a bug, please [open an issue](https://github.com/mattermost/mattermost-plugin-msteams-meetings/issues).
