@@ -9,8 +9,6 @@
 [![Release](https://img.shields.io/github/v/release/mattermost/mattermost-plugin-msteams-meetings)](https://github.com/mattermost/mattermost-plugin-msteams-meetings/releases/latest)
 [![HW](https://img.shields.io/github/issues/mattermost/mattermost-plugin-msteams-meetings/Up%20For%20Grabs?color=dark%20green&label=Help%20Wanted)](https://github.com/mattermost/mattermost-plugin-msteams-meetings/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3A%22Up+For+Grabs%22+label%3A%22Help+Wanted%22)
 
-**Maintainer:** [@larkox](https://github.com/larkox)
-
 Start and join voice calls, video calls, and use screen sharing with your team members via MS Teams Meetings.
 
 ## Admin guide
