@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/pkg/errors"
 	msgraph "github.com/yaegashi/msgraph.go/beta"
 )
@@ -18,7 +18,7 @@ func (p *Plugin) postMeeting(creator *model.User, channelID string, topic string
 		return nil, nil, err
 	}
 
-	if !p.API.HasPermissionToChannel(creator.Id, channelID, model.PERMISSION_CREATE_POST) {
+	if !p.API.HasPermissionToChannel(creator.Id, channelID, model.PermissionCreatePost) {
 		return nil, nil, errors.New("cannot create post in this channel")
 	}
 
@@ -30,7 +30,7 @@ func (p *Plugin) postMeeting(creator *model.User, channelID string, topic string
 	}
 
 	if channel.IsGroupOrDirect() {
-		var members *model.ChannelMembers
+		var members model.ChannelMembers
 		members, appErr = p.API.GetChannelMembers(channelID, 0, 100)
 		if appErr != nil {
 			return nil, nil, err
@@ -38,7 +38,7 @@ func (p *Plugin) postMeeting(creator *model.User, channelID string, topic string
 		if members == nil {
 			return nil, nil, errors.New("returned members is nil")
 		}
-		for _, member := range *members {
+		for _, member := range members {
 			var attendeeInfo *UserInfo
 			attendeeInfo, err = p.GetUserInfo(member.UserId)
 			if err != nil {
