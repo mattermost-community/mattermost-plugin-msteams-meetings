@@ -8,11 +8,10 @@ import (
 	"path/filepath"
 	"sync"
 
-	pluginapi "github.com/mattermost/mattermost-plugin-api"
-
-	"github.com/mattermost/mattermost-plugin-api/experimental/telemetry"
-	"github.com/mattermost/mattermost-server/v5/model"
-	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/mattermost/mattermost/server/public/model"
+	"github.com/mattermost/mattermost/server/public/plugin"
+	"github.com/mattermost/mattermost/server/public/pluginapi"
+	"github.com/mattermost/mattermost/server/public/pluginapi/experimental/telemetry"
 	"github.com/pkg/errors"
 )
 
@@ -25,6 +24,8 @@ const (
 // Plugin defines the plugin struct
 type Plugin struct {
 	plugin.MattermostPlugin
+
+	client *pluginapi.Client
 
 	// botUserID of the created bot account.
 	botUserID string
@@ -42,7 +43,7 @@ type Plugin struct {
 
 // OnActivate checks if the configurations is valid and ensures the bot account exists
 func (p *Plugin) OnActivate() error {
-	pluginAPIClient := pluginapi.NewClient(p.API)
+	pluginAPIClient := pluginapi.NewClient(p.API, p.Driver)
 
 	config := p.getConfiguration()
 	if err := config.IsValid(); err != nil {
@@ -53,7 +54,7 @@ func (p *Plugin) OnActivate() error {
 		return err
 	}
 
-	botUserID, err := p.Helpers.EnsureBot(&model.Bot{
+	botUserID, err := pluginAPIClient.Bot.EnsureBot(&model.Bot{
 		Username:    botUserName,
 		DisplayName: botDisplayName,
 		Description: botDescription,

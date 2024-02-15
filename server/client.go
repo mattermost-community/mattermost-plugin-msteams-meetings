@@ -6,7 +6,7 @@ package main
 import (
 	"context"
 
-	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/mattermost/mattermost/server/public/plugin"
 	msgraph "github.com/yaegashi/msgraph.go/beta"
 	"golang.org/x/oauth2"
 )
