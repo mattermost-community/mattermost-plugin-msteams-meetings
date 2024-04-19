@@ -13,7 +13,8 @@ import (
 
 const (
 	commandHelp = `* |/mstmeetings start| - Start an MS Teams meeting.
-	* |/mstmeetings disconnect| - Disconnect from Mattermost`
+* |/mstmeetings disconnect| - Disconnect from Mattermost
+* |/mstmeetings connect| - Connect to MS Teams meeting`
 	tooManyParametersText = "Too many parameters."
 )
 
@@ -28,7 +29,7 @@ func getCommand(client *pluginapi.Client) *model.Command {
 		DisplayName:          "MS Teams Meetings",
 		Description:          "Integration with MS Teams Meetings.",
 		AutoComplete:         true,
-		AutoCompleteDesc:     "Available commands: start, disconnect",
+		AutoCompleteDesc:     "Available commands: connect, disconnect, start",
 		AutoCompleteHint:     "[command]",
 		AutocompleteIconData: iconData,
 	}
@@ -61,6 +62,8 @@ func (p *Plugin) executeCommand(c *plugin.Context, args *model.CommandArgs) (str
 	switch action {
 	case "start":
 		return p.handleStart(split[1:], args)
+	case "connect":
+		return p.handleConnect(split[1:], args)
 	case "disconnect":
 		return p.handleDisconnect(split[1:], args)
 	case "help":
@@ -114,6 +117,28 @@ func (p *Plugin) handleStart(args []string, extra *model.CommandArgs) (string, e
 	}
 
 	p.trackMeetingStart(extra.UserId, telemetryStartSourceCommand)
+	return "", nil
+}
+
+func (p *Plugin) handleConnect(args []string, extra *model.CommandArgs) (string, error) {
+	if len(args) > 1 {
+		return tooManyParametersText, nil
+	}
+
+	user, appErr := p.API.GetUser(extra.UserId)
+	if appErr != nil {
+		return "Cannot get user.", errors.Wrap(appErr, "cannot get user")
+	}
+
+	msUser, authErr := p.authenticateAndFetchUser(user.Id, user.Email, extra.ChannelId)
+	if authErr != nil {
+		return authErr.Message, authErr.Err
+	}
+
+	if msUser != nil {
+		return "User already connected to MS Teams Meetings", nil
+	}
+
 	return "", nil
 }
 
