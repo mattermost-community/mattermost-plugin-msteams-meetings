@@ -13,8 +13,8 @@ import (
 
 const (
 	commandHelp = `* |/mstmeetings start| - Start an MS Teams meeting.
-* |/mstmeetings disconnect| - Disconnect from Mattermost
-* |/mstmeetings connect| - Connect to MS Teams meeting`
+* |/mstmeetings connect| - Connect to MS Teams meeting
+* |/mstmeetings disconnect| - Disconnect from Mattermost`
 	tooManyParametersText = "Too many parameters."
 )
 
