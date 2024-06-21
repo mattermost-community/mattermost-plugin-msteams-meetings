@@ -25,8 +25,6 @@ const (
 type Plugin struct {
 	plugin.MattermostPlugin
 
-	client *pluginapi.Client
-
 	// botUserID of the created bot account.
 	botUserID string
 

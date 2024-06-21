@@ -13,7 +13,8 @@ import (
 
 const (
 	commandHelp = `* |/mstmeetings start| - Start an MS Teams meeting.
-	* |/mstmeetings disconnect| - Disconnect from Mattermost`
+* |/mstmeetings connect| - Connect to MS Teams meeting
+* |/mstmeetings disconnect| - Disconnect from Mattermost`
 	tooManyParametersText = "Too many parameters."
 )
 
@@ -28,7 +29,7 @@ func getCommand(client *pluginapi.Client) *model.Command {
 		DisplayName:          "MS Teams Meetings",
 		Description:          "Integration with MS Teams Meetings.",
 		AutoComplete:         true,
-		AutoCompleteDesc:     "Available commands: start, disconnect",
+		AutoCompleteDesc:     "Available commands: connect, disconnect, start",
 		AutoCompleteHint:     "[command]",
 		AutocompleteIconData: iconData,
 	}
@@ -43,7 +44,7 @@ func (p *Plugin) postCommandResponse(args *model.CommandArgs, text string) {
 	_ = p.API.SendEphemeralPost(args.UserId, post)
 }
 
-func (p *Plugin) executeCommand(c *plugin.Context, args *model.CommandArgs) (string, error) {
+func (p *Plugin) executeCommand(_ *plugin.Context, args *model.CommandArgs) (string, error) {
 	split := strings.Fields(args.Command)
 	command := split[0]
 	action := ""
@@ -55,16 +56,18 @@ func (p *Plugin) executeCommand(c *plugin.Context, args *model.CommandArgs) (str
 	if len(split) > 1 {
 		action = split[1]
 	} else {
-		return p.handleHelp(split, args)
+		return p.handleHelp()
 	}
 
 	switch action {
 	case "start":
 		return p.handleStart(split[1:], args)
+	case "connect":
+		return p.handleConnect(split[1:], args)
 	case "disconnect":
 		return p.handleDisconnect(split[1:], args)
 	case "help":
-		return p.handleHelp(split[1:], args)
+		return p.handleHelp()
 	}
 
 	return fmt.Sprintf("Unknown action `%v`.\n%s", action, p.getHelpText()), nil
@@ -74,7 +77,7 @@ func (p *Plugin) getHelpText() string {
 	return "###### Mattermost MS Teams Meetings Plugin - Slash Command Help\n" + strings.ReplaceAll(commandHelp, "|", "`")
 }
 
-func (p *Plugin) handleHelp(args []string, extra *model.CommandArgs) (string, error) {
+func (p *Plugin) handleHelp() (string, error) {
 	return p.getHelpText(), nil
 }
 
@@ -103,7 +106,7 @@ func (p *Plugin) handleStart(args []string, extra *model.CommandArgs) (string, e
 		return "", nil
 	}
 
-	_, authErr := p.authenticateAndFetchUser(userID, user.Email, extra.ChannelId)
+	_, authErr := p.authenticateAndFetchUser(userID, extra.ChannelId)
 	if authErr != nil {
 		return authErr.Message, authErr.Err
 	}
@@ -114,6 +117,23 @@ func (p *Plugin) handleStart(args []string, extra *model.CommandArgs) (string, e
 	}
 
 	p.trackMeetingStart(extra.UserId, telemetryStartSourceCommand)
+	return "", nil
+}
+
+func (p *Plugin) handleConnect(args []string, extra *model.CommandArgs) (string, error) {
+	if len(args) > 1 {
+		return tooManyParametersText, nil
+	}
+
+	msUser, authErr := p.authenticateAndFetchUser(extra.UserId, extra.ChannelId)
+	if authErr != nil {
+		return authErr.Message, authErr.Err
+	}
+
+	if msUser != nil {
+		return "User already connected to MS Teams Meetings", nil
+	}
+
 	return "", nil
 }
 
