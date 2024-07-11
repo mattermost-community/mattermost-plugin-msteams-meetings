@@ -12,9 +12,11 @@ import (
 )
 
 const (
-	commandHelp = `* |/mstmeetings start| - Start an MS Teams meeting.
-* |/mstmeetings connect| - Connect to MS Teams meeting
-* |/mstmeetings disconnect| - Disconnect from Mattermost`
+	commandHelp = "###### Mattermost MS Teams Meetings Plugin - Slash Command Help\n" +
+		"* |/mstmeetings start| - Start an MS Teams meeting. \n" +
+		"* |/mstmeetings connect| - Connect to MS Teams meeting. \n" +
+		"* |/mstmeetings disconnect| - Disconnect your Mattermost account from MS Teams. \n" +
+		"* |/mstmeetings help| - Display this help text."
 	tooManyParametersText = "Too many parameters."
 )
 
@@ -29,9 +31,10 @@ func getCommand(client *pluginapi.Client) *model.Command {
 		DisplayName:          "MS Teams Meetings",
 		Description:          "Integration with MS Teams Meetings.",
 		AutoComplete:         true,
-		AutoCompleteDesc:     "Available commands: connect, disconnect, start",
+		AutoCompleteDesc:     "Available commands: start, connect, disconnect, help",
 		AutoCompleteHint:     "[command]",
 		AutocompleteIconData: iconData,
+		AutocompleteData:     getAutocompleteData(),
 	}
 }
 
@@ -42,6 +45,27 @@ func (p *Plugin) postCommandResponse(args *model.CommandArgs, text string) {
 		Message:   text,
 	}
 	_ = p.API.SendEphemeralPost(args.UserId, post)
+}
+
+func getAutocompleteData() *model.AutocompleteData {
+	command := model.NewAutocompleteData("mstmeetings", "[command]",
+		"Available commands: start, disconnect, help")
+
+	start := model.NewAutocompleteData("start", "", "Start an MS Teams meeting")
+	command.AddCommand(start)
+
+	connect := model.NewAutocompleteData("connect", "",
+		"Connect your Mattermost account to MS Teams")
+	command.AddCommand(connect)
+
+	disconnect := model.NewAutocompleteData("disconnect", "",
+		"Disconnect your Mattermost account from MS Teams")
+	command.AddCommand(disconnect)
+
+	help := model.NewAutocompleteData("help", "", "Display usage information")
+	command.AddCommand(help)
+
+	return command
 }
 
 func (p *Plugin) executeCommand(_ *plugin.Context, args *model.CommandArgs) (string, error) {
@@ -74,7 +98,7 @@ func (p *Plugin) executeCommand(_ *plugin.Context, args *model.CommandArgs) (str
 }
 
 func (p *Plugin) getHelpText() string {
-	return "###### Mattermost MS Teams Meetings Plugin - Slash Command Help\n" + strings.ReplaceAll(commandHelp, "|", "`")
+	return strings.ReplaceAll(commandHelp, "|", "`")
 }
 
 func (p *Plugin) handleHelp() (string, error) {
