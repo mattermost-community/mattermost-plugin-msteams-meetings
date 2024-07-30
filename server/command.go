@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	commandHelp = `* |/mstmeetings start| - Start an MS Teams meeting.
+	commandHelp = `* |/mstmeetings start <meeting_topic>| - Start an MS Teams meeting.
 	* |/mstmeetings disconnect| - Disconnect from Mattermost`
 	tooManyParametersText = "Too many parameters."
 )
@@ -80,8 +80,9 @@ func (p *Plugin) handleHelp(args []string, extra *model.CommandArgs) (string, er
 }
 
 func (p *Plugin) handleStart(args []string, extra *model.CommandArgs) (string, error) {
+	topic := ""
 	if len(args) > 1 {
-		return tooManyParametersText, nil
+		topic = strings.Join(args[1:], " ")
 	}
 	userID := extra.UserId
 	user, appErr := p.API.GetUser(userID)
@@ -99,7 +100,7 @@ func (p *Plugin) handleStart(args []string, extra *model.CommandArgs) (string, e
 	}
 
 	if recentMeeting {
-		p.postConfirmCreateOrJoin(recentMeetingURL, extra.ChannelId, "", userID, creatorName, provider)
+		p.postConfirmCreateOrJoin(recentMeetingURL, extra.ChannelId, topic, userID, creatorName, provider)
 		p.trackMeetingDuplication(extra.UserId)
 		return "", nil
 	}
@@ -109,7 +110,7 @@ func (p *Plugin) handleStart(args []string, extra *model.CommandArgs) (string, e
 		return authErr.Message, authErr.Err
 	}
 
-	_, _, err := p.postMeeting(user, extra.ChannelId, "")
+	_, _, err := p.postMeeting(user, extra.ChannelId, topic)
 	if err != nil {
 		return "Failed to post message. Please try again.", errors.Wrap(err, "cannot post message")
 	}
