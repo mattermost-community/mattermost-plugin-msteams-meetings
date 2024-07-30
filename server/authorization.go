@@ -21,7 +21,7 @@ func (ae *authError) Error() string {
 
 var oAuthMessage string = "[Click here to link your Microsoft account.](%s/plugins/" + manifest.Id + "/oauth2/connect?channelID=%s)"
 
-func (p *Plugin) authenticateAndFetchUser(userID, userEmail, channelID string) (*msgraph.User, *authError) {
+func (p *Plugin) authenticateAndFetchUser(userID, channelID string) (*msgraph.User, *authError) {
 	var user *msgraph.User
 	var err error
 

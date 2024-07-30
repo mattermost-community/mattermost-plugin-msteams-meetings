@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/mattermost/mattermost/server/public/plugin"
 	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
 )
@@ -21,7 +21,7 @@ const (
 	msteamsProviderName = "Microsoft Teams Meetings"
 )
 
-func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
+func (p *Plugin) ServeHTTP(_ *plugin.Context, w http.ResponseWriter, r *http.Request) {
 	config := p.getConfiguration()
 	if err := config.IsValid(); err != nil {
 		http.Error(w, "This plugin is not configured.", http.StatusNotImplemented)
@@ -247,7 +247,7 @@ func (p *Plugin) handleStartMeeting(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	_, authErr := p.authenticateAndFetchUser(userID, user.Email, req.ChannelID)
+	_, authErr := p.authenticateAndFetchUser(userID, req.ChannelID)
 	if authErr != nil {
 		if _, err = w.Write([]byte(`{"meeting_url": ""}`)); err != nil {
 			p.API.LogWarn("failed to write response", "error", err.Error())

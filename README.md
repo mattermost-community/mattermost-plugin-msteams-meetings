@@ -15,23 +15,15 @@ Start and join voice calls, video calls, and use screen sharing with your team m
 
 ## Admin guide
 
-### Installation
-
-The Mattermost MS Teams Meetings plugin is provided in the Mattermost Plugin Marketplace. Once enabled, selecting the video icon in a Mattermost channel invites team members to join an MS Teams meeting, hosted using the credentials of the user who initiated the call.
-
 ### Requirements
 
 Mattermost Server v5.26+ is required.
 
-#### Marketplace installation
+### Installation
 
-1. In Mattermost, go to **Main Menu > Plugin Marketplace**.
-2. Search for "MS Teams" or manually find the plugin from the list and select **Install**.
-3. After the plugin is downloaded and installed, select **Configure**.
+Download the latest [plugin binary release](https://github.com/mattermost/mattermost-plugin-msteams-meetings/releases) and upload it to your server via **System Console > Plugin Management**.
 
-#### Manual installation
-
-If your server doesn't have access to the internet, you can download the latest [plugin binary release](https://github.com/mattermost/mattermost-plugin-msteams-meetings/releases) and upload it to your server via **System Console > Plugin Management**. The releases on this page are the same versions available on the Plugin Marketplace.
+Once enabled, selecting the video icon in a Mattermost channel invites team members to join an MS Teams meeting, hosted using the credentials of the user who initiated the call.
 
 ### Configuration
 
@@ -122,7 +114,7 @@ Use the `/mstmeetings disconnect` slash command to disconnect an MS Teams accoun
 
 ### Environment
 
-This plugin contains both a server and web app portion. Read our documentation about the [Developer Workflow](https://developers.mattermost.com/extend/plugins/developer-workflow/) and [Developer Setup](https://developers.mattermost.com/extend/plugins/developer-setup/) for more information about developing and extending plugins.
+This plugin contains both a server and web app portion. Read our documentation about the [Developer Workflow](https://developers.mattermost.com/integrate/plugins/developer-workflow/) and [Developer Setup](https://developers.mattermost.com/integrate/plugins/developer-setup/) for more information about developing and extending plugins.
 
 #### Server
 
