@@ -8,11 +8,11 @@ import {GetStateFunc} from 'mattermost-redux/types/actions';
 
 import Client from '../client';
 
-export function startMeeting(channelId: string, force = false) {
+export function startMeeting(channelId: string, force = false, topic: string,) {
     return async (dispatch: Dispatch, getState: GetStateFunc) => {
         try {
             const startFunction = force ? Client.forceStartMeeting : Client.startMeeting;
-            const meetingURL = await startFunction(channelId, true);
+            const meetingURL = await startFunction(channelId, true, topic);
             if (meetingURL) {
                 window.open(meetingURL);
             }
