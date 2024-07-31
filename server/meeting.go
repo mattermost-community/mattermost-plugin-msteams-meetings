@@ -17,6 +17,9 @@ func (c *Client) CreateMeeting(creator *UserInfo, attendeesIDs []*UserInfo, subj
 	start := time.Now()
 	end := start.Add(1 * time.Hour)
 	attendees := []msgraph.MeetingParticipantInfo{}
+	if subject == "" {
+		subject = "MS Teams Meeting"
+	}
 	for _, attendee := range attendeesIDs {
 		attendees = append(attendees, msgraph.MeetingParticipantInfo{
 			Identity: &msgraph.IdentitySet{
