@@ -48,33 +48,33 @@ func (p *Plugin) postCommandResponse(args *model.CommandArgs, text string) {
 }
 
 func getAutocompleteData() *model.AutocompleteData {
-	command := model.NewAutocompleteData("mstmeetings", "[command]",
+	cmd := model.NewAutocompleteData("mstmeetings", "[command]",
 		"Available commands: start, disconnect, help")
 
 	start := model.NewAutocompleteData("start", "", "Start an MS Teams meeting")
-	command.AddCommand(start)
+	cmd.AddCommand(start)
 
 	connect := model.NewAutocompleteData("connect", "",
 		"Connect your Mattermost account to MS Teams")
-	command.AddCommand(connect)
+	cmd.AddCommand(connect)
 
 	disconnect := model.NewAutocompleteData("disconnect", "",
 		"Disconnect your Mattermost account from MS Teams")
-	command.AddCommand(disconnect)
+	cmd.AddCommand(disconnect)
 
 	help := model.NewAutocompleteData("help", "", "Display usage information")
-	command.AddCommand(help)
+	cmd.AddCommand(help)
 
-	return command
+	return cmd
 }
 
 func (p *Plugin) executeCommand(_ *plugin.Context, args *model.CommandArgs) (string, error) {
 	split := strings.Fields(args.Command)
-	command := split[0]
+	cmd := split[0]
 	action := ""
 
-	if command != "/mstmeetings" {
-		return fmt.Sprintf("Command '%s' is not /mstmeetings. Please try again.", command), nil
+	if cmd != "/mstmeetings" {
+		return fmt.Sprintf("Command '%s' is not /mstmeetings. Please try again.", cmd), nil
 	}
 
 	if len(split) > 1 {
