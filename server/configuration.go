@@ -131,7 +131,7 @@ func (p *Plugin) OnConfigurationChange() error {
 		loaded.EncryptionKey = secret
 		resetUserKeys = true
 		changedEncryptionKey = true
-		p.API.LogInfo("auto-generated encryption key in the configration")
+		p.API.LogInfo("auto-generated encryption key in the configuration")
 	}
 
 	p.setConfiguration(&loaded)
