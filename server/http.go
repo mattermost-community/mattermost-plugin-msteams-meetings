@@ -252,7 +252,7 @@ func (p *Plugin) handleStartMeeting(w http.ResponseWriter, r *http.Request) {
 		if _, err = w.Write([]byte(`{"meeting_url": ""}`)); err != nil {
 			p.API.LogWarn("failed to write response", "error", err.Error())
 		}
-		if _, err := p.postConnect(req.ChannelID, userID); err != nil {
+		if _, err = p.postConnect(req.ChannelID, userID); err != nil {
 			p.API.LogWarn("failed to create connect post", "error", err.Error())
 		}
 		return
