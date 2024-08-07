@@ -19,23 +19,28 @@ func (ae *authError) Error() string {
 	return string(errorString)
 }
 
-var oAuthMessage string = "[Click here to link your Microsoft account.](%s/plugins/" + manifest.Id + "/oauth2/connect?channelID=%s)"
+func (p *Plugin) getOauthMessage() (string, error) {
+	pluginOauthURL, err := p.getPluginOauthURL()
+	if err != nil {
+		return "", err
+	}
+
+	return "[Click here to link your Microsoft account.](" + pluginOauthURL + "/connect?channelID=%s)", nil
+}
 
 func (p *Plugin) authenticateAndFetchUser(userID, channelID string) (*msgraph.User, *authError) {
 	var user *msgraph.User
 	var err error
 
-	siteURL, err := p.getSiteURL()
+	oAuthMessage, err := p.getOauthMessage()
 	if err != nil {
-		p.API.LogError("authenticateAndFetchUser, cannot get site URL", "error", err.Error())
-		return nil, &authError{Message: "Cannot get Site URL. Contact your sys admin.", Err: err}
+		p.API.LogError("authenticateAndFetchUser, cannot get oauth message", "error", err.Error())
+		return nil, &authError{Message: "Error getting oauth messsage.", Err: err}
 	}
 
-	userInfo, apiErr := p.GetUserInfo(userID)
-	oauthMsg := fmt.Sprintf(
-		oAuthMessage,
-		siteURL, channelID)
+	oauthMsg := fmt.Sprintf(oAuthMessage, channelID)
 
+	userInfo, apiErr := p.GetUserInfo(userID)
 	if apiErr != nil || userInfo == nil {
 		return nil, &authError{Message: oauthMsg, Err: apiErr}
 	}
@@ -58,12 +63,12 @@ func (p *Plugin) getOAuthConfig() (*oauth2.Config, error) {
 	clientSecret := config.OAuth2ClientSecret
 	clientAuthority := config.OAuth2Authority
 
-	siteURL, err := p.getSiteURL()
+	pluginOauthURL, err := p.getPluginOauthURL()
 	if err != nil {
 		return nil, err
 	}
 
-	redirectURL := fmt.Sprintf("%s/plugins/%s/oauth2/complete", siteURL, manifest.Id)
+	redirectURL := fmt.Sprintf("%s/complete", pluginOauthURL)
 
 	return &oauth2.Config{
 		ClientID:     clientID,
