@@ -12,13 +12,13 @@ import (
 )
 
 const (
-	commandHelp = "###### Mattermost MS Teams Meetings Plugin - Slash Command Help\n" +
+	availableCommands = "Available commands: start, connect, disconnect, help"
+	commandHelp       = "###### Mattermost MS Teams Meetings Plugin - Slash Command Help\n" +
 		"* |/mstmeetings start| - Start an MS Teams meeting. \n" +
 		"* |/mstmeetings connect| - Connect to MS Teams meeting. \n" +
 		"* |/mstmeetings disconnect| - Disconnect your Mattermost account from MS Teams. \n" +
 		"* |/mstmeetings help| - Display this help text."
 	tooManyParametersText = "Too many parameters."
-	availableCommands = "Available commands: start, connect, disconnect, help"
 )
 
 func getCommand(client *pluginapi.Client) *model.Command {
