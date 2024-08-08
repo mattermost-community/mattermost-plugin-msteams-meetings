@@ -49,7 +49,7 @@ func (p *Plugin) postCommandResponse(args *model.CommandArgs, text string) {
 
 func getAutocompleteData() *model.AutocompleteData {
 	cmd := model.NewAutocompleteData("mstmeetings", "[command]",
-		"Available commands: start, disconnect, help")
+		"Available commands: start, connect, disconnect, help")
 
 	start := model.NewAutocompleteData("start", "", "Start an MS Teams meeting")
 	cmd.AddCommand(start)
