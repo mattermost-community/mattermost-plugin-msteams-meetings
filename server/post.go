@@ -102,10 +102,14 @@ func (p *Plugin) postConfirmCreateOrJoin(meetingURL string, channelID string, to
 	return p.API.SendEphemeralPost(userID, post)
 }
 
-func (p *Plugin) postConnect(channelID string, userID string) *model.Post {
-	oauthMsg := fmt.Sprintf(
-		oAuthMessage,
-		*p.API.GetConfig().ServiceSettings.SiteURL, channelID)
+func (p *Plugin) postConnect(channelID string, userID string) (*model.Post, error) {
+	oAuthMessage, err := p.getOauthMessage()
+	if err != nil {
+		p.API.LogError("postConnect, cannot get oauth message", "error", err.Error())
+		return nil, err
+	}
+
+	oauthMsg := fmt.Sprintf(oAuthMessage, channelID)
 
 	post := &model.Post{
 		UserId:    p.botUserID,
@@ -113,5 +117,5 @@ func (p *Plugin) postConnect(channelID string, userID string) *model.Post {
 		Message:   oauthMsg,
 	}
 
-	return p.API.SendEphemeralPost(userID, post)
+	return p.API.SendEphemeralPost(userID, post), nil
 }
