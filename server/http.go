@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin"
-	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
 )
 
@@ -162,7 +162,7 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, appErr := p.API.GetUser(userID)
+	_, appErr := p.API.GetUser(userID)
 	if appErr != nil {
 		p.API.LogError("complete oauth, error getting MM user", "error", appErr.Error())
 		http.Error(w, appErr.Error(), http.StatusInternalServerError)
@@ -170,13 +170,6 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 	}
 
 	p.trackConnect(userID)
-
-	_, _, err = p.postMeeting(user, channelID, "")
-	if err != nil {
-		p.API.LogDebug(errors.Wrap(err, "error posting meeting").Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
 
 	html := `
 <!DOCTYPE html>
@@ -191,6 +184,14 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 	</body>
 </html>
 `
+
+	post := &model.Post{
+		UserId:    p.botUserID,
+		ChannelId: channelID,
+		Message:   "User successfully connected to MS Teams Meetings.",
+	}
+
+	p.API.SendEphemeralPost(userID, post)
 
 	w.Header().Set("Content-Type", "text/html")
 	_, _ = w.Write([]byte(html))
