@@ -24,7 +24,7 @@ type OwnProps = {
 }
 
 type Actions = {
-    startMeeting: (channelID: string, force: boolean) => ActionResult;
+    startMeeting: (channelID: string, force: boolean, topic: string) => ActionResult;
 }
 
 function mapStateToProps(state: GlobalState, ownProps: OwnProps) {

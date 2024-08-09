@@ -12,12 +12,14 @@ import (
 	msgraph "github.com/yaegashi/msgraph.go/beta"
 )
 
-func (c *Client) CreateMeeting(creator *UserInfo, attendeesIDs []*UserInfo) (*msgraph.OnlineMeeting, error) {
+func (c *Client) CreateMeeting(creator *UserInfo, attendeesIDs []*UserInfo, subject string) (*msgraph.OnlineMeeting, error) {
 	ctx := context.Background()
 	start := time.Now()
 	end := start.Add(1 * time.Hour)
-	subject := "Mattermost Meeting"
 	attendees := []msgraph.MeetingParticipantInfo{}
+	if subject == "" {
+		subject = "MS Teams Meeting"
+	}
 	for _, attendee := range attendeesIDs {
 		attendees = append(attendees, msgraph.MeetingParticipantInfo{
 			Identity: &msgraph.IdentitySet{

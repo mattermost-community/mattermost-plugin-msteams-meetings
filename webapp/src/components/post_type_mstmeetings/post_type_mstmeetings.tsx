@@ -20,7 +20,7 @@ type Props = {
     currentChannelId: string;
     fromBot: boolean;
     actions: {
-        startMeeting: (channelID: string, force: boolean) => ActionResult;
+        startMeeting: (channelID: string, force: boolean, topic: string) => ActionResult;
     };
 }
 
@@ -34,7 +34,7 @@ export default function PostTypeMSTMeetings(props: Props) {
     const handleForceStart = async () => {
         if (!creatingMeeting) {
             setCreatingMeeting(true);
-            await props.actions.startMeeting(props.currentChannelId, true);
+            await props.actions.startMeeting(props.currentChannelId, true, postProps.meeting_topic);
             setCreatingMeeting(false);
         }
     };

@@ -24,7 +24,7 @@ class Plugin {
         const action = async (channel: Channel) => {
             if (!creatingMeeting) {
                 creatingMeeting = true;
-                await startMeeting(channel.id)(store.dispatch, store.getState);
+                await startMeeting(channel.id, false, '')(store.dispatch, store.getState);
                 creatingMeeting = false;
             }
         };
