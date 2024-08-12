@@ -80,6 +80,7 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 	conf, err := p.getOAuthConfig()
 	if err != nil {
 		http.Error(w, "error in oauth config", http.StatusInternalServerError)
+		return
 	}
 
 	code := r.URL.Query().Get("code")
