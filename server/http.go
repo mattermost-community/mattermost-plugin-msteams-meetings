@@ -254,6 +254,7 @@ func (p *Plugin) handleStartMeeting(w http.ResponseWriter, r *http.Request) {
 		}
 		if _, err = p.postConnect(req.ChannelID, userID); err != nil {
 			p.API.LogWarn("failed to create connect post", "error", err.Error())
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 		return
 	}

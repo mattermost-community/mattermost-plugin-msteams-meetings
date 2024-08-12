@@ -1,0 +1,50 @@
+package main
+
+import (
+	"testing"
+
+	"github.com/mattermost/mattermost/server/public/model"
+	"github.com/mattermost/mattermost/server/public/plugin/plugintest"
+	"github.com/stretchr/testify/require"
+)
+
+func TestGetOauthMessage(t *testing.T) {
+	for _, testCase := range []struct {
+		description string
+		siteURL     string
+		setupFunc   func(p *Plugin)
+	}{
+		{
+			description: "successful",
+			siteURL:     "https://example-url.com",
+			setupFunc: func(p *Plugin) {
+				msg, err := p.getOauthMessage()
+				require.NoError(t, err)
+				require.EqualValues(t, "[Click here to link your Microsoft account.](https://example-url.com/plugins/com.mattermost.msteamsmeetings/oauth2/connect?channelID=%s)", msg)
+			},
+		},
+		{
+			description: "missing site URL",
+			siteURL:     "",
+			setupFunc: func(p *Plugin) {
+				msg, err := p.getOauthMessage()
+				require.EqualError(t, err, "error fetching siteUrl")
+				require.EqualValues(t, "", msg)
+			},
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			p := &Plugin{}
+			api := &plugintest.API{}
+			api.On("GetConfig").Return(&model.Config{
+				ServiceSettings: model.ServiceSettings{
+					SiteURL: model.NewString(testCase.siteURL),
+				},
+			})
+
+			p.SetAPI(api)
+
+			testCase.setupFunc(p)
+		})
+	}
+}
