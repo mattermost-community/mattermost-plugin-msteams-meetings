@@ -162,13 +162,6 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, appErr := p.API.GetUser(userID)
-	if appErr != nil {
-		p.API.LogError("complete oauth, error getting MM user", "error", appErr.Error())
-		http.Error(w, appErr.Error(), http.StatusInternalServerError)
-		return
-	}
-
 	p.trackConnect(userID)
 
 	html := `
