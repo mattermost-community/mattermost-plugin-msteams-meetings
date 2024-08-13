@@ -18,16 +18,16 @@ func TestGetOauthMessage(t *testing.T) {
 			description: "successful",
 			siteURL:     "https://example-url.com",
 			setupFunc: func(p *Plugin) {
-				msg, err := p.getOauthMessage()
+				msg, err := p.getOauthMessage("mockChannelID")
 				require.NoError(t, err)
-				require.EqualValues(t, "[Click here to link your Microsoft account.](https://example-url.com/plugins/com.mattermost.msteamsmeetings/oauth2/connect?channelID=%s)", msg)
+				require.EqualValues(t, "[Click here to link your Microsoft account.](https://example-url.com/plugins/com.mattermost.msteamsmeetings/oauth2/connect?channelID=mockChannelID)", msg)
 			},
 		},
 		{
 			description: "missing site URL",
 			siteURL:     "",
 			setupFunc: func(p *Plugin) {
-				msg, err := p.getOauthMessage()
+				msg, err := p.getOauthMessage("mockChannelID")
 				require.EqualError(t, err, "error fetching siteUrl")
 				require.EqualValues(t, "", msg)
 			},

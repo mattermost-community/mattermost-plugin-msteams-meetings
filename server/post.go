@@ -103,13 +103,11 @@ func (p *Plugin) postConfirmCreateOrJoin(meetingURL string, channelID string, to
 }
 
 func (p *Plugin) postConnect(channelID string, userID string) (*model.Post, error) {
-	oAuthMessage, err := p.getOauthMessage()
+	oauthMsg, err := p.getOauthMessage(channelID)
 	if err != nil {
 		p.API.LogError("postConnect, cannot get oauth message", "error", err.Error())
 		return nil, err
 	}
-
-	oauthMsg := fmt.Sprintf(oAuthMessage, channelID)
 
 	post := &model.Post{
 		UserId:    p.botUserID,

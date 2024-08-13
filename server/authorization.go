@@ -19,26 +19,24 @@ func (ae *authError) Error() string {
 	return string(errorString)
 }
 
-func (p *Plugin) getOauthMessage() (string, error) {
+func (p *Plugin) getOauthMessage(channelID string) (string, error) {
 	pluginOauthURL, err := p.getPluginOauthURL()
 	if err != nil {
 		return "", err
 	}
 
-	return "[Click here to link your Microsoft account.](" + pluginOauthURL + "/connect?channelID=%s)", nil
+	return fmt.Sprintf("[Click here to link your Microsoft account.](%s/connect?channelID=%s)", pluginOauthURL, channelID), nil
 }
 
 func (p *Plugin) authenticateAndFetchUser(userID, channelID string) (*msgraph.User, *authError) {
 	var user *msgraph.User
 	var err error
 
-	oAuthMessage, err := p.getOauthMessage()
+	oauthMsg, err := p.getOauthMessage(channelID)
 	if err != nil {
 		p.API.LogError("authenticateAndFetchUser, cannot get oauth message", "error", err.Error())
 		return nil, &authError{Message: "Error getting oauth messsage.", Err: err}
 	}
-
-	oauthMsg := fmt.Sprintf(oAuthMessage, channelID)
 
 	userInfo, apiErr := p.GetUserInfo(userID)
 	if apiErr != nil || userInfo == nil {
