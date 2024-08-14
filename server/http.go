@@ -24,6 +24,7 @@ const (
 func (p *Plugin) ServeHTTP(_ *plugin.Context, w http.ResponseWriter, r *http.Request) {
 	config := p.getConfiguration()
 	if err := config.IsValid(); err != nil {
+		p.API.LogError("Invalid plugin config", "Error", err.Error())
 		http.Error(w, "This plugin is not configured.", http.StatusNotImplemented)
 		return
 	}
@@ -43,24 +44,28 @@ func (p *Plugin) ServeHTTP(_ *plugin.Context, w http.ResponseWriter, r *http.Req
 func (p *Plugin) connectUser(w http.ResponseWriter, r *http.Request) {
 	userID := r.Header.Get("Mattermost-User-ID")
 	if userID == "" {
+		p.API.LogError("connectUser, unauthorised user")
 		http.Error(w, "Not authorized", http.StatusUnauthorized)
 		return
 	}
 
 	channelID := r.URL.Query().Get("channelID")
 	if channelID == "" {
+		p.API.LogError("connectUser, missing channelID in query params")
 		http.Error(w, "channelID missing", http.StatusBadRequest)
 		return
 	}
 
 	conf, err := p.getOAuthConfig()
 	if err != nil {
+		p.API.LogError("connectUser, failed to get oauth config", "Error", err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	state, err := p.StoreState(userID, channelID)
 	if err != nil {
+		p.API.LogError("connectUser, failed to store user state", "UserID", userID, "Error", err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -72,6 +77,7 @@ func (p *Plugin) connectUser(w http.ResponseWriter, r *http.Request) {
 func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 	authedUserID := r.Header.Get("Mattermost-User-ID")
 	if authedUserID == "" {
+		p.API.LogError("completeUserOAuth, unauthorized user")
 		http.Error(w, "Not authorized, missing Mattermost user id", http.StatusUnauthorized)
 		return
 	}
@@ -79,12 +85,14 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	conf, err := p.getOAuthConfig()
 	if err != nil {
+		p.API.LogError("completeUserOAuth, failed to get oauth config", "Error", err.Error())
 		http.Error(w, "error in oauth config", http.StatusInternalServerError)
 		return
 	}
 
 	code := r.URL.Query().Get("code")
 	if len(code) == 0 {
+		p.API.LogError("completeUserOAuth, missing authorization code")
 		http.Error(w, "missing authorization code", http.StatusBadRequest)
 		return
 	}
@@ -100,11 +108,13 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 
 	storedState, err := p.GetState(key)
 	if err != nil {
+		p.API.LogError("completeUserOAuth, missing stored state")
 		http.Error(w, "missing stored state", http.StatusBadRequest)
 		return
 	}
 
 	if storedState != state {
+		p.API.LogError("completeUserOAuth, invalid state")
 		http.Error(w, "invalid state", http.StatusBadRequest)
 		return
 	}
@@ -112,6 +122,7 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 	_ = p.DeleteState(key)
 
 	if userID != authedUserID {
+		p.API.LogError("completeUserOAuth, unauthorized user", "UserID", authedUserID)
 		http.Error(w, "Not authorized, incorrect user", http.StatusUnauthorized)
 		return
 	}
@@ -207,6 +218,7 @@ type startMeetingRequest struct {
 func (p *Plugin) handleStartMeeting(w http.ResponseWriter, r *http.Request) {
 	userID := r.Header.Get("Mattermost-User-Id")
 	if userID == "" {
+		p.API.LogError("handleStartMeeting, unauthorized user")
 		http.Error(w, "Not authorized", http.StatusUnauthorized)
 		return
 	}
@@ -214,18 +226,21 @@ func (p *Plugin) handleStartMeeting(w http.ResponseWriter, r *http.Request) {
 	var req startMeetingRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
+		p.API.LogError("handleStartMeeting, failed to decode start meeting payload", "Error", err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	user, appErr := p.API.GetUser(userID)
 	if appErr != nil {
+		p.API.LogError("handleStartMeeting, failed to get user", "UserID", userID, "Error", appErr.Message)
 		http.Error(w, appErr.Error(), appErr.StatusCode)
 		return
 	}
 
 	_, appErr = p.API.GetChannelMember(req.ChannelID, userID)
 	if appErr != nil {
+		p.API.LogError("handleStartMeeting, failed to get channel member", "UserID", userID, "Error", appErr.Message)
 		http.Error(w, "Forbidden", http.StatusForbidden)
 		return
 	}
@@ -233,6 +248,7 @@ func (p *Plugin) handleStartMeeting(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Query().Get("force") == "" {
 		recentMeeting, recentMeetingURL, creatorName, provider, cpmErr := p.checkPreviousMessages(req.ChannelID)
 		if cpmErr != nil {
+			p.API.LogError("handleStartMeeting, error occurred while checking previous messages in channel", "ChannelID", req.ChannelID, "Error", cpmErr.Message)
 			http.Error(w, cpmErr.Error(), cpmErr.StatusCode)
 			return
 		}
@@ -259,6 +275,7 @@ func (p *Plugin) handleStartMeeting(w http.ResponseWriter, r *http.Request) {
 
 	_, meeting, err := p.postMeeting(user, req.ChannelID, req.Topic)
 	if err != nil {
+		p.API.LogError("handleStartMeeting, failed to post meeting", "UserID", user.Id, "Error", err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
