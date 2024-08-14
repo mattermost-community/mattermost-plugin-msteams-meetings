@@ -181,7 +181,7 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 	post := &model.Post{
 		UserId:    p.botUserID,
 		ChannelId: channelID,
-		Message:   "User successfully connected to MS Teams Meetings.",
+		Message:   "You have successfully connected to MS Teams Meetings.",
 	}
 
 	p.API.SendEphemeralPost(userID, post)
