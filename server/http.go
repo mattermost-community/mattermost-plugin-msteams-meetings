@@ -44,7 +44,7 @@ func (p *Plugin) ServeHTTP(_ *plugin.Context, w http.ResponseWriter, r *http.Req
 func (p *Plugin) connectUser(w http.ResponseWriter, r *http.Request) {
 	userID := r.Header.Get("Mattermost-User-ID")
 	if userID == "" {
-		p.API.LogError("connectUser, unauthorised user")
+		p.API.LogError("connectUser, unauthorized user")
 		http.Error(w, "Not authorized", http.StatusUnauthorized)
 		return
 	}
