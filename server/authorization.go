@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 
 	msgraph "github.com/yaegashi/msgraph.go/beta"
 	"golang.org/x/oauth2"
@@ -19,7 +20,7 @@ func (ae *authError) Error() string {
 	return string(errorString)
 }
 
-var oAuthMessage string = "[Click here to link your Microsoft account.](%s/plugins/" + manifest.Id + "/oauth2/connect?channelID=%s)"
+var oAuthMessage string = "[Click here to link your Microsoft account.](%s/plugins/" + url.PathEscape(manifest.Id) + "/oauth2/connect?channelID=%s)"
 
 func (p *Plugin) authenticateAndFetchUser(userID, channelID string) (*msgraph.User, *authError) {
 	var user *msgraph.User
