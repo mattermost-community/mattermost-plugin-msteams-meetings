@@ -64,7 +64,7 @@ func (p *Plugin) getOAuthConfig() (*oauth2.Config, error) {
 		return nil, err
 	}
 
-	redirectURL := fmt.Sprintf("%s/plugins/%s/oauth2/complete", siteURL, manifest.Id)
+	redirectURL := fmt.Sprintf("%s/plugins/%s/oauth2/complete", siteURL, url.PathEscape(manifest.Id))
 
 	return &oauth2.Config{
 		ClientID:     clientID,
