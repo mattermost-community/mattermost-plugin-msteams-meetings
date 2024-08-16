@@ -13,12 +13,12 @@ export default class Client {
         this.url = url + '/plugins/' + id;
     }
 
-    startMeeting = async (channelId: string, personal = true, topic = '', meetingId = 0, force = false) => {
+    startMeeting = async (channelId: string, personal = true, topic: string, meetingId = 0, force = false) => {
         const res = await doPost(`${this.url}/api/v1/meetings${force ? '?force=true' : ''}`, {channel_id: channelId, personal, topic, meeting_id: meetingId});
         return res.meeting_url;
     }
 
-    forceStartMeeting = async (channelId: string, personal = true, topic = '', meetingId = 0) => {
+    forceStartMeeting = async (channelId: string, personal = true, topic: string, meetingId = 0) => {
         const meetingUrl = await this.startMeeting(channelId, personal, topic, meetingId, true);
         return meetingUrl;
     }

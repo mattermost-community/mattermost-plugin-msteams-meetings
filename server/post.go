@@ -50,7 +50,7 @@ func (p *Plugin) postMeeting(creator *model.User, channelID string, topic string
 
 	client := p.NewClient(conf, userInfo.OAuthToken)
 
-	meeting, err := client.CreateMeeting(userInfo, attendees)
+	meeting, err := client.CreateMeeting(userInfo, attendees, topic)
 	if err != nil {
 		return nil, nil, err
 	}
