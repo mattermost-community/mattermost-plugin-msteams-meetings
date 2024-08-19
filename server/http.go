@@ -59,7 +59,7 @@ func (p *Plugin) connectUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	state, err := p.StoreState(userID, channelID)
+	state, err := p.GetState(getOAuthUserStateKey(userID))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -90,7 +90,7 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 
 	state := r.URL.Query().Get("state")
 
-	key, userID, channelID, err := p.ParseState(state)
+	key, userID, channelID, justConnect, err := p.ParseState(state)
 	if err != nil {
 		p.API.LogDebug("complete oauth, cannot parse state", "error", err.Error())
 		http.Error(w, "invalid state", http.StatusBadRequest)
@@ -177,14 +177,29 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 	</body>
 </html>
 `
+	if justConnect {
+		post := &model.Post{
+			UserId:    p.botUserID,
+			ChannelId: channelID,
+			Message:   "You have successfully connected to MS Teams Meetings.",
+		}
 
-	post := &model.Post{
-		UserId:    p.botUserID,
-		ChannelId: channelID,
-		Message:   "You have successfully connected to MS Teams Meetings.",
+		p.API.SendEphemeralPost(userID, post)
+	} else {
+		user, appErr := p.API.GetUser(userID)
+		if appErr != nil {
+			p.API.LogError("complete oauth, error getting MM user", "error", appErr.Error())
+			http.Error(w, appErr.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		_, _, err = p.postMeeting(user, channelID, "")
+		if err != nil {
+			p.API.LogDebug("complete oauth, error posting meeting", "error", err.Error())
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
-
-	p.API.SendEphemeralPost(userID, post)
 
 	w.Header().Set("Content-Type", "text/html")
 	_, _ = w.Write([]byte(html))
@@ -247,6 +262,11 @@ func (p *Plugin) handleStartMeeting(w http.ResponseWriter, r *http.Request) {
 			p.API.LogWarn("failed to write response", "error", err.Error())
 		}
 		p.postConnect(req.ChannelID, userID)
+
+		// the user state will be needed later while connecting the user to MS teams meeting via OAuth
+		if _, err = p.StoreState(userID, req.ChannelID, false); err != nil {
+			p.API.LogWarn("failed to store user state", "error", err.Error())
+		}
 		return
 	}
 
