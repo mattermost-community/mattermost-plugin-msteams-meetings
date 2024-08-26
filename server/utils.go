@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"net/url"
 	"time"
 
 	"github.com/mattermost/mattermost/server/public/model"
@@ -51,4 +53,14 @@ func getString(key string, props model.StringInterface) string {
 		}
 	}
 	return value
+}
+
+func (p *Plugin) getPluginOauthURL() (string, error) {
+	siteURL, err := p.getSiteURL()
+	if err != nil {
+		return "", err
+	}
+
+	pluginID := url.PathEscape(manifest.Id)
+	return fmt.Sprintf("%s/plugins/%s/oauth2", siteURL, pluginID), nil
 }

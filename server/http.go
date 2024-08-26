@@ -80,6 +80,7 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 	conf, err := p.getOAuthConfig()
 	if err != nil {
 		http.Error(w, "error in oauth config", http.StatusInternalServerError)
+		return
 	}
 
 	code := r.URL.Query().Get("code")
@@ -261,12 +262,18 @@ func (p *Plugin) handleStartMeeting(w http.ResponseWriter, r *http.Request) {
 		if _, err = w.Write([]byte(`{"meeting_url": ""}`)); err != nil {
 			p.API.LogWarn("failed to write response", "error", err.Error())
 		}
-		p.postConnect(req.ChannelID, userID)
+
+		if _, err = p.postConnect(req.ChannelID, userID); err != nil {
+			p.API.LogWarn("failed to create connect post", "error", err.Error())
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
 		// the user state will be needed later while connecting the user to MS teams meeting via OAuth
 		if _, err = p.StoreState(userID, req.ChannelID, false); err != nil {
 			p.API.LogWarn("failed to store user state", "error", err.Error())
 		}
+
 		return
 	}
 

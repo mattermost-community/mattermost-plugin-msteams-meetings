@@ -106,8 +106,9 @@ func (p *Plugin) handleHelp() (string, error) {
 }
 
 func (p *Plugin) handleStart(args []string, extra *model.CommandArgs) (string, error) {
+	topic := ""
 	if len(args) > 1 {
-		return tooManyParametersText, nil
+		topic = strings.Join(args[1:], " ")
 	}
 	userID := extra.UserId
 	user, appErr := p.API.GetUser(userID)
@@ -125,7 +126,7 @@ func (p *Plugin) handleStart(args []string, extra *model.CommandArgs) (string, e
 	}
 
 	if recentMeeting {
-		p.postConfirmCreateOrJoin(recentMeetingURL, extra.ChannelId, "", userID, creatorName, provider)
+		p.postConfirmCreateOrJoin(recentMeetingURL, extra.ChannelId, topic, userID, creatorName, provider)
 		p.trackMeetingDuplication(extra.UserId)
 		return "", nil
 	}
@@ -140,7 +141,7 @@ func (p *Plugin) handleStart(args []string, extra *model.CommandArgs) (string, e
 		return authErr.Message, authErr.Err
 	}
 
-	_, _, err := p.postMeeting(user, extra.ChannelId, "")
+	_, _, err := p.postMeeting(user, extra.ChannelId, topic)
 	if err != nil {
 		return "Failed to post message. Please try again.", errors.Wrap(err, "cannot post message")
 	}
