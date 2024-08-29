@@ -11,7 +11,7 @@ Start and join voice calls, video calls, and use screen sharing with your team m
 
 ### Requirements
 
-Mattermost Server v5.26+ is required.
+Mattermost Server v8.1+ is required.
 
 ### Installation
 
