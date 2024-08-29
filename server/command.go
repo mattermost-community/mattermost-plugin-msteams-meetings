@@ -133,6 +133,11 @@ func (p *Plugin) handleStart(args []string, extra *model.CommandArgs) (string, e
 
 	_, authErr := p.authenticateAndFetchUser(userID, extra.ChannelId)
 	if authErr != nil {
+		// the user state will be needed later while connecting the user to MS teams meeting via OAuth
+		if _, err := p.StoreState(userID, extra.ChannelId, false); err != nil {
+			p.API.LogWarn("failed to store user state", "error", err.Error())
+		}
+
 		return authErr.Message, authErr.Err
 	}
 
@@ -152,6 +157,11 @@ func (p *Plugin) handleConnect(args []string, extra *model.CommandArgs) (string,
 
 	msUser, authErr := p.authenticateAndFetchUser(extra.UserId, extra.ChannelId)
 	if authErr != nil {
+		// the user state will be needed later while connecting the user to MS teams meeting via OAuth
+		if _, err := p.StoreState(extra.UserId, extra.ChannelId, true); err != nil {
+			p.API.LogWarn("failed to store user state", "error", err.Error())
+		}
+
 		return authErr.Message, authErr.Err
 	}
 
@@ -172,7 +182,7 @@ func (p *Plugin) handleDisconnect(args []string, extra *model.CommandArgs) (stri
 	}
 
 	p.trackDisconnect(extra.UserId)
-	return "User disconnected from MS Teams Meetings.", nil
+	return "You have successfully disconnected from MS Teams Meetings.", nil
 }
 
 // ExecuteCommand is called when any registered by this plugin command is executed
