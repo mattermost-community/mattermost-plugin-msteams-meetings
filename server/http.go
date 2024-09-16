@@ -174,6 +174,8 @@ func (p *Plugin) completeUserOAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	p.client = p.NewClient(conf, userInfo.OAuthToken)
+
 	p.trackConnect(userID)
 
 	html := `

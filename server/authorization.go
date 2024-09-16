@@ -43,7 +43,8 @@ func (p *Plugin) authenticateAndFetchUser(userID, channelID string) (*msgraph.Us
 	if apiErr != nil || userInfo == nil {
 		return nil, &authError{Message: oauthMsg, Err: apiErr}
 	}
-	user, err = p.getUserWithToken(userInfo.OAuthToken)
+
+	user, err = p.getUserWithToken(nil)
 	if err != nil {
 		return nil, &authError{Message: oauthMsg, Err: err}
 	}
@@ -86,10 +87,11 @@ func (p *Plugin) getUserWithToken(token *oauth2.Token) (*msgraph.User, error) {
 	if err != nil {
 		return nil, err
 	}
+	if token != nil {
+		p.client = p.NewClient(conf, token)
+	}
 
-	client := p.NewClient(conf, token)
-
-	user, err := client.GetMe()
+	user, err := p.client.GetMe()
 	if err != nil {
 		return nil, err
 	}
