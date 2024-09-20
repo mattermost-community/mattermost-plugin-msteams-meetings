@@ -45,7 +45,8 @@
                 "type": "text",
                 "help_text": "Copy the **Client Secret Value** (not the ID) that was created on the App's **Certificates and Secrets** tab.",
                 "placeholder": "",
-                "default": ""
+                "default": "",
+                "secret": true
             },
             {
                 "key": "EncryptionKey",
