@@ -55,7 +55,7 @@ func TestHandleConnect(t *testing.T) {
 		name           string
 		args           []string
 		commandArgs    *model.CommandArgs
-		mockSetup      func(api *plugintest.API, encryptedUserInfo []byte, mockTracker *MockTracker, mockClient *MockClient)
+		mockSetup      func(api *plugintest.API, encryptedUserInfo []byte, mockClient *MockClient)
 		expectedOutput string
 		expectError    bool
 		expectedError  string
@@ -63,19 +63,19 @@ func TestHandleConnect(t *testing.T) {
 		{
 			name:        "Too many parameters",
 			args:        []string{"param1", "param2"},
-			commandArgs: &model.CommandArgs{UserId: "demoUserId"},
-			mockSetup: func(api *plugintest.API, encryptedUserInfo []byte, mockTracker *MockTracker, mockClient *MockClient) {
+			commandArgs: &model.CommandArgs{UserId: "demoUserID"},
+			mockSetup: func(api *plugintest.API, encryptedUserInfo []byte, mockClient *MockClient) {
 			},
 			expectedOutput: tooManyParametersText,
 			expectError:    false,
 		},
 		{
-			name:        "Connect error",
+			name:        "Error connecting user",
 			args:        []string{"param"},
-			commandArgs: &model.CommandArgs{UserId: "demoUserId", ChannelId: "demoChannelId"},
-			mockSetup: func(api *plugintest.API, encryptedUserInfo []byte, mockTracker *MockTracker, mockClient *MockClient) {
-				api.On("KVGet", "token_demoUserId").Return(encryptedUserInfo, nil)
-				api.On("KVSet", "msteamsmeetinguserstate_demoUserId", []byte("msteamsmeetinguserstate_demoUserId_demoChannelId_true")).Return(nil)
+			commandArgs: &model.CommandArgs{UserId: "demoUserID", ChannelId: "demoChannelID"},
+			mockSetup: func(api *plugintest.API, encryptedUserInfo []byte, mockClient *MockClient) {
+				api.On("KVGet", "token_demoUserID").Return(encryptedUserInfo, nil)
+				api.On("KVSet", "msteamsmeetinguserstate_demoUserID", []byte("msteamsmeetinguserstate_demoUserID_demoChannelID_true")).Return(nil)
 				api.On("GetConfig").Return(&model.Config{ServiceSettings: model.ServiceSettings{SiteURL: model.NewString("https://example.com")}})
 				mockClient.On("GetMe").Return(&msgraph.User{}, errors.New("error getting user details"))
 			},
@@ -86,9 +86,9 @@ func TestHandleConnect(t *testing.T) {
 		{
 			name:        "Successful connection",
 			args:        []string{"param"},
-			commandArgs: &model.CommandArgs{UserId: "demoUserId", ChannelId: "demoChannelId"},
-			mockSetup: func(api *plugintest.API, encryptedUserInfo []byte, mockTracker *MockTracker, mockClient *MockClient) {
-				api.On("KVGet", "token_demoUserId").Return(encryptedUserInfo, nil)
+			commandArgs: &model.CommandArgs{UserId: "demoUserID", ChannelId: "demoChannelID"},
+			mockSetup: func(api *plugintest.API, encryptedUserInfo []byte, mockClient *MockClient) {
+				api.On("KVGet", "token_demoUserID").Return(encryptedUserInfo, nil)
 				api.On("GetConfig").Return(&model.Config{ServiceSettings: model.ServiceSettings{SiteURL: model.NewString("https://example.com")}})
 				mockClient.On("GetMe").Return(&msgraph.User{}, nil)
 			},
@@ -100,15 +100,12 @@ func TestHandleConnect(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			api := &plugintest.API{}
-			mockTracker := &MockTracker{}
 			mockClient := &MockClient{}
 
 			p := &Plugin{
 				MattermostPlugin: plugin.MattermostPlugin{
 					API:    api,
-					Driver: &plugintest.Driver{},
 				},
-				tracker: mockTracker,
 				client:  mockClient,
 			}
 
@@ -129,7 +126,7 @@ func TestHandleConnect(t *testing.T) {
 			encryptedUserInfo, err := userInfo.EncryptedJSON([]byte("demo_encrypt_key"))
 			require.NoError(t, err)
 
-			tt.mockSetup(api, encryptedUserInfo, mockTracker, mockClient)
+			tt.mockSetup(api, encryptedUserInfo, mockClient)
 
 			resp, err := p.handleConnect(tt.args, tt.commandArgs)
 			if tt.expectError {
@@ -140,7 +137,6 @@ func TestHandleConnect(t *testing.T) {
 			}
 
 			api.AssertExpectations(t)
-			mockTracker.AssertExpectations(t)
 		})
 	}
 }
@@ -156,17 +152,17 @@ func TestHandleDisconnect(t *testing.T) {
 		{
 			name:           "Too many parameters",
 			args:           []string{"param1", "param2"},
-			commandArgs:    &model.CommandArgs{UserId: "demoUserId"},
-			mockSetup:      func(api *plugintest.API, encryptedUserInfo []byte, mockTracker *MockTracker) {},
+			commandArgs:    &model.CommandArgs{UserId: "demoUserID"},
+			mockSetup:      func(api *plugintest.API, encryptedUserInfo []byte, _ *MockTracker) {},
 			expectedOutput: tooManyParametersText,
 		},
 		{
-			name:        "Disconnect error",
+			name:        "Error while disconnecting",
 			args:        []string{"param"},
-			commandArgs: &model.CommandArgs{UserId: "demoUserId"},
-			mockSetup: func(api *plugintest.API, encryptedUserInfo []byte, mockTracker *MockTracker) {
-				api.On("KVGet", "token_demoUserId").Return(encryptedUserInfo, nil)
-				api.On("KVDelete", "token_demoUserId").Return(&model.AppError{Message: "deletion error"})
+			commandArgs: &model.CommandArgs{UserId: "demoUserID"},
+			mockSetup: func(api *plugintest.API, encryptedUserInfo []byte, _ *MockTracker) {
+				api.On("KVGet", "token_demoUserID").Return(encryptedUserInfo, nil)
+				api.On("KVDelete", "token_demoUserID").Return(&model.AppError{Message: "deletion error"})
 				api.On("KVDelete", "tbyrid_demo_remote_id").Return(nil)
 			},
 			expectedOutput: "Failed to disconnect user, deletion error",
@@ -174,12 +170,12 @@ func TestHandleDisconnect(t *testing.T) {
 		{
 			name:        "Successful disconnection",
 			args:        []string{"param"},
-			commandArgs: &model.CommandArgs{UserId: "demoUserId"},
+			commandArgs: &model.CommandArgs{UserId: "demoUserID"},
 			mockSetup: func(api *plugintest.API, encryptedUserInfo []byte, mockTracker *MockTracker) {
-				api.On("KVGet", "token_demoUserId").Return(encryptedUserInfo, nil)
-				api.On("KVDelete", "token_demoUserId").Return(nil)
+				api.On("KVGet", "token_demoUserID").Return(encryptedUserInfo, nil)
+				api.On("KVDelete", "token_demoUserID").Return(nil)
 				api.On("KVDelete", "tbyrid_demo_remote_id").Return(nil)
-				mockTracker.On("TrackUserEvent", "disconnect", "demoUserId", mock.Anything).Return(nil)
+				mockTracker.On("TrackUserEvent", "disconnect", "demoUserID", mock.Anything).Return(nil)
 			},
 			expectedOutput: "You have successfully disconnected from MS Teams Meetings.",
 		},
@@ -193,7 +189,6 @@ func TestHandleDisconnect(t *testing.T) {
 			p := &Plugin{
 				MattermostPlugin: plugin.MattermostPlugin{
 					API:    api,
-					Driver: &plugintest.Driver{},
 				},
 				tracker: mockTracker,
 			}
@@ -235,34 +230,34 @@ func TestHandleStart(t *testing.T) {
 		expectedError  string
 	}{
 		{
-			name:        "Get User error",
+			name:        "Error getting user",
 			args:        []string{"param1", "param2"},
-			commandArgs: &model.CommandArgs{UserId: "demoUserId"},
-			mockSetup: func(api *plugintest.API, encryptedUserInfo []byte, mockTracker *MockTracker, mockClient *MockClient) {
-				api.On("GetUser", "demoUserId").Return(nil, &model.AppError{Message: "error getting user for the userId"})
+			commandArgs: &model.CommandArgs{UserId: "demoUserID"},
+			mockSetup: func(api *plugintest.API, encryptedUserInfo []byte, _ *MockTracker, mockClient *MockClient) {
+				api.On("GetUser", "demoUserID").Return(nil, &model.AppError{Message: "error getting user for the userID"})
 			},
 			expectError:   true,
-			expectedError: "error getting user for the userId",
+			expectedError: "error getting user for the userID",
 		},
 		{
-			name:        "Get Channel error",
+			name:        "Error getting channel",
 			args:        []string{"param1", "param2"},
-			commandArgs: &model.CommandArgs{UserId: "demoUserId", ChannelId: "demoChannelId"},
-			mockSetup: func(api *plugintest.API, encryptedUserInfo []byte, mockTracker *MockTracker, mockClient *MockClient) {
-				api.On("GetUser", "demoUserId").Return(&model.User{Id: "demoUserId"}, nil)
-				api.On("GetChannelMember", "demoChannelId", "demoUserId").Return(nil, &model.AppError{Message: "error getting channel for the channelId"})
+			commandArgs: &model.CommandArgs{UserId: "demoUserID", ChannelId: "demoChannelID"},
+			mockSetup: func(api *plugintest.API, encryptedUserInfo []byte, _ *MockTracker, mockClient *MockClient) {
+				api.On("GetUser", "demoUserID").Return(&model.User{Id: "demoUserID"}, nil)
+				api.On("GetChannelMember", "demoChannelID", "demoUserID").Return(nil, &model.AppError{Message: "error getting channel for the channelID"})
 			},
 			expectError:   true,
-			expectedError: "error getting channel for the channelId",
+			expectedError: "error getting channel for the channelID",
 		},
 		{
-			name:        "Check Previous Message error",
+			name:        "Error getting previous messages",
 			args:        []string{"param1", "param2"},
-			commandArgs: &model.CommandArgs{UserId: "demoUserId", ChannelId: "demoChannelId"},
-			mockSetup: func(api *plugintest.API, encryptedUserInfo []byte, mockTracker *MockTracker, mockClient *MockClient) {
-				api.On("GetUser", "demoUserId").Return(&model.User{Id: "demoUserId"}, nil)
-				api.On("GetChannelMember", "demoChannelId", "demoUserId").Return(&model.ChannelMember{ChannelId: "demoChannelId"}, nil)
-				api.On("GetPostsSince", "demoChannelId", (time.Now().Unix()-30)*1000).Return(nil, &model.AppError{Message: "error getting previous post for channel"})
+			commandArgs: &model.CommandArgs{UserId: "demoUserID", ChannelId: "demoChannelID"},
+			mockSetup: func(api *plugintest.API, encryptedUserInfo []byte, _ *MockTracker, mockClient *MockClient) {
+				api.On("GetUser", "demoUserID").Return(&model.User{Id: "demoUserID"}, nil)
+				api.On("GetChannelMember", "demoChannelID", "demoUserID").Return(&model.ChannelMember{ChannelId: "demoChannelID"}, nil)
+				api.On("GetPostsSince", "demoChannelID", (time.Now().Unix()-30)*1000).Return(nil, &model.AppError{Message: "error getting previous post for channel"})
 			},
 			expectError:   true,
 			expectedError: "error getting previous post for channel",
@@ -270,14 +265,14 @@ func TestHandleStart(t *testing.T) {
 		{
 			name:        "Recent meeting exists",
 			args:        []string{"param1", "param2"},
-			commandArgs: &model.CommandArgs{UserId: "demoUserId", ChannelId: "demoChannelId"},
+			commandArgs: &model.CommandArgs{UserId: "demoUserID", ChannelId: "demoChannelID"},
 			mockSetup: func(api *plugintest.API, encryptedUserInfo []byte, mockTracker *MockTracker, mockClient *MockClient) {
 				postList := &model.PostList{
 					Order: []string{"post1"},
 					Posts: map[string]*model.Post{
 						"post1": {
 							Id:        "post1",
-							ChannelId: "demoChannelId",
+							ChannelId: "demoChannelID",
 							CreateAt:  time.Now().UnixNano() / int64(time.Millisecond),
 							UpdateAt:  time.Now().UnixNano() / int64(time.Millisecond),
 							Props: map[string]interface{}{
@@ -287,16 +282,12 @@ func TestHandleStart(t *testing.T) {
 							},
 						},
 					},
-					NextPostId:                "",
-					PrevPostId:                "",
-					HasNext:                   false,
-					FirstInaccessiblePostTime: 0,
 				}
-				api.On("GetUser", "demoUserId").Return(&model.User{Id: "demoUserId"}, nil)
-				api.On("GetChannelMember", "demoChannelId", "demoUserId").Return(&model.ChannelMember{ChannelId: "demoChannelId"}, nil)
-				api.On("GetPostsSince", "demoChannelId", (time.Now().Unix()-30)*1000).Return(postList, nil)
-				api.On("SendEphemeralPost", "demoUserId", mock.Anything).Return(&model.Post{})
-				mockTracker.On("TrackUserEvent", mock.Anything, "demoUserId", mock.Anything).Return(nil)
+				api.On("GetUser", "demoUserID").Return(&model.User{Id: "demoUserID"}, nil)
+				api.On("GetChannelMember", "demoChannelID", "demoUserID").Return(&model.ChannelMember{ChannelId: "demoChannelID"}, nil)
+				api.On("GetPostsSince", "demoChannelID", (time.Now().Unix()-30)*1000).Return(postList, nil)
+				api.On("SendEphemeralPost", "demoUserID", mock.Anything).Return(&model.Post{})
+				mockTracker.On("TrackUserEvent", mock.Anything, "demoUserID", mock.Anything).Return(nil)
 			},
 			expectError:    false,
 			expectedOutput: "",
@@ -304,29 +295,25 @@ func TestHandleStart(t *testing.T) {
 		{
 			name:        "Authentication error",
 			args:        []string{"param1", "param2"},
-			commandArgs: &model.CommandArgs{UserId: "demoUserId", ChannelId: "demoChannelId"},
-			mockSetup: func(api *plugintest.API, encryptedUserInfo []byte, mockTracker *MockTracker, mockClient *MockClient) {
-				api.On("GetUser", "demoUserId").Return(&model.User{Id: "demoUserId"}, nil)
-				api.On("GetChannelMember", "demoChannelId", "demoUserId").Return(&model.ChannelMember{ChannelId: "demoChannelId"}, nil)
+			commandArgs: &model.CommandArgs{UserId: "demoUserID", ChannelId: "demoChannelID"},
+			mockSetup: func(api *plugintest.API, encryptedUserInfo []byte, _ *MockTracker, mockClient *MockClient) {
+				api.On("GetUser", "demoUserID").Return(&model.User{Id: "demoUserID"}, nil)
+				api.On("GetChannelMember", "demoChannelID", "demoUserID").Return(&model.ChannelMember{ChannelId: "demoChannelID"}, nil)
 				postList := &model.PostList{
 					Order: []string{"post1"},
 					Posts: map[string]*model.Post{
 						"post1": {
 							Id:        "post1",
-							ChannelId: "demoChannelId",
+							ChannelId: "demoChannelID",
 							CreateAt:  time.Now().UnixNano() / int64(time.Millisecond),
 							UpdateAt:  time.Now().UnixNano() / int64(time.Millisecond),
 						},
 					},
-					NextPostId:                "",
-					PrevPostId:                "",
-					HasNext:                   false,
-					FirstInaccessiblePostTime: 0,
 				}
-				api.On("GetPostsSince", "demoChannelId", (time.Now().Unix()-30)*1000).Return(postList, nil)
-				api.On("KVGet", "token_demoUserId").Return(nil, &model.AppError{Message: "deletion error"})
+				api.On("GetPostsSince", "demoChannelID", (time.Now().Unix()-30)*1000).Return(postList, nil)
+				api.On("KVGet", "token_demoUserID").Return(nil, &model.AppError{Message: "deletion error"})
 				api.On("GetConfig").Return(&model.Config{ServiceSettings: model.ServiceSettings{SiteURL: model.NewString("https://example.com")}})
-				api.On("KVSet", "msteamsmeetinguserstate_demoUserId", []byte("msteamsmeetinguserstate_demoUserId_demoChannelId_false")).Return(nil)
+				api.On("KVSet", "msteamsmeetinguserstate_demoUserID", []byte("msteamsmeetinguserstate_demoUserID_demoChannelID_false")).Return(nil)
 			},
 			expectError:   true,
 			expectedError: "Your Mattermost account is not connected to any Microsoft Teams account",
@@ -334,38 +321,34 @@ func TestHandleStart(t *testing.T) {
 		{
 			name:        "Meeting started successfully",
 			args:        []string{"param1", "param2"},
-			commandArgs: &model.CommandArgs{UserId: "demoUserId", ChannelId: "demoChannelId"},
+			commandArgs: &model.CommandArgs{UserId: "demoUserID", ChannelId: "demoChannelID"},
 			mockSetup: func(api *plugintest.API, encryptedUserInfo []byte, mockTracker *MockTracker, mockClient *MockClient) {
-				api.On("GetUser", "demoUserId").Return(&model.User{Id: "demoUserId"}, nil)
-				api.On("GetChannelMember", "demoChannelId", "demoUserId").Return(&model.ChannelMember{ChannelId: "demoChannelId"}, nil)
+				api.On("GetUser", "demoUserID").Return(&model.User{Id: "demoUserID"}, nil)
+				api.On("GetChannelMember", "demoChannelID", "demoUserID").Return(&model.ChannelMember{ChannelId: "demoChannelID"}, nil)
 
 				postList := &model.PostList{
 					Order: []string{"post1"},
 					Posts: map[string]*model.Post{
 						"post1": {
 							Id:        "post1",
-							ChannelId: "demoChannelId",
+							ChannelId: "demoChannelID",
 							CreateAt:  time.Now().UnixNano() / int64(time.Millisecond),
 							UpdateAt:  time.Now().UnixNano() / int64(time.Millisecond),
 						},
 					},
-					NextPostId:                "",
-					PrevPostId:                "",
-					HasNext:                   false,
-					FirstInaccessiblePostTime: 0,
 				}
 
 				joinUrl := "demoJoinURL"
 
-				api.On("GetPostsSince", "demoChannelId", (time.Now().Unix()-30)*1000).Return(postList, nil)
-				api.On("KVGet", "token_demoUserId").Return(encryptedUserInfo, nil)
+				api.On("GetPostsSince", "demoChannelID", (time.Now().Unix()-30)*1000).Return(postList, nil)
+				api.On("KVGet", "token_demoUserID").Return(encryptedUserInfo, nil)
 				api.On("GetConfig").Return(&model.Config{ServiceSettings: model.ServiceSettings{SiteURL: model.NewString("https://example.com")}})
-				api.On("HasPermissionToChannel", "demoUserId", "demoChannelId", model.PermissionCreatePost).Return(true)
-				api.On("GetChannel", "demoChannelId").Return(&model.Channel{Id: "demoChannelId", Type: model.ChannelTypeOpen}, nil)
-				api.On("CreatePost", mock.Anything).Return(&model.Post{Id: "demoPostId"}, nil)
+				api.On("HasPermissionToChannel", "demoUserID", "demoChannelID", model.PermissionCreatePost).Return(true)
+				api.On("GetChannel", "demoChannelID").Return(&model.Channel{Id: "demoChannelID", Type: model.ChannelTypeOpen}, nil)
+				api.On("CreatePost", mock.Anything).Return(&model.Post{Id: "demoPostID"}, nil)
 				mockClient.On("GetMe").Return(&msgraph.User{}, nil)
 				mockClient.On("CreateMeeting", mock.Anything, mock.Anything, mock.Anything).Return(&msgraph.OnlineMeeting{JoinURL: &joinUrl}, nil)
-				mockTracker.On("TrackUserEvent", "meeting_started", "demoUserId", mock.Anything).Return(nil)
+				mockTracker.On("TrackUserEvent", "meeting_started", "demoUserID", mock.Anything).Return(nil)
 			},
 			expectError: false,
 		},
