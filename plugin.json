@@ -54,7 +54,8 @@
                 "type": "generated",
                 "help_text": "The AES encryption key used to encrypt stored access tokens. Will be auto-generated if left-blank the first time you configure the plugin. Re-generating the key will clear all previously stored access tokens and all users will be required to re-connect to MS Teams.",
                 "placeholder": "",
-                "default": null
+                "default": null,
+                "secret": true
             }
         ]
     }
