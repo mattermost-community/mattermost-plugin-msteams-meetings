@@ -5,13 +5,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
+	msgraph "github.com/yaegashi/msgraph.go/beta"
+
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin"
 	"github.com/mattermost/mattermost/server/public/plugin/plugintest"
 	"github.com/mattermost/mattermost/server/public/pluginapi/experimental/telemetry"
-	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
-	msgraph "github.com/yaegashi/msgraph.go/beta"
 )
 
 type MockTracker struct {
@@ -45,7 +46,7 @@ func (m *MockClient) GetMe() (*msgraph.User, error) {
 	return args.Get(0).(*msgraph.User), args.Error(1)
 }
 
-func (m *MockClient) CreateMeeting(creator *UserInfo, attendeesIDs []*UserInfo, subject string) (*msgraph.OnlineMeeting, error) {
+func (m *MockClient) CreateMeeting(_ *UserInfo, _ []*UserInfo, _ string) (*msgraph.OnlineMeeting, error) {
 	args := m.Called()
 	return args.Get(0).(*msgraph.OnlineMeeting), args.Error(1)
 }
@@ -64,7 +65,7 @@ func TestHandleConnect(t *testing.T) {
 			name:        "Too many parameters",
 			args:        []string{"param1", "param2"},
 			commandArgs: &model.CommandArgs{UserId: "demoUserID"},
-			mockSetup: func(api *plugintest.API, encryptedUserInfo []byte, mockClient *MockClient) {
+			mockSetup: func(_ *plugintest.API, _ []byte, _ *MockClient) {
 			},
 			expectedOutput: tooManyParametersText,
 			expectError:    false,
@@ -104,9 +105,9 @@ func TestHandleConnect(t *testing.T) {
 
 			p := &Plugin{
 				MattermostPlugin: plugin.MattermostPlugin{
-					API:    api,
+					API: api,
 				},
-				client:  mockClient,
+				client: mockClient,
 			}
 
 			p.setConfiguration(&configuration{
@@ -153,7 +154,7 @@ func TestHandleDisconnect(t *testing.T) {
 			name:           "Too many parameters",
 			args:           []string{"param1", "param2"},
 			commandArgs:    &model.CommandArgs{UserId: "demoUserID"},
-			mockSetup:      func(api *plugintest.API, encryptedUserInfo []byte, _ *MockTracker) {},
+			mockSetup:      func(_ *plugintest.API, _ []byte, _ *MockTracker) {},
 			expectedOutput: tooManyParametersText,
 		},
 		{
@@ -188,7 +189,7 @@ func TestHandleDisconnect(t *testing.T) {
 
 			p := &Plugin{
 				MattermostPlugin: plugin.MattermostPlugin{
-					API:    api,
+					API: api,
 				},
 				tracker: mockTracker,
 			}
@@ -233,7 +234,7 @@ func TestHandleStart(t *testing.T) {
 			name:        "Error getting user",
 			args:        []string{"param1", "param2"},
 			commandArgs: &model.CommandArgs{UserId: "demoUserID"},
-			mockSetup: func(api *plugintest.API, encryptedUserInfo []byte, _ *MockTracker, mockClient *MockClient) {
+			mockSetup: func(api *plugintest.API, _ []byte, _ *MockTracker, _ *MockClient) {
 				api.On("GetUser", "demoUserID").Return(nil, &model.AppError{Message: "error getting user for the userID"})
 			},
 			expectError:   true,
@@ -243,7 +244,7 @@ func TestHandleStart(t *testing.T) {
 			name:        "Error getting channel",
 			args:        []string{"param1", "param2"},
 			commandArgs: &model.CommandArgs{UserId: "demoUserID", ChannelId: "demoChannelID"},
-			mockSetup: func(api *plugintest.API, encryptedUserInfo []byte, _ *MockTracker, mockClient *MockClient) {
+			mockSetup: func(api *plugintest.API, _ []byte, _ *MockTracker, _ *MockClient) {
 				api.On("GetUser", "demoUserID").Return(&model.User{Id: "demoUserID"}, nil)
 				api.On("GetChannelMember", "demoChannelID", "demoUserID").Return(nil, &model.AppError{Message: "error getting channel for the channelID"})
 			},
@@ -254,7 +255,7 @@ func TestHandleStart(t *testing.T) {
 			name:        "Error getting previous messages",
 			args:        []string{"param1", "param2"},
 			commandArgs: &model.CommandArgs{UserId: "demoUserID", ChannelId: "demoChannelID"},
-			mockSetup: func(api *plugintest.API, encryptedUserInfo []byte, _ *MockTracker, mockClient *MockClient) {
+			mockSetup: func(api *plugintest.API, _ []byte, _ *MockTracker, _ *MockClient) {
 				api.On("GetUser", "demoUserID").Return(&model.User{Id: "demoUserID"}, nil)
 				api.On("GetChannelMember", "demoChannelID", "demoUserID").Return(&model.ChannelMember{ChannelId: "demoChannelID"}, nil)
 				api.On("GetPostsSince", "demoChannelID", (time.Now().Unix()-30)*1000).Return(nil, &model.AppError{Message: "error getting previous post for channel"})
@@ -266,7 +267,7 @@ func TestHandleStart(t *testing.T) {
 			name:        "Recent meeting exists",
 			args:        []string{"param1", "param2"},
 			commandArgs: &model.CommandArgs{UserId: "demoUserID", ChannelId: "demoChannelID"},
-			mockSetup: func(api *plugintest.API, encryptedUserInfo []byte, mockTracker *MockTracker, mockClient *MockClient) {
+			mockSetup: func(api *plugintest.API, _ []byte, mockTracker *MockTracker, _ *MockClient) {
 				postList := &model.PostList{
 					Order: []string{"post1"},
 					Posts: map[string]*model.Post{
@@ -296,7 +297,7 @@ func TestHandleStart(t *testing.T) {
 			name:        "Authentication error",
 			args:        []string{"param1", "param2"},
 			commandArgs: &model.CommandArgs{UserId: "demoUserID", ChannelId: "demoChannelID"},
-			mockSetup: func(api *plugintest.API, encryptedUserInfo []byte, _ *MockTracker, mockClient *MockClient) {
+			mockSetup: func(api *plugintest.API, _ []byte, _ *MockTracker, _ *MockClient) {
 				api.On("GetUser", "demoUserID").Return(&model.User{Id: "demoUserID"}, nil)
 				api.On("GetChannelMember", "demoChannelID", "demoUserID").Return(&model.ChannelMember{ChannelId: "demoChannelID"}, nil)
 				postList := &model.PostList{
@@ -338,7 +339,7 @@ func TestHandleStart(t *testing.T) {
 					},
 				}
 
-				joinUrl := "demoJoinURL"
+				joinURL := "demoJoinURL"
 
 				api.On("GetPostsSince", "demoChannelID", (time.Now().Unix()-30)*1000).Return(postList, nil)
 				api.On("KVGet", "token_demoUserID").Return(encryptedUserInfo, nil)
@@ -347,7 +348,7 @@ func TestHandleStart(t *testing.T) {
 				api.On("GetChannel", "demoChannelID").Return(&model.Channel{Id: "demoChannelID", Type: model.ChannelTypeOpen}, nil)
 				api.On("CreatePost", mock.Anything).Return(&model.Post{Id: "demoPostID"}, nil)
 				mockClient.On("GetMe").Return(&msgraph.User{}, nil)
-				mockClient.On("CreateMeeting", mock.Anything, mock.Anything, mock.Anything).Return(&msgraph.OnlineMeeting{JoinURL: &joinUrl}, nil)
+				mockClient.On("CreateMeeting", mock.Anything, mock.Anything, mock.Anything).Return(&msgraph.OnlineMeeting{JoinURL: &joinURL}, nil)
 				mockTracker.On("TrackUserEvent", "meeting_started", "demoUserID", mock.Anything).Return(nil)
 			},
 			expectError: false,
