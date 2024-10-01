@@ -52,12 +52,6 @@ func TestStoreUserInfo(t *testing.T) {
 		expectedErr    string
 	}{
 		{
-			name:           "No Error",
-			kvSetUserErr:   nil,
-			kvSetRemoteErr: nil,
-			expectedErr:    "",
-		},
-		{
 			name:           "Error Saving UserID",
 			kvSetUserErr:   &model.AppError{Message: "some error occurred while saving the user id"},
 			kvSetRemoteErr: nil,
@@ -68,6 +62,12 @@ func TestStoreUserInfo(t *testing.T) {
 			kvSetUserErr:   nil,
 			kvSetRemoteErr: &model.AppError{Message: "some error occurred while saving the remote id"},
 			expectedErr:    "some error occurred while saving the remote id",
+		},
+		{
+			name:           "User Info stored successfully",
+			kvSetUserErr:   nil,
+			kvSetRemoteErr: nil,
+			expectedErr:    "",
 		},
 	}
 
@@ -89,7 +89,9 @@ func TestStoreUserInfo(t *testing.T) {
 			}
 
 			api.On("KVSet", "token_"+dummyInfo.UserID, mock.Anything).Return(tt.kvSetUserErr)
-			api.On("KVSet", "tbyrid_"+dummyInfo.RemoteID, mock.Anything).Return(tt.kvSetRemoteErr)
+			if tt.kvSetUserErr == nil {
+				api.On("KVSet", "tbyrid_"+dummyInfo.RemoteID, mock.Anything).Return(tt.kvSetRemoteErr)
+			}
 
 			responseErr := p.StoreUserInfo(dummyInfo)
 			if tt.expectedErr == "" {
@@ -98,6 +100,7 @@ func TestStoreUserInfo(t *testing.T) {
 				require.Error(t, responseErr)
 				require.Equal(t, tt.expectedErr, responseErr.Error())
 			}
+			api.AssertExpectations(t)
 		})
 	}
 }
