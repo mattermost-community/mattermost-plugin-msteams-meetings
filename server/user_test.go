@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/mattermost/mattermost/server/public/model"
-	"github.com/mattermost/mattermost/server/public/plugin"
 	"github.com/mattermost/mattermost/server/public/plugin/plugintest"
 
 	"github.com/stretchr/testify/mock"
@@ -73,12 +72,8 @@ func TestStoreUserInfo(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			api := &plugintest.API{}
-			p := &Plugin{
-				MattermostPlugin: plugin.MattermostPlugin{
-					API: api,
-				},
-			}
+			mockAPI := &plugintest.API{}
+			p := SetupMockPlugin(mockAPI, nil, nil)
 			p.setConfiguration(&configuration{
 				EncryptionKey: "demo_encrypt_key",
 			})
@@ -88,9 +83,9 @@ func TestStoreUserInfo(t *testing.T) {
 				RemoteID: "dummyRemoteID",
 			}
 
-			api.On("KVSet", "token_"+dummyInfo.UserID, mock.Anything).Return(tt.kvSetUserErr)
+			mockAPI.On("KVSet", "token_"+dummyInfo.UserID, mock.Anything).Return(tt.kvSetUserErr)
 			if tt.kvSetUserErr == nil {
-				api.On("KVSet", "tbyrid_"+dummyInfo.RemoteID, mock.Anything).Return(tt.kvSetRemoteErr)
+				mockAPI.On("KVSet", "tbyrid_"+dummyInfo.RemoteID, mock.Anything).Return(tt.kvSetRemoteErr)
 			}
 
 			responseErr := p.StoreUserInfo(dummyInfo)
@@ -100,7 +95,7 @@ func TestStoreUserInfo(t *testing.T) {
 				require.Error(t, responseErr)
 				require.Equal(t, tt.expectedErr, responseErr.Error())
 			}
-			api.AssertExpectations(t)
+			mockAPI.AssertExpectations(t)
 		})
 	}
 }
@@ -125,22 +120,18 @@ func TestResetAllOAuthTokens(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			api := &plugintest.API{}
-			p := &Plugin{
-				MattermostPlugin: plugin.MattermostPlugin{
-					API: api,
-				},
-			}
+			mockAPI := &plugintest.API{}
+			p := SetupMockPlugin(mockAPI, nil, nil)
 
-			api.On("LogInfo", "OAuth2 configuration changed. Resetting all users' tokens, everyone will need to reconnect to MS Teams").Return(nil)
-			api.On("KVDeleteAll").Return(tt.kvDeleteAllErr)
+			mockAPI.On("LogInfo", "OAuth2 configuration changed. Resetting all users' tokens, everyone will need to reconnect to MS Teams").Return(nil)
+			mockAPI.On("KVDeleteAll").Return(tt.kvDeleteAllErr)
 
 			if tt.expectLogError {
-				api.On("LogError", "failed to reset user's OAuth2 tokens", "error", tt.kvDeleteAllErr.Error()).Return(nil)
+				mockAPI.On("LogError", "failed to reset user's OAuth2 tokens", "error", tt.kvDeleteAllErr.Error()).Return(nil)
 			}
 
 			p.resetAllOAuthTokens()
-			api.AssertExpectations(t)
+			mockAPI.AssertExpectations(t)
 		})
 	}
 }

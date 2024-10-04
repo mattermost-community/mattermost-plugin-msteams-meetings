@@ -43,14 +43,10 @@ func TestStoreState(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			api := &plugintest.API{}
-			p := &Plugin{
-				MattermostPlugin: plugin.MattermostPlugin{
-					API: api,
-				},
-			}
+			mockAPI := &plugintest.API{}
+			p := SetupMockPlugin(mockAPI, nil, nil)
 
-			api.On("KVSet", mock.Anything, mock.Anything).Return(tc.returnError)
+			mockAPI.On("KVSet", mock.Anything, mock.Anything).Return(tc.returnError)
 
 			state, err := p.StoreState(tc.userID, tc.channelID, tc.justConnect)
 
@@ -61,7 +57,7 @@ func TestStoreState(t *testing.T) {
 				require.NoError(t, err)
 				require.Equal(t, tc.expectedState, state)
 			}
-			api.AssertExpectations(t)
+			mockAPI.AssertExpectations(t)
 		})
 	}
 }
@@ -97,11 +93,7 @@ func TestGetState(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			api := &plugintest.API{}
-			p := &Plugin{
-				MattermostPlugin: plugin.MattermostPlugin{
-					API: api,
-				},
-			}
+			p := SetupMockPlugin(api, nil, nil)
 
 			api.On("KVGet", tc.key).Return(tc.returnValue, tc.returnError)
 
@@ -144,14 +136,10 @@ func TestDeleteState(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			api := &plugintest.API{}
-			p := &Plugin{
-				MattermostPlugin: plugin.MattermostPlugin{
-					API: api,
-				},
-			}
+			mockAPI := &plugintest.API{}
+			p := SetupMockPlugin(mockAPI, nil, nil)
 
-			api.On("KVDelete", tc.key).Return(tc.returnError)
+			mockAPI.On("KVDelete", tc.key).Return(tc.returnError)
 
 			err := p.DeleteState(tc.key)
 			if tc.expectError {
@@ -160,7 +148,7 @@ func TestDeleteState(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 			}
-			api.AssertExpectations(t)
+			mockAPI.AssertExpectations(t)
 		})
 	}
 }
@@ -203,15 +191,11 @@ func TestParseState(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			api := &plugintest.API{}
-			p := &Plugin{
-				MattermostPlugin: plugin.MattermostPlugin{
-					API: api,
-				},
-			}
+			mockAPI := &plugintest.API{}
+			p := SetupMockPlugin(mockAPI, nil, nil)
 
 			if tc.expectError {
-				api.On("LogDebug", "complete oauth, state mismatch", "stateComponents", mock.Anything, "state", tc.state).Return()
+				mockAPI.On("LogDebug", "complete oauth, state mismatch", "stateComponents", mock.Anything, "state", tc.state).Return()
 			}
 
 			key, userID, channelID, justConnect, err := p.ParseState(tc.state)
@@ -226,7 +210,17 @@ func TestParseState(t *testing.T) {
 				require.Equal(t, tc.expectedChannelID, channelID)
 				require.Equal(t, tc.expectedJustConnect, justConnect)
 			}
-			api.AssertExpectations(t)
+			mockAPI.AssertExpectations(t)
 		})
+	}
+}
+
+func SetupMockPlugin(mockAPI *plugintest.API, mockTracker *MockTracker, mockClient *MockClient) *Plugin {
+	return &Plugin{
+		MattermostPlugin: plugin.MattermostPlugin{
+			API: mockAPI,
+		},
+		tracker: mockTracker,
+		client: mockClient,
 	}
 }
