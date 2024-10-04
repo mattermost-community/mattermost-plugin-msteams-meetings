@@ -51,22 +51,17 @@ func TestStoreUserInfo(t *testing.T) {
 		expectedErr    string
 	}{
 		{
-			name:           "Error Saving UserID",
-			kvSetUserErr:   &model.AppError{Message: "some error occurred while saving the user id"},
-			kvSetRemoteErr: nil,
-			expectedErr:    "some error occurred while saving the user id",
+			name:         "Error Saving UserID",
+			kvSetUserErr: &model.AppError{Message: "some error occurred while saving the user id"},
+			expectedErr:  "some error occurred while saving the user id",
 		},
 		{
 			name:           "Error Saving RemoteID",
-			kvSetUserErr:   nil,
 			kvSetRemoteErr: &model.AppError{Message: "some error occurred while saving the remote id"},
 			expectedErr:    "some error occurred while saving the remote id",
 		},
 		{
-			name:           "User Info stored successfully",
-			kvSetUserErr:   nil,
-			kvSetRemoteErr: nil,
-			expectedErr:    "",
+			name: "User Info stored successfully",
 		},
 	}
 
@@ -79,8 +74,8 @@ func TestStoreUserInfo(t *testing.T) {
 			})
 
 			dummyInfo := &UserInfo{
-				UserID:   "dummyUserID",
-				RemoteID: "dummyRemoteID",
+				UserID:   "mockUserID",
+				RemoteID: "mockRemoteID",
 			}
 
 			mockAPI.On("KVSet", "token_"+dummyInfo.UserID, mock.Anything).Return(tt.kvSetUserErr)
@@ -107,14 +102,12 @@ func TestResetAllOAuthTokens(t *testing.T) {
 		expectLogError bool
 	}{
 		{
-			name:           "No Error",
-			kvDeleteAllErr: nil,
-			expectLogError: false,
-		},
-		{
 			name:           "Error Deleting Tokens",
 			kvDeleteAllErr: &model.AppError{Message: "error in deleting all oauth token"},
 			expectLogError: true,
+		},
+		{
+			name: "No Error",
 		},
 	}
 

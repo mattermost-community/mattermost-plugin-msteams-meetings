@@ -22,22 +22,19 @@ func TestStoreState(t *testing.T) {
 		expectedErrMsg string
 	}{
 		{
-			name:          "Store state successful",
-			userID:        "userID1",
-			channelID:     "channelID1",
-			justConnect:   true,
-			returnError:   nil,
-			expectError:   false,
-			expectedState: "msteamsmeetinguserstate_userID1_channelID1_true",
-		},
-		{
 			name:           "Error occurred while storing state",
-			userID:         "userID2",
-			channelID:      "channelID2",
-			justConnect:    false,
+			userID:         "mockUserID1",
+			channelID:      "mockChannelID1",
 			returnError:    &model.AppError{Message: "error occurred while storing state"},
 			expectError:    true,
 			expectedErrMsg: "error occurred while storing state",
+		},
+		{
+			name:          "Store state successful",
+			userID:        "mockUserID2",
+			channelID:     "mockChannelID2",
+			justConnect:   true,
+			expectedState: "msteamsmeetinguserstate_mockUserID2_mockChannelID2_true",
 		},
 	}
 
@@ -66,27 +63,25 @@ func TestGetState(t *testing.T) {
 	testCases := []struct {
 		name           string
 		key            string
-		returnValue    []byte
-		returnError    error
+		getStateValue  []byte
+		getStateError  error
 		expectedState  string
 		expectError    bool
 		expectedErrMsg string
 	}{
 		{
 			name:           "Error occurred while getting stored state",
-			key:            "dummyKey",
-			returnValue:    []byte(""),
-			returnError:    &model.AppError{Message: "error occurred while getting stored state"},
+			key:            "mockKey",
+			getStateValue:  []byte(""),
+			getStateError:  &model.AppError{Message: "error occurred while getting stored state"},
 			expectError:    true,
 			expectedErrMsg: "error occurred while getting stored state",
 		},
 		{
 			name:          "Valid state retrieved",
-			key:           "dummyKey",
-			returnValue:   []byte("dummyState"),
-			returnError:   nil,
-			expectedState: "dummyState",
-			expectError:   false,
+			key:           "mockKey",
+			getStateValue: []byte("mockState"),
+			expectedState: "mockState",
 		},
 	}
 
@@ -95,7 +90,7 @@ func TestGetState(t *testing.T) {
 			api := &plugintest.API{}
 			p := SetupMockPlugin(api, nil, nil)
 
-			api.On("KVGet", tc.key).Return(tc.returnValue, tc.returnError)
+			api.On("KVGet", tc.key).Return(tc.getStateValue, tc.getStateError)
 
 			state, err := p.GetState(tc.key)
 			if tc.expectError {
@@ -120,17 +115,15 @@ func TestDeleteState(t *testing.T) {
 		expectedErrMsg string
 	}{
 		{
-			name:        "Delete state successful",
-			key:         "dummyKey",
-			returnError: nil,
-			expectError: false,
-		},
-		{
 			name:           "Error occurred while deleting state",
-			key:            "dummyKey",
+			key:            "mockKey",
 			returnError:    &model.AppError{Message: "error occurred while deleting state"},
 			expectError:    true,
 			expectedErrMsg: "error occurred while deleting state",
+		},
+		{
+			name: "Delete state successful",
+			key:  "mockKey",
 		},
 	}
 
@@ -165,27 +158,24 @@ func TestParseState(t *testing.T) {
 		expectedErrMsg      string
 	}{
 		{
+			name:           "State length mismatch",
+			state:          "key1_userID1_channelID1",
+			expectError:    true,
+			expectedErrMsg: "status mismatch",
+		},
+		{
+			name:           "Invalid state format",
+			state:          "key1_userID1",
+			expectError:    true,
+			expectedErrMsg: "status mismatch",
+		},
+		{
 			name:                "Parse state successful",
 			state:               "key1_userID1_channelID1_true",
 			expectedKey:         "key1_userID1",
 			expectedUserID:      "userID1",
 			expectedChannelID:   "channelID1",
 			expectedJustConnect: true,
-			expectError:         false,
-		},
-		{
-			name:                "State length mismatch",
-			state:               "key1_userID1_channelID1",
-			expectedJustConnect: false,
-			expectError:         true,
-			expectedErrMsg:      "status mismatch",
-		},
-		{
-			name:                "Invalid state format",
-			state:               "key1_userID1",
-			expectedJustConnect: false,
-			expectError:         true,
-			expectedErrMsg:      "status mismatch",
 		},
 	}
 
@@ -221,6 +211,6 @@ func SetupMockPlugin(mockAPI *plugintest.API, mockTracker *MockTracker, mockClie
 			API: mockAPI,
 		},
 		tracker: mockTracker,
-		client: mockClient,
+		client:  mockClient,
 	}
 }
