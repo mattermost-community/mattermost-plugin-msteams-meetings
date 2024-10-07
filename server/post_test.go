@@ -207,10 +207,10 @@ func TestPostConnect(t *testing.T) {
 			name:          "Error getting oauth message",
 			channelID:     "testChannelID",
 			userID:        "testUserID",
-			expectedError: "error fetching siteUrl",
+			expectedError: "error fetching siteURL",
 			setup: func() {
 				api.On("GetConfig").Return(&model.Config{ServiceSettings: model.ServiceSettings{SiteURL: nil}})
-				api.On("LogError", "postConnect, cannot get oauth message", "error", "error fetching siteUrl")
+				api.On("LogError", "postConnect, cannot get oauth message", "error", "error fetching siteURL")
 			},
 		},
 		{
