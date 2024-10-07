@@ -389,16 +389,16 @@ func TestExecuteCommand(t *testing.T) {
 	mockAPI := &plugintest.API{}
 	p := SetupMockPlugin(mockAPI, nil, nil)
 
-	var dummyPluginContext plugin.Context
+	var dummyPluginContext *plugin.Context
 
 	tests := []struct {
 		name        string
-		commandArgs model.CommandArgs
+		commandArgs *model.CommandArgs
 		expectedMsg string
 	}{
 		{
 			name: "Invalid Command",
-			commandArgs: model.CommandArgs{
+			commandArgs: &model.CommandArgs{
 				Command:   "/dummyCommand start",
 				ChannelId: "dummyChannelID",
 				UserId:    "dummyUserID",
@@ -407,7 +407,7 @@ func TestExecuteCommand(t *testing.T) {
 		},
 		{
 			name: "Successful execution of Help Command",
-			commandArgs: model.CommandArgs{
+			commandArgs: &model.CommandArgs{
 				Command:   "/mstmeetings help",
 				ChannelId: "dummyChannelID",
 				UserId:    "dummyUserID",
@@ -426,7 +426,7 @@ func TestExecuteCommand(t *testing.T) {
 
 			mockAPI.On("SendEphemeralPost", tt.commandArgs.UserId, post).Return(&model.Post{}).Once()
 
-			response, _ := p.ExecuteCommand(&dummyPluginContext, &tt.commandArgs) // #nosec G601
+			response, _ := p.ExecuteCommand(dummyPluginContext, tt.commandArgs)
 
 			require.Equal(t, &model.CommandResponse{}, response)
 			mockAPI.AssertExpectations(t)
