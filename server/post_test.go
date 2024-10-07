@@ -13,27 +13,27 @@ import (
 )
 
 func TestGetUserInfo(t *testing.T) {
-	api := &plugintest.API{}
-	client := &MockClient{}
-	p := &Plugin{
-		MattermostPlugin: plugin.MattermostPlugin{
-			API: api,
-		},
-		client: client,
+	p, api, client := SetupPluginMocks()
+
+	info := &UserInfo{
+		Email: "testEmail",
 	}
+	p.setConfiguration(&configuration{
+		EncryptionKey: "demo_encrypt_key",
+	})
+	key := []byte(p.getConfiguration().EncryptionKey)
+	encryptedUserInfo, err := info.EncryptedJSON(key)
+	require.NoError(t, err)
+
 	tests := []struct {
 		name          string
 		creator       *model.User
-		channelID     string
-		topic         string
 		expectedError string
 		setup         func()
 	}{
 		{
 			name:          "User not connected",
 			creator:       &model.User{Id: "testUserID"},
-			channelID:     "testChannelID",
-			topic:         "testTopic",
 			expectedError: "Your Mattermost account is not connected to any Microsoft Teams account",
 			setup: func() {
 				api.On("KVGet", tokenKey+"testUserID").Return(nil, nil).Once()
@@ -42,19 +42,8 @@ func TestGetUserInfo(t *testing.T) {
 		{
 			name:          "Unauthorized to create post in channel",
 			creator:       &model.User{Id: "testUserID"},
-			channelID:     "testChannelID",
-			topic:         "testTopic",
 			expectedError: "cannot create post in this channel",
 			setup: func() {
-				info := &UserInfo{
-					Email: "testEmail",
-				}
-				p.setConfiguration(&configuration{
-					EncryptionKey: "demo_encrypt_key",
-				})
-				key := []byte(p.getConfiguration().EncryptionKey)
-				encryptedUserInfo, err := info.EncryptedJSON(key)
-				require.NoError(t, err)
 				api.On("KVGet", tokenKey+"testUserID").Return(encryptedUserInfo, nil).Once()
 				api.On("HasPermissionToChannel", "testUserID", "testChannelID", model.PermissionCreatePost).Return(false)
 			},
@@ -62,19 +51,8 @@ func TestGetUserInfo(t *testing.T) {
 		{
 			name:          "Error getting the channel",
 			creator:       &model.User{Id: "testUserID"},
-			channelID:     "testChannelID",
-			topic:         "testTopic",
 			expectedError: "error occured getting the channel",
 			setup: func() {
-				info := &UserInfo{
-					Email: "testEmail",
-				}
-				p.setConfiguration(&configuration{
-					EncryptionKey: "demo_encrypt_key",
-				})
-				key := []byte(p.getConfiguration().EncryptionKey)
-				encryptedUserInfo, err := info.EncryptedJSON(key)
-				require.NoError(t, err)
 				api.On("KVGet", tokenKey+"testUserID").Return(encryptedUserInfo, nil).Once()
 				api.On("HasPermissionToChannel", "testUserID", "testChannelID", model.PermissionCreatePost).Return(true)
 				api.On("GetChannel", "testChannelID").Return(nil, &model.AppError{Message: "error occured getting the channel"})
@@ -83,19 +61,8 @@ func TestGetUserInfo(t *testing.T) {
 		{
 			name:          "Error getting channel members",
 			creator:       &model.User{Id: "testUserID"},
-			channelID:     "testChannelID",
-			topic:         "testTopic",
 			expectedError: "error occurred getting channel members",
 			setup: func() {
-				info := &UserInfo{
-					Email: "testEmail",
-				}
-				p.setConfiguration(&configuration{
-					EncryptionKey: "demo_encrypt_key",
-				})
-				key := []byte(p.getConfiguration().EncryptionKey)
-				encryptedUserInfo, err := info.EncryptedJSON(key)
-				require.NoError(t, err)
 				api.On("KVGet", tokenKey+"testUserID").Return(encryptedUserInfo, nil).Once()
 				api.On("HasPermissionToChannel", "testUserID", "testChannelID", model.PermissionCreatePost).Return(true)
 				api.On("GetChannel", "testChannelID").Return(&model.Channel{Id: "testChannelID", Type: model.ChannelTypeDirect}, nil)
@@ -105,19 +72,8 @@ func TestGetUserInfo(t *testing.T) {
 		{
 			name:          "Channel members is nil",
 			creator:       &model.User{Id: "testUserID"},
-			channelID:     "testChannelID",
-			topic:         "testTopic",
 			expectedError: "returned members is nil",
 			setup: func() {
-				info := &UserInfo{
-					Email: "testEmail",
-				}
-				p.setConfiguration(&configuration{
-					EncryptionKey: "demo_encrypt_key",
-				})
-				key := []byte(p.getConfiguration().EncryptionKey)
-				encryptedUserInfo, err := info.EncryptedJSON(key)
-				require.NoError(t, err)
 				api.On("KVGet", tokenKey+"testUserID").Return(encryptedUserInfo, nil).Once()
 				api.On("HasPermissionToChannel", "testUserID", "testChannelID", model.PermissionCreatePost).Return(true)
 				api.On("GetChannel", "testChannelID").Return(&model.Channel{Id: "testChannelID", Type: model.ChannelTypeDirect}, nil)
@@ -128,19 +84,8 @@ func TestGetUserInfo(t *testing.T) {
 		{
 			name:          "Error creating the meeting",
 			creator:       &model.User{Id: "testUserID"},
-			channelID:     "testChannelID",
-			topic:         "testTopic",
 			expectedError: "error creating the meeting",
 			setup: func() {
-				info := &UserInfo{
-					Email: "testEmail",
-				}
-				p.setConfiguration(&configuration{
-					EncryptionKey: "demo_encrypt_key",
-				})
-				key := []byte(p.getConfiguration().EncryptionKey)
-				encryptedUserInfo, err := info.EncryptedJSON(key)
-				require.NoError(t, err)
 				api.On("KVGet", tokenKey+"testUserID").Return(encryptedUserInfo, nil).Once()
 				api.On("HasPermissionToChannel", "testUserID", "testChannelID", model.PermissionCreatePost).Return(true)
 				api.On("GetChannel", "testChannelID").Return(&model.Channel{Id: "testChannelID", Type: model.ChannelTypeDirect}, nil)
@@ -151,51 +96,27 @@ func TestGetUserInfo(t *testing.T) {
 		{
 			name:          "Error creating the meeting post",
 			creator:       &model.User{Id: "testUserID", Username: "testUsername"},
-			channelID:     "testChannelID",
-			topic:         "testTopic",
 			expectedError: "error creating the post",
 			setup: func() {
-				info := &UserInfo{
-					Email: "testEmail",
-				}
-				p.setConfiguration(&configuration{
-					EncryptionKey: "demo_encrypt_key",
-				})
-				key := []byte(p.getConfiguration().EncryptionKey)
-				encryptedUserInfo, err := info.EncryptedJSON(key)
 				require.NoError(t, err)
 				api.On("KVGet", tokenKey+"testUserID").Return(encryptedUserInfo, nil).Once()
 				api.On("HasPermissionToChannel", "testUserID", "testChannelID", model.PermissionCreatePost).Return(true)
 				api.On("GetChannel", "testChannelID").Return(&model.Channel{Id: "testChannelID", Type: model.ChannelTypeDirect}, nil)
 				api.On("GetChannelMembers", "testChannelID", 0, 100).Return(model.ChannelMembers{}, nil)
 				api.On("CreatePost", mock.Anything).Return(nil, &model.AppError{Message: "error creating the post"})
-				testJoinURL := "testJoinURL"
-				client.On("CreateMeeting").Return(&msgraph.OnlineMeeting{JoinURL: &testJoinURL}, nil)
+				client.On("CreateMeeting").Return(&msgraph.OnlineMeeting{JoinURL: model.NewString("testJoinURL")}, nil)
 			},
 		},
 		{
-			name:          "Meeting posted successfully",
-			creator:       &model.User{Id: "testUserID", Username: "testUsername"},
-			channelID:     "testChannelID",
-			topic:         "testTopic",
-			expectedError: "",
+			name:    "Meeting posted successfully",
+			creator: &model.User{Id: "testUserID", Username: "testUsername"},
 			setup: func() {
-				info := &UserInfo{
-					Email: "testEmail",
-				}
-				p.setConfiguration(&configuration{
-					EncryptionKey: "demo_encrypt_key",
-				})
-				key := []byte(p.getConfiguration().EncryptionKey)
-				encryptedUserInfo, err := info.EncryptedJSON(key)
-				require.NoError(t, err)
 				api.On("KVGet", tokenKey+"testUserID").Return(encryptedUserInfo, nil).Once()
 				api.On("HasPermissionToChannel", "testUserID", "testChannelID", model.PermissionCreatePost).Return(true)
 				api.On("GetChannel", "testChannelID").Return(&model.Channel{Id: "testChannelID", Type: model.ChannelTypeDirect}, nil)
 				api.On("GetChannelMembers", "testChannelID", 0, 100).Return(model.ChannelMembers{}, nil)
 				api.On("CreatePost", mock.Anything).Return(&model.Post{}, nil)
-				testJoinURL := "testJoinURL"
-				client.On("CreateMeeting").Return(&msgraph.OnlineMeeting{JoinURL: &testJoinURL}, nil)
+				client.On("CreateMeeting").Return(&msgraph.OnlineMeeting{JoinURL: model.NewString("testJoinURL")}, nil)
 			},
 		},
 	}
@@ -207,7 +128,7 @@ func TestGetUserInfo(t *testing.T) {
 
 			tt.setup()
 
-			_, _, err := p.postMeeting(tt.creator, tt.channelID, tt.topic)
+			_, _, err := p.postMeeting(tt.creator, "testChannelID", "testTopic")
 
 			if tt.expectedError != "" {
 				require.Error(t, err)
@@ -222,6 +143,8 @@ func TestGetUserInfo(t *testing.T) {
 }
 
 func TestPostConfirmCreateOrJoin(t *testing.T) {
+	p, api, _ := SetupPluginMocks()
+
 	testCases := []struct {
 		name            string
 		provider        string
@@ -247,15 +170,6 @@ func TestPostConfirmCreateOrJoin(t *testing.T) {
 			userID := "test_user_id"
 			creatorName := "test_creator"
 
-			api := &plugintest.API{}
-			client := &MockClient{}
-			p := &Plugin{
-				MattermostPlugin: plugin.MattermostPlugin{
-					API: api,
-				},
-				client:    client,
-				botUserID: "testBotUserID",
-			}
 			expectedPost := &model.Post{
 				UserId:    p.botUserID,
 				ChannelId: channelID,
@@ -271,6 +185,7 @@ func TestPostConfirmCreateOrJoin(t *testing.T) {
 					"meeting_provider":         tt.provider,
 				},
 			}
+			api.ExpectedCalls = nil
 			api.On("SendEphemeralPost", userID, mock.AnythingOfType("*model.Post")).Return(expectedPost, nil)
 
 			post := p.postConfirmCreateOrJoin(meetingURL, channelID, topic, userID, creatorName, tt.provider)
@@ -280,13 +195,8 @@ func TestPostConfirmCreateOrJoin(t *testing.T) {
 }
 
 func TestPostConnect(t *testing.T) {
-	api := &plugintest.API{}
-	p := &Plugin{
-		MattermostPlugin: plugin.MattermostPlugin{
-			API: api,
-		},
-		botUserID: "testBostUserID",
-	}
+	p, api, _ := SetupPluginMocks()
+
 	tests := []struct {
 		name          string
 		userID        string
@@ -306,10 +216,9 @@ func TestPostConnect(t *testing.T) {
 			},
 		},
 		{
-			name:          "Error getting oauth message",
-			channelID:     "testChannelID",
-			userID:        "testUserID",
-			expectedError: "",
+			name:      "Error getting oauth message",
+			channelID: "testChannelID",
+			userID:    "testUserID",
 			setup: func() {
 				testSiteURL := "testSiteURL"
 				api.On("GetConfig").Return(&model.Config{ServiceSettings: model.ServiceSettings{SiteURL: &testSiteURL}})
@@ -337,4 +246,17 @@ func TestPostConnect(t *testing.T) {
 			api.AssertExpectations(t)
 		})
 	}
+}
+
+func SetupPluginMocks() (*Plugin, *plugintest.API, *MockClient) {
+	api := &plugintest.API{}
+	client := &MockClient{}
+	p := &Plugin{
+		MattermostPlugin: plugin.MattermostPlugin{
+			API: api,
+		},
+		client: client,
+	}
+
+	return p, api, client
 }
