@@ -455,7 +455,7 @@ func TestExecuteCommand(t *testing.T) {
 
 			api.On("SendEphemeralPost", tt.commandArgs.UserId, post).Return(&model.Post{}).Once()
 
-			response, _ := p.ExecuteCommand(&dummyPluginContext, &tt.commandArgs)
+			response, _ := p.ExecuteCommand(&dummyPluginContext, &tt.commandArgs) // #nosec G601
 
 			require.Equal(t, &model.CommandResponse{}, response)
 			api.AssertExpectations(t)

@@ -36,29 +36,29 @@ func TestConnectUser(t *testing.T) {
 		setup               func()
 	}{
 		{
-			name:                "Unauthorized User",
-			channelID:           "testChannelID",
-			expectedStatus:      http.StatusUnauthorized,
-			expectedBody:        "Not authorized\n",
+			name:           "Unauthorized User",
+			channelID:      "testChannelID",
+			expectedStatus: http.StatusUnauthorized,
+			expectedBody:   "Not authorized\n",
 			setup: func() {
 				api.On("LogError", "connectUser, unauthorized user").Return(nil)
 			},
 		},
 		{
-			name:                "Missing Channel ID",
-			userID:              "testUserID",
-			expectedStatus:      http.StatusBadRequest,
-			expectedBody:        "channelID missing\n",
+			name:           "Missing Channel ID",
+			userID:         "testUserID",
+			expectedStatus: http.StatusBadRequest,
+			expectedBody:   "channelID missing\n",
 			setup: func() {
 				api.On("LogError", "connectUser, missing channelID in query params").Return(nil)
 			},
 		},
 		{
-			name:                "Error getting OAuth Config",
-			userID:              "testUserID",
-			channelID:           "testChannelID",
-			expectedStatus:      http.StatusInternalServerError,
-			expectedBody:        "error fetching siteUrl\n",
+			name:           "Error getting OAuth Config",
+			userID:         "testUserID",
+			channelID:      "testChannelID",
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   "error fetching siteUrl\n",
 			setup: func() {
 				p.setConfiguration(&configuration{
 					OAuth2ClientID:     "testOAuth2ClientID",
@@ -76,11 +76,11 @@ func TestConnectUser(t *testing.T) {
 			},
 		},
 		{
-			name:                "Error Getting User State",
-			userID:              "testUserID",
-			channelID:           "testChannelID",
-			expectedStatus:      http.StatusInternalServerError,
-			expectedBody:        "error occurred getting stored user state\n",
+			name:           "Error Getting User State",
+			userID:         "testUserID",
+			channelID:      "testChannelID",
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   "error occurred getting stored user state\n",
 			setup: func() {
 				p.setConfiguration(&configuration{
 					OAuth2ClientID:     "testOAuth2ClientID",
@@ -410,18 +410,18 @@ func TestCompleteUserOAuth(t *testing.T) {
 		setup             func()
 	}{
 		{
-			name:              "Unauthorized User",
-			expectedStatus:    http.StatusUnauthorized,
-			expectedBody:      "Not authorized, missing Mattermost user id\n",
+			name:           "Unauthorized User",
+			expectedStatus: http.StatusUnauthorized,
+			expectedBody:   "Not authorized, missing Mattermost user id\n",
 			setup: func() {
 				api.On("LogError", "completeUserOAuth, unauthorized user").Return(nil)
 			},
 		},
 		{
-			name:              "Error getting OAuth config",
-			userID:            "testUserID",
-			expectedStatus:    http.StatusInternalServerError,
-			expectedBody:      "error in oauth config\n",
+			name:           "Error getting OAuth config",
+			userID:         "testUserID",
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   "error in oauth config\n",
 			setup: func() {
 				p.setConfiguration(&configuration{
 					OAuth2ClientID:     "testOAuth2ClientID",
@@ -437,10 +437,10 @@ func TestCompleteUserOAuth(t *testing.T) {
 			},
 		},
 		{
-			name:              "Missing authorization code",
-			userID:            "testUserID",
-			expectedStatus:    http.StatusBadRequest,
-			expectedBody:      "missing authorization code\n",
+			name:           "Missing authorization code",
+			userID:         "testUserID",
+			expectedStatus: http.StatusBadRequest,
+			expectedBody:   "missing authorization code\n",
 			setup: func() {
 				p.setConfiguration(&configuration{
 					OAuth2ClientID:     "testOAuth2ClientID",
