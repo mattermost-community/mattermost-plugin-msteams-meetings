@@ -51,11 +51,11 @@ func TestGetUserInfo(t *testing.T) {
 		{
 			name:          "Error getting the channel",
 			creator:       &model.User{Id: "testUserID"},
-			expectedError: "error occured getting the channel",
+			expectedError: "error occurred getting the channel",
 			setup: func() {
 				api.On("KVGet", tokenKey+"testUserID").Return(encryptedUserInfo, nil).Once()
 				api.On("HasPermissionToChannel", "testUserID", "testChannelID", model.PermissionCreatePost).Return(true)
-				api.On("GetChannel", "testChannelID").Return(nil, &model.AppError{Message: "error occured getting the channel"})
+				api.On("GetChannel", "testChannelID").Return(nil, &model.AppError{Message: "error occurred getting the channel"})
 			},
 		},
 		{
@@ -78,7 +78,6 @@ func TestGetUserInfo(t *testing.T) {
 				api.On("HasPermissionToChannel", "testUserID", "testChannelID", model.PermissionCreatePost).Return(true)
 				api.On("GetChannel", "testChannelID").Return(&model.Channel{Id: "testChannelID", Type: model.ChannelTypeDirect}, nil)
 				api.On("GetChannelMembers", "testChannelID", 0, 100).Return(nil, nil)
-
 			},
 		},
 		{
@@ -212,7 +211,6 @@ func TestPostConnect(t *testing.T) {
 			setup: func() {
 				api.On("GetConfig").Return(&model.Config{ServiceSettings: model.ServiceSettings{SiteURL: nil}})
 				api.On("LogError", "postConnect, cannot get oauth message", "error", "error fetching siteUrl")
-
 			},
 		},
 		{
@@ -223,7 +221,6 @@ func TestPostConnect(t *testing.T) {
 				testSiteURL := "testSiteURL"
 				api.On("GetConfig").Return(&model.Config{ServiceSettings: model.ServiceSettings{SiteURL: &testSiteURL}})
 				api.On("SendEphemeralPost", "testUserID", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
-
 			},
 		},
 	}
@@ -242,7 +239,6 @@ func TestPostConnect(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 			}
-
 			api.AssertExpectations(t)
 		})
 	}
