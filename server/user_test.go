@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/mattermost/mattermost/server/public/model"
-	"github.com/mattermost/mattermost/server/public/plugin"
 	"github.com/mattermost/mattermost/server/public/plugin/plugintest"
 
 	"github.com/stretchr/testify/mock"
@@ -52,44 +51,37 @@ func TestStoreUserInfo(t *testing.T) {
 		expectedErr    string
 	}{
 		{
-			name:           "No Error",
-			kvSetUserErr:   nil,
-			kvSetRemoteErr: nil,
-			expectedErr:    "",
-		},
-		{
-			name:           "Error Saving UserID",
-			kvSetUserErr:   &model.AppError{Message: "some error occurred while saving the user id"},
-			kvSetRemoteErr: nil,
-			expectedErr:    "some error occurred while saving the user id",
+			name:         "Error Saving UserID",
+			kvSetUserErr: &model.AppError{Message: "some error occurred while saving the user id"},
+			expectedErr:  "some error occurred while saving the user id",
 		},
 		{
 			name:           "Error Saving RemoteID",
-			kvSetUserErr:   nil,
 			kvSetRemoteErr: &model.AppError{Message: "some error occurred while saving the remote id"},
 			expectedErr:    "some error occurred while saving the remote id",
+		},
+		{
+			name: "User Info stored successfully",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			api := &plugintest.API{}
-			p := &Plugin{
-				MattermostPlugin: plugin.MattermostPlugin{
-					API: api,
-				},
-			}
+			mockAPI := &plugintest.API{}
+			p := SetupMockPlugin(mockAPI, nil, nil)
 			p.setConfiguration(&configuration{
 				EncryptionKey: "demo_encrypt_key",
 			})
 
 			dummyInfo := &UserInfo{
-				UserID:   "dummyUserID",
-				RemoteID: "dummyRemoteID",
+				UserID:   "mockUserID",
+				RemoteID: "mockRemoteID",
 			}
 
-			api.On("KVSet", "token_"+dummyInfo.UserID, mock.Anything).Return(tt.kvSetUserErr)
-			api.On("KVSet", "tbyrid_"+dummyInfo.RemoteID, mock.Anything).Return(tt.kvSetRemoteErr)
+			mockAPI.On("KVSet", "token_"+dummyInfo.UserID, mock.Anything).Return(tt.kvSetUserErr)
+			if tt.kvSetUserErr == nil {
+				mockAPI.On("KVSet", "tbyrid_"+dummyInfo.RemoteID, mock.Anything).Return(tt.kvSetRemoteErr)
+			}
 
 			responseErr := p.StoreUserInfo(dummyInfo)
 			if tt.expectedErr == "" {
@@ -98,6 +90,7 @@ func TestStoreUserInfo(t *testing.T) {
 				require.Error(t, responseErr)
 				require.Equal(t, tt.expectedErr, responseErr.Error())
 			}
+			mockAPI.AssertExpectations(t)
 		})
 	}
 }
@@ -109,35 +102,29 @@ func TestResetAllOAuthTokens(t *testing.T) {
 		expectLogError bool
 	}{
 		{
-			name:           "No Error",
-			kvDeleteAllErr: nil,
-			expectLogError: false,
-		},
-		{
 			name:           "Error Deleting Tokens",
 			kvDeleteAllErr: &model.AppError{Message: "error in deleting all oauth token"},
 			expectLogError: true,
+		},
+		{
+			name: "No Error",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			api := &plugintest.API{}
-			p := &Plugin{
-				MattermostPlugin: plugin.MattermostPlugin{
-					API: api,
-				},
-			}
+			mockAPI := &plugintest.API{}
+			p := SetupMockPlugin(mockAPI, nil, nil)
 
-			api.On("LogInfo", "OAuth2 configuration changed. Resetting all users' tokens, everyone will need to reconnect to MS Teams").Return(nil)
-			api.On("KVDeleteAll").Return(tt.kvDeleteAllErr)
+			mockAPI.On("LogInfo", "OAuth2 configuration changed. Resetting all users' tokens, everyone will need to reconnect to MS Teams").Return(nil)
+			mockAPI.On("KVDeleteAll").Return(tt.kvDeleteAllErr)
 
 			if tt.expectLogError {
-				api.On("LogError", "failed to reset user's OAuth2 tokens", "error", tt.kvDeleteAllErr.Error()).Return(nil)
+				mockAPI.On("LogError", "failed to reset user's OAuth2 tokens", "error", tt.kvDeleteAllErr.Error()).Return(nil)
 			}
 
 			p.resetAllOAuthTokens()
-			api.AssertExpectations(t)
+			mockAPI.AssertExpectations(t)
 		})
 	}
 }
