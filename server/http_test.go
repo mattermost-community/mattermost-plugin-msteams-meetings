@@ -58,7 +58,7 @@ func TestConnectUser(t *testing.T) {
 			userID:         "testUserID",
 			channelID:      "testChannelID",
 			expectedStatus: http.StatusInternalServerError,
-			expectedBody:   "error fetching siteUrl\n",
+			expectedBody:   "error fetching siteURL\n",
 			setup: func() {
 				p.setConfiguration(&configuration{
 					OAuth2ClientID:     "testOAuth2ClientID",
@@ -72,7 +72,7 @@ func TestConnectUser(t *testing.T) {
 					},
 				})
 
-				api.On("LogError", "connectUser, failed to get oauth config", "Error", "error fetching siteUrl").Return(nil)
+				api.On("LogError", "connectUser, failed to get oauth config", "Error", "error fetching siteURL").Return(nil)
 			},
 		},
 		{
@@ -240,7 +240,7 @@ func TestHandleStartMeeting(t *testing.T) {
 			userID:         "testUserID",
 			channelID:      "testChannelID",
 			expectedStatus: http.StatusOK,
-			expectedBody:   "{\"meeting_url\": \"\"}error fetching siteUrl\n",
+			expectedBody:   "{\"meeting_url\": \"\"}error fetching siteURL\n",
 			setup: func() {
 				api.On("GetConfig").Return(&model.Config{
 					ServiceSettings: model.ServiceSettings{
@@ -250,8 +250,8 @@ func TestHandleStartMeeting(t *testing.T) {
 				api.On("GetUser", "testUserID").Return(&model.User{Id: "testUserID"}, nil)
 				api.On("GetChannelMember", "testChannelID", "testUserID").Return(nil, nil)
 				api.On("GetPostsSince", "testChannelID", (time.Now().Unix()-30)*1000).Return(&model.PostList{}, nil)
-				api.On("LogError", "postConnect, cannot get oauth message", "error", "error fetching siteUrl").Return()
-				api.On("LogError", "authenticateAndFetchUser, cannot get oauth message", "error", "error fetching siteUrl").Return()
+				api.On("LogError", "postConnect, cannot get oauth message", "error", "error fetching siteURL").Return()
+				api.On("LogError", "authenticateAndFetchUser, cannot get oauth message", "error", "error fetching siteURL").Return()
 				api.On("LogWarn", "failed to create connect post", "error", mock.Anything).Return(nil)
 			},
 		},
@@ -260,7 +260,7 @@ func TestHandleStartMeeting(t *testing.T) {
 			userID:         "testUserID",
 			channelID:      "testChannelID",
 			expectedStatus: http.StatusOK,
-			expectedBody:   "{\"meeting_url\": \"\"}error fetching siteUrl\n",
+			expectedBody:   "{\"meeting_url\": \"\"}error fetching siteURL\n",
 			setup: func() {
 				siteURL := "testSiteURL"
 				api.On("GetConfig").Return(&model.Config{
@@ -283,8 +283,8 @@ func TestHandleStartMeeting(t *testing.T) {
 				api.On("GetUser", "testUserID").Return(&model.User{Id: "testUserID"}, nil)
 				api.On("GetChannelMember", "testChannelID", "testUserID").Return(nil, nil)
 				api.On("GetPostsSince", "testChannelID", (time.Now().Unix()-30)*1000).Return(&model.PostList{}, nil)
-				api.On("LogError", "postConnect, cannot get oauth message", "error", "error fetching siteUrl")
-				api.On("LogWarn", "failed to create connect post", "error", "error fetching siteUrl")
+				api.On("LogError", "postConnect, cannot get oauth message", "error", "error fetching siteURL")
+				api.On("LogWarn", "failed to create connect post", "error", "error fetching siteURL")
 				client.On("GetMe").Return(&msgraph.User{}, &authError{Message: "error occurred in getting the msgraph user"})
 			},
 		},
@@ -433,7 +433,7 @@ func TestCompleteUserOAuth(t *testing.T) {
 						SiteURL: nil,
 					},
 				})
-				api.On("LogError", "completeUserOAuth, failed to get oauth config", "Error", "error fetching siteUrl").Return(nil)
+				api.On("LogError", "completeUserOAuth, failed to get oauth config", "Error", "error fetching siteURL").Return(nil)
 			},
 		},
 		{
