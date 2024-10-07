@@ -68,7 +68,6 @@ func TestHandleConnect(t *testing.T) {
 			mockSetup: func(_ *plugintest.API, _ []byte, _ *MockClient) {
 			},
 			expectedOutput: tooManyParametersText,
-			expectError:    false,
 		},
 		{
 			name:        "Error connecting user",
@@ -80,9 +79,8 @@ func TestHandleConnect(t *testing.T) {
 				api.On("GetConfig").Return(&model.Config{ServiceSettings: model.ServiceSettings{SiteURL: model.NewString("https://example.com")}})
 				mockClient.On("GetMe").Return(&msgraph.User{}, errors.New("error getting user details"))
 			},
-			expectedOutput: "",
-			expectError:    true,
-			expectedError:  "error getting user details",
+			expectError:   true,
+			expectedError: "error getting user details",
 		},
 		{
 			name:        "Successful connection",
@@ -93,8 +91,6 @@ func TestHandleConnect(t *testing.T) {
 				api.On("GetConfig").Return(&model.Config{ServiceSettings: model.ServiceSettings{SiteURL: model.NewString("https://example.com")}})
 				mockClient.On("GetMe").Return(&msgraph.User{}, nil)
 			},
-			expectedOutput: "",
-			expectError:    false,
 		},
 	}
 
@@ -290,8 +286,6 @@ func TestHandleStart(t *testing.T) {
 				api.On("SendEphemeralPost", "demoUserID", mock.Anything).Return(&model.Post{})
 				mockTracker.On("TrackUserEvent", mock.Anything, "demoUserID", mock.Anything).Return(nil)
 			},
-			expectError:    false,
-			expectedOutput: "",
 		},
 		{
 			name:        "Authentication error",
@@ -351,7 +345,6 @@ func TestHandleStart(t *testing.T) {
 				mockClient.On("CreateMeeting", mock.Anything, mock.Anything, mock.Anything).Return(&msgraph.OnlineMeeting{JoinURL: &joinURL}, nil)
 				mockTracker.On("TrackUserEvent", "meeting_started", "demoUserID", mock.Anything).Return(nil)
 			},
-			expectError: false,
 		},
 	}
 
