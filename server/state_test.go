@@ -43,7 +43,7 @@ func TestStoreState(t *testing.T) {
 			mockAPI := &plugintest.API{}
 			p := SetupMockPlugin(mockAPI, nil, nil)
 
-			mockAPI.On("KVSet", mock.Anything, mock.Anything).Return(tc.returnError)
+			mockAPI.On("KVSet", getOAuthUserStateKey(tc.userID), mock.Anything).Return(tc.returnError)
 
 			state, err := p.StoreState(tc.userID, tc.channelID, tc.justConnect)
 
