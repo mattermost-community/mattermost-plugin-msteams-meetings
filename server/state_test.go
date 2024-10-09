@@ -12,45 +12,38 @@ import (
 
 func TestStoreState(t *testing.T) {
 	testCases := []struct {
-		name            string
+		name           string
 		userID         string
 		channelID      string
-		justConnect     bool
-		returnError     error
-		expectError     bool
-		expectedState   string
-		expectedErrMsg  string
+		justConnect    bool
+		returnError    error
+		expectError    bool
+		expectedState  string
+		expectedErrMsg string
 	}{
 		{
-			name:          "Store state successful",
-			userID:       "userID1",
-			channelID:    "channelID1",
-			justConnect:   true,
-			returnError:   nil,
-			expectError:   false,
-			expectedState: "msteamsmeetinguserstate_userID1_channelID1_true",
+			name:           "Error occurred while storing state",
+			userID:         "mockUserID1",
+			channelID:      "mockChannelID1",
+			returnError:    &model.AppError{Message: "error occurred while storing state"},
+			expectError:    true,
+			expectedErrMsg: "error occurred while storing state",
 		},
 		{
-			name:          "Error occurred while storing state",
-			userID:       "userID2",
-			channelID:    "channelID2",
-			justConnect:   false,
-			returnError:   &model.AppError{Message: "error occurred while storing state"},
-			expectError:   true,
-			expectedErrMsg: "error occurred while storing state",
+			name:          "Store state successful",
+			userID:        "mockUserID2",
+			channelID:     "mockChannelID2",
+			justConnect:   true,
+			expectedState: "msteamsmeetinguserstate_mockUserID2_mockChannelID2_true",
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			api := &plugintest.API{}
-			p := &Plugin{
-				MattermostPlugin: plugin.MattermostPlugin{
-					API: api,
-				},
-			}
+			mockAPI := &plugintest.API{}
+			p := SetupMockPlugin(mockAPI, nil, nil)
 
-			api.On("KVSet", mock.Anything, mock.Anything).Return(tc.returnError)
+			mockAPI.On("KVSet", getOAuthUserStateKey(tc.userID), mock.Anything).Return(tc.returnError)
 
 			state, err := p.StoreState(tc.userID, tc.channelID, tc.justConnect)
 
@@ -61,6 +54,7 @@ func TestStoreState(t *testing.T) {
 				require.NoError(t, err)
 				require.Equal(t, tc.expectedState, state)
 			}
+			mockAPI.AssertExpectations(t)
 		})
 	}
 }
@@ -69,41 +63,34 @@ func TestGetState(t *testing.T) {
 	testCases := []struct {
 		name           string
 		key            string
-		returnValue    []byte
-		returnError    error
+		getStateValue  []byte
+		getStateError  error
 		expectedState  string
 		expectError    bool
 		expectedErrMsg string
 	}{
 		{
-			name:          "Valid state retrieved",
-			key:           "dummyKey",
-			returnValue:   []byte("dummyState"),
-			returnError:   nil,
-			expectedState: "dummyState",
-			expectError:   false,
-		},
-		{
 			name:           "Error occurred while getting stored state",
-			key:            "dummyKey",
-			returnValue:    []byte(""),
-			returnError:    &model.AppError{Message: "error occurred while getting stored state"},
-			expectedState:  "",
+			key:            "mockKey",
+			getStateValue:  []byte(""),
+			getStateError:  &model.AppError{Message: "error occurred while getting stored state"},
 			expectError:    true,
 			expectedErrMsg: "error occurred while getting stored state",
+		},
+		{
+			name:          "Valid state retrieved",
+			key:           "mockKey",
+			getStateValue: []byte("mockState"),
+			expectedState: "mockState",
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			api := &plugintest.API{}
-			p := &Plugin{
-				MattermostPlugin: plugin.MattermostPlugin{
-					API: api,
-				},
-			}
+			p := SetupMockPlugin(api, nil, nil)
 
-			api.On("KVGet", tc.key).Return(tc.returnValue, tc.returnError)
+			api.On("KVGet", tc.key).Return(tc.getStateValue, tc.getStateError)
 
 			state, err := p.GetState(tc.key)
 			if tc.expectError {
@@ -114,6 +101,7 @@ func TestGetState(t *testing.T) {
 				require.NoError(t, err)
 				require.Equal(t, tc.expectedState, state)
 			}
+			api.AssertExpectations(t)
 		})
 	}
 }
@@ -127,30 +115,24 @@ func TestDeleteState(t *testing.T) {
 		expectedErrMsg string
 	}{
 		{
-			name:        "Delete state successful",
-			key:         "dummyKey",
-			returnError: nil,
-			expectError: false,
-		},
-		{
 			name:           "Error occurred while deleting state",
-			key:            "dummyKey",
+			key:            "mockKey",
 			returnError:    &model.AppError{Message: "error occurred while deleting state"},
 			expectError:    true,
 			expectedErrMsg: "error occurred while deleting state",
+		},
+		{
+			name: "Delete state successful",
+			key:  "mockKey",
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			api := &plugintest.API{}
-			p := &Plugin{
-				MattermostPlugin: plugin.MattermostPlugin{
-					API: api,
-				},
-			}
+			mockAPI := &plugintest.API{}
+			p := SetupMockPlugin(mockAPI, nil, nil)
 
-			api.On("KVDelete", tc.key).Return(tc.returnError)
+			mockAPI.On("KVDelete", tc.key).Return(tc.returnError)
 
 			err := p.DeleteState(tc.key)
 			if tc.expectError {
@@ -159,6 +141,7 @@ func TestDeleteState(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 			}
+			mockAPI.AssertExpectations(t)
 		})
 	}
 }
@@ -175,48 +158,34 @@ func TestParseState(t *testing.T) {
 		expectedErrMsg      string
 	}{
 		{
+			name:           "State length mismatch",
+			state:          "key1_userID1_channelID1",
+			expectError:    true,
+			expectedErrMsg: "status mismatch",
+		},
+		{
+			name:           "Invalid state format",
+			state:          "key1_userID1",
+			expectError:    true,
+			expectedErrMsg: "status mismatch",
+		},
+		{
 			name:                "Parse state successful",
 			state:               "key1_userID1_channelID1_true",
 			expectedKey:         "key1_userID1",
 			expectedUserID:      "userID1",
 			expectedChannelID:   "channelID1",
 			expectedJustConnect: true,
-			expectError:         false,
-		},
-		{
-			name:                "State length mismatch",
-			state:               "key1_userID1_channelID1",
-			expectedKey:         "",
-			expectedUserID:      "",
-			expectedChannelID:   "",
-			expectedJustConnect: false,
-			expectError:         true,
-			expectedErrMsg:      "status mismatch",
-		},
-		{
-			name:                "Invalid state format",
-			state:               "key1_userID1",
-			expectedKey:         "",
-			expectedUserID:      "",
-			expectedChannelID:   "",
-			expectedJustConnect: false,
-			expectError:         true,
-			expectedErrMsg:      "status mismatch",
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			api := &plugintest.API{}
-			p := &Plugin{
-				MattermostPlugin: plugin.MattermostPlugin{
-					API: api,
-				},
-			}
+			mockAPI := &plugintest.API{}
+			p := SetupMockPlugin(mockAPI, nil, nil)
 
-			// Set up the mock to expect LogDebug calls for error cases
 			if tc.expectError {
-				api.On("LogDebug", "complete oauth, state mismatch", "stateComponents", mock.Anything, "state", tc.state).Return()
+				mockAPI.On("LogDebug", "complete oauth, state mismatch", "stateComponents", mock.Anything, "state", tc.state).Return()
 			}
 
 			key, userID, channelID, justConnect, err := p.ParseState(tc.state)
@@ -231,6 +200,17 @@ func TestParseState(t *testing.T) {
 				require.Equal(t, tc.expectedChannelID, channelID)
 				require.Equal(t, tc.expectedJustConnect, justConnect)
 			}
+			mockAPI.AssertExpectations(t)
 		})
+	}
+}
+
+func SetupMockPlugin(mockAPI *plugintest.API, mockTracker *MockTracker, mockClient *MockClient) *Plugin {
+	return &Plugin{
+		MattermostPlugin: plugin.MattermostPlugin{
+			API: mockAPI,
+		},
+		tracker: mockTracker,
+		client:  mockClient,
 	}
 }
