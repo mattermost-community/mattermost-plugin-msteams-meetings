@@ -91,7 +91,6 @@ func TestHandleConnect(t *testing.T) {
 				api.On("GetConfig").Return(&model.Config{ServiceSettings: model.ServiceSettings{SiteURL: model.NewString("https://example.com")}})
 				mockClient.On("GetMe").Return(&msgraph.User{}, nil)
 			},
-			expectError: false,
 		},
 	}
 
